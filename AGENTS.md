@@ -1,0 +1,25 @@
+# AGENTS.md — AI Coding Guidelines for One UI Extra Widgets
+
+## Project Overview
+**One UI Extra Widgets** is an Android home-screen widget suite styled after **Samsung One UI**, optimized for the **Samsung Galaxy A55 5G** (`One UI 6.1 / 7+`, Android 14/15) while remaining compatible with any Android 8.0+ (`minSdk = 26`, `targetSdk = 35`) device.
+
+---
+
+## Core Architecture & Stack
+- **Language:** 100% Kotlin (`JVM 17`), Android Gradle Plugin `8.7.2`, version catalog in `gradle/libs.versions.toml`.
+- **Widget Rendering:** 100% **Jetpack Glance** (`androidx.glance:glance-appwidget:1.1.1`) paired with deterministic `Bitmap` graphics rendered via `WidgetCanvasRenderer` (`utils/WidgetCanvasRenderer.kt`) for lunar phases, the iPod Click Wheel, and the Discman CD album art mask.
+- **Companion App UI:** **Jetpack Compose Material 3** styled with Samsung One UI tokens (`26dp` rounded corners, generous top viewing headers, AMOLED dark & light surfaces in `ui/theme/OneUiTheme.kt`).
+- **Weather & Air Quality:** Free, zero-key **Open-Meteo** Forecast & Air Quality REST APIs (`data/weather/OpenMeteoClient.kt`), cached in `DataStore` (`AppPreferences.kt`) and synced periodically via `WorkManager`.
+- **Astrology & Moon Phases:** 100% offline ephemeris calculations via **`Astronomy Engine`** (`io.github.cosinekitty:astronomy:2.1.19`) in `data/astrology/AstrologyEngine.kt` (Sun sign, Moon transit sign, lunar phase, and planetary Direct/Retrograde/Shadow states).
+- **Retro Music Players:** Universal `MediaSessionManager` + `NotificationListenerService` bridge (`data/media/MediaNotificationListener.kt`) supporting Spotify, YouTube Music, Apple Music, Samsung Music, etc.
+- **5G & Wi-Fi Quality:** Real-time `TelephonyManager` (`CellSignalStrengthNr` / `CellSignalStrengthLte`) and `WifiManager` / `ConnectivityManager` monitoring (`data/network/NetworkQualityMonitor.kt`).
+
+---
+
+## Coding & Contribution Invariants
+1. **No Code Duplication:** Keep shared Canvas rendering, permission checks, and locale helpers centralized in `utils/`.
+2. **One UI Visual Consistency:** All widget containers and detail cards must use `OneUiGlanceTokens.CornerRadius` (`26.dp`) or `MaterialTheme.shapes.large` (`26.dp`) and respect adaptive Day/Night surfaces.
+3. **Bilingual Support (ES / EN):** Every user-facing string in widgets and Compose screens must have both `res/values/strings.xml` (English) and `res/values-es/strings.xml` (Spanish) entries, or use `LocaleHelper.isSpanishActive()` for dynamic formatting.
+4. **Offline-First & Battery-Safe:** Never introduce polling loops in widgets or UI. Use `WorkManager`, `NotificationListenerService` callbacks, and `ActionCallback` triggers.
+5. **Testing:** Add JVM unit tests under `app/src/test/` for any pure-logic domain calculations (e.g., `AstrologyEngineTest.kt`) and run `./gradlew testDebugUnitTest` before committing.
+6. **Documentation Standards:** Keep `README.md` (English) and `README.es.md` (Spanish) synchronized with any architectural or feature changes. Never include country flag emojis or absolute local file paths in documentation.

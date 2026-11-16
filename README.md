@@ -1,2 +1,149 @@
-# one-ui-extra-widgets
-More widgets for your Galaxy Phone, following Samsung One UI design system.
+# One UI Extra Widgets
+
+> **Samsung One UI-styled home screen widget suite for Android 8.0 to 15, engineered primarily for the Samsung Galaxy A55 5G (`One UI 6.1 / 7+`) with full cross-device compatibility.**
+
+[English](README.md) | [Español](README.es.md)
+
+[![Android](https://img.shields.io/badge/Platform-Android%208.0%20to%2015-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
+[![One UI](https://img.shields.io/badge/Samsung-One%20UI%20Ready-1428A0?logo=samsung&logoColor=white)](https://developer.samsung.com/one-ui)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
+[![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-BOM%202024.11-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
+[![Jetpack Glance](https://img.shields.io/badge/Jetpack%20Glance-1.1.1-3DDC84?logo=android&logoColor=white)](https://developer.android.com/develop/ui/compose/glance)
+[![Tests Passing](https://img.shields.io/badge/Tests-100%25%20passing-brightgreen?logo=junit5)](app/src/test)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+---
+
+## Project Description
+
+**One UI Extra Widgets** expands the Samsung Galaxy home screen experience with six customizable, battery-efficient widgets crafted around **Samsung One UI** design tokens (`26dp` squircle-like corner radii, adaptive day/night translucent surfaces, and ergonomic one-handed viewing headers). While tuned specifically for the **Samsung Galaxy A55 5G** (`1080×2340` Super AMOLED), the suite relies on standard Android Jetpack APIs (`minSdk = 26`, `targetSdk = 35`) so it runs seamlessly on any modern Android device without root or system privileges.
+
+### Key Features
+
+- **One UI Weather Pro Widget (`OneUiWeatherWidget`)**: Fetches hourly precipitation probability (`%`), European Air Quality Index (`AQI`), $\text{PM}_{2.5}$ / $\text{PM}_{10}$ particulate matter, UV index, and temperature from the free, zero-key **Open-Meteo** Forecast and Air Quality APIs. Includes a custom `Canvas`-rendered Lunar Phase sphere and opens the in-app Weather Detail view on tap.
+- **100% Offline Astrology & Ephemeris Widget (`OneUiAstrologyWidget`)**: Powered locally by `Astronomy Engine` (`io.github.cosinekitty:astronomy`) with zero network calls. Computes apparent geocentric ecliptic longitudes ($\lambda$) and daily angular velocities ($d\lambda/dt$) to display the current **Sun Sign**, daily **Moon Zodiac Transit**, **Lunar Illumination**, and whether **Mercury, Venus, Mars, Jupiter, or Saturn** are **Direct**, **Retrograde** ($d\lambda/dt < 0$), or in **Pre/Post-Retrograde Shadow**.
+- **Retro Music Players — iPod Classic, 2000s MP3 LCD & Portable CD Discman**:
+  1. *iPod Classic (`IpodClassicWidget`)*: Features a custom `Canvas` Click Wheel with interactive previous, play/pause, and next hit-zones.
+  2. *2000s MP3 LCD Stick (`RetroMp3Widget`)*: Compact `4×1` horizontal player with a backlit dot-matrix LCD aesthetic and `128KBPS STEREO` readout.
+  3. *Portable CD Discman (`DiscmanWidget`)*: Circular window that dynamically masks the active track's Album Art into a spinning-style Compact Disc (CD) with a polycarbonate hub and *ESP Anti-Shock* controls.
+  - All three music widgets synchronize automatically with **Spotify, YouTube Music, Apple Music, Samsung Music, Tidal**, and any active Android `MediaSession` via `NotificationListenerService`.
+- **5G NR & Wi-Fi 6 Network Quality Widget (`OneUiNetworkWidget`)**: Inspects `TelephonyManager`, `CellSignalStrengthNr`, `ConnectivityManager`, and `WifiInfo` to display real-time cellular generation (`5G NR` / `4G LTE`), carrier name, RSRP signal power in `dBm` and bars (`0–4`), alongside Wi-Fi link speed in `Mbps`, frequency band (`5 GHz` / `2.4 GHz`), `RSSI` in `dBm`, and `SSID`.
+- **Automatic & Manual Bilingual Localization (ES / EN)**: Automatically follows the device's system locale (Spanish by default) and provides an instant in-app switcher (**System / Español / English**) powered by `AppCompatDelegate.setApplicationLocales` and Android 14+ `LocaleConfig`.
+
+---
+
+## Clean Architecture
+
+One UI Extra Widgets enforces a clear separation between Jetpack Glance widget surfaces, Jetpack Compose detail screens, platform/network data sources, and centralized rendering/localization utilities.
+
+```mermaid
+flowchart TD
+    subgraph UI ["Presentation Layer (Jetpack Glance & Compose)"]
+        GlanceWidgets["Jetpack Glance Widgets<br/>(Weather, Astrology, iPod, MP3, Discman, 5G/Wi-Fi)"]
+        ComposeApp["One UI Detail Screens<br/>(HomeScreen, WeatherDetail, AstrologyDetail, NetworkDetail)"]
+        CanvasRenderer["WidgetCanvasRenderer<br/>(Moon Sphere, iPod Click Wheel & Discman CD Mask)"]
+    end
+
+    subgraph Data ["Data & Platform Services"]
+        WeatherClient["OpenMeteoClient + WeatherRefreshWorker<br/>(Forecast, Rain Prob, AQI, PM2.5/PM10 & DataStore)"]
+        AstroEngine["AstrologyEngine<br/>(Offline VSOP87/NOVAS Ephemeris & Retrograde Detector)"]
+        MediaBridge["MediaNotificationListener<br/>(NotificationListenerService + MediaSessionManager)"]
+        NetMonitor["NetworkQualityMonitor<br/>(TelephonyManager 5G NR & WifiManager Wi-Fi 6)"]
+    end
+
+    subgraph Utils ["Shared Utilities"]
+        LocaleUtil["LocaleHelper<br/>(Per-App ES/EN & System Locale Sync)"]
+        PermUtil["PermissionHelper<br/>(Location, Phone State & Notification Access)"]
+    end
+
+    GlanceWidgets --> CanvasRenderer
+    GlanceWidgets --> Data
+    ComposeApp --> Data
+    ComposeApp --> Utils
+    GlanceWidgets --> Utils
+```
+
+### Component Responsibilities
+
+| Component / Package | Responsibility |
+| :--- | :--- |
+| **`widgets/`** | 100% Jetpack Glance widget implementations (`OneUiWeatherWidget`, `OneUiAstrologyWidget`, `IpodClassicWidget`, `RetroMp3Widget`, `DiscmanWidget`, `OneUiNetworkWidget`) and `OneUiGlanceTokens` (`26dp` corner radius, day/night adaptive surfaces). |
+| **`ui/`** | Jetpack Compose Material 3 companion application styled after Samsung One UI, providing widget catalog overview, permission onboarding, language selector, and deep-linked detail screens. |
+| **`data/astrology/`** | Pure-computation `AstrologyEngine` calculating tropical zodiac positions, lunar phase angles, and planetary retrograde/shadow states offline. |
+| **`data/weather/`** | `OpenMeteoClient` HTTP client and `DataStore` cache (`AppPreferences`) synchronized periodically via `WorkManager`. |
+| **`data/media/`** | `MediaNotificationListener` bridging active system `MediaController` sessions and dispatching transport controls (`play`, `pause`, `skipToNext`, `skipToPrevious`). |
+| **`data/network/`** | `NetworkQualityMonitor` extracting 5G NR / LTE `dBm` and Wi-Fi 6 `Mbps`, frequency band, and `RSSI` metrics. |
+| **`utils/`** | Centralized `WidgetCanvasRenderer`, `LocaleHelper`, and `PermissionHelper` shared across widgets and activities with zero code duplication. |
+
+For detailed technical research and API specifications, see:
+- [docs/external-references/android-oneui-widgets-architecture.md](docs/external-references/android-oneui-widgets-architecture.md)
+
+---
+
+## Tech Stack
+
+- **Language & Runtime**: Kotlin 2.0.21, JVM Target 17
+- **Build System**: Android Gradle Plugin 8.7.2, Version Catalog (`gradle/libs.versions.toml`)
+- **Android Targets**: `minSdk = 26` (Android 8.0 Oreo), `targetSdk = 35` / `compileSdk = 35` (Android 15 / One UI 6.1 & 7+)
+- **Widget Framework**: Jetpack Glance (`androidx.glance:glance-appwidget:1.1.1`, `glance-material3:1.1.1`) + custom Android `Canvas` bitmaps
+- **UI Toolkit**: Jetpack Compose BOM 2024.11.00, Material 3, AppCompat 1.7.0 (for per-app locales)
+- **Offline Ephemeris**: `io.github.cosinekitty:astronomy:2.1.19`
+- **Background Sync & Persistence**: `WorkManager` 2.10.0, `DataStore Preferences` 1.1.1
+- **Testing**: JUnit 4 for JVM unit tests
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- [JDK 17+](https://adoptium.net/) (or Android Studio bundled JBR)
+- [Android SDK (API 35)](https://developer.android.com/studio)
+
+### Local Setup & Compilation
+
+Clone the repository and build the project:
+
+```bash
+# Clone repository
+git clone https://github.com/AnaCataVC/one-ui-extra-widgets.git
+cd one-ui-extra-widgets
+
+# Run local JVM unit tests
+./gradlew testDebugUnitTest
+
+# Assemble debug APK
+./gradlew assembleDebug
+```
+
+The resulting debug APK will be generated at:
+`app/build/outputs/apk/debug/app-debug.apk`
+
+---
+
+## Automated Testing
+
+`one-ui-extra-widgets` includes unit tests verifying tropical zodiac boundary mapping, lunar illumination bounds, and offline planetary retrograde ephemeris snapshots:
+
+```bash
+./gradlew testDebugUnitTest
+```
+
+---
+
+## Key Learnings & Architectural Decisions
+
+1. **Why Open-Meteo instead of Samsung's internal Weather ContentProvider?**
+   - Samsung's stock weather daemon (`com.sec.android.daemonapp`) uses a proprietary corporate key for The Weather Channel and locks its internal `ContentProvider` behind `signatureOrSystem` permissions on modern One UI releases. Pairing Open-Meteo's Forecast and Air Quality endpoints delivers hourly precipitation probability, UV index, and European AQI / $\text{PM}_{2.5}$ with zero API keys or subscription costs, while tapping the widget opens our cohesive One UI detail view.
+2. **Why 100% Offline Ephemeris for Astrology & Moon Phases?**
+   - Planetary positions, solar zodiac transits, lunar phases, and apparent retrograde loops are deterministic astronomical functions of time. Computing geocentric ecliptic longitudes ($\lambda$) and daily derivatives ($d\lambda/dt < 0$) on-device with `Astronomy Engine` eliminates network latency, works in airplane mode, and preserves battery life.
+3. **100% Jetpack Glance with Custom Canvas Bitmaps:**
+   - Jetpack Glance provides a declarative Compose-style syntax for widgets, while complex visual elements—such as the waxing/waning lunar terminator curve, the iPod Classic Click Wheel, and the circular CD Album Art mask for the Discman—are rendered deterministically via `WidgetCanvasRenderer` into `Bitmap` layers consumed by Glance `ImageProvider`.
+4. **Universal Media Session Control without App-Specific SDKs:**
+   - Rather than coupling to proprietary Spotify or YouTube Music SDKs, `NotificationListenerService` + `MediaSessionManager` reads metadata and album artwork from whichever media player is currently active on the device and dispatches native `MediaController.TransportControls` commands directly from the retro widgets.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
