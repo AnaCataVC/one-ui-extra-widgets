@@ -40,7 +40,7 @@ One UI Extra Widgets mantiene un desacoplamiento claro entre las superficies de 
 flowchart TD
     subgraph UI ["Capa de Presentación (Jetpack Glance y Compose)"]
         GlanceWidgets["Widgets Jetpack Glance<br/>(Clima, Astrología, iPod, MP3, Discman, 5G/Wi-Fi)"]
-        ComposeApp["Pantallas de Detalle One UI<br/>(HomeScreen, WeatherDetail, AstrologyDetail, NetworkDetail)"]
+        ComposeApp["Pantallas de Detalle One UI<br/>(HomeScreen, WeatherDetailScreen, AstrologyDetailScreen, NetworkDetailScreen)"]
         CanvasRenderer["WidgetCanvasRenderer<br/>(Esfera Lunar, Rueda Clic iPod y Máscara CD Discman)"]
     end
 
@@ -67,10 +67,11 @@ flowchart TD
 
 | Componente / Paquete | Responsabilidad |
 | :--- | :--- |
-| **`widgets/`** | Implementaciones 100% en Jetpack Glance (`OneUiWeatherWidget`, `OneUiAstrologyWidget`, `IpodClassicWidget`, `RetroMp3Widget`, `DiscmanWidget`, `OneUiNetworkWidget`) y tokens de diseño `OneUiGlanceTokens` (radio `26dp`, superficies día/noche). |
+| **`widgets/`** | Implementaciones 100% en Jetpack Glance (`OneUiWeatherWidget`, `WeatherRefreshWorker`, `OneUiAstrologyWidget`, `IpodClassicWidget`, `RetroMp3Widget`, `DiscmanWidget`, `OneUiNetworkWidget`) y tokens de diseño `OneUiGlanceTokens` (radio `26dp`, superficies día/noche). |
 | **`ui/`** | Aplicación compañera en Jetpack Compose Material 3 con estética Samsung One UI, galería de widgets, configuración de permisos, selector de idioma y pantallas de detalle. |
 | **`data/astrology/`** | Motor determinista `AstrologyEngine` para el cálculo offline de signos zodiacales tropicales, ángulo de fase lunar y estados retrógrados o de sombra planetaria. |
-| **`data/weather/`** | Cliente HTTP `OpenMeteoClient` y caché persistente en `DataStore` (`AppPreferences`) actualizado periódicamente mediante `WorkManager`. |
+| **`data/weather/`** | Cliente HTTP `OpenMeteoClient` para obtener pronóstico en tiempo real, probabilidad de lluvia, índice UV y calidad del aire (AQI europeo). |
+| **`data/preferences/`** | Caché persistente en `DataStore` (`AppPreferences`) para almacenar clima, ubicación y estado de configuración de widgets. |
 | **`data/media/`** | Servicio `MediaNotificationListener` que escucha sesiones `MediaController` activas y envía comandos de transporte (`play`, `pause`, `skipToNext`, `skipToPrevious`). |
 | **`data/network/`** | Monitor `NetworkQualityMonitor` para extraer métricas `dBm` de redes 5G NR / LTE y velocidad `Mbps`, banda y `RSSI` en redes Wi-Fi 6. |
 | **`utils/`** | Utilidades centralizadas `WidgetCanvasRenderer`, `LocaleHelper` y `PermissionHelper` reutilizadas entre widgets y actividades sin duplicación de lógica. |

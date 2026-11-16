@@ -77,7 +77,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                     val mercuryHeadline = if (mercury.isRetrograde) {
                         if (isSpanish) "☿ Mercurio Retrógrado Activo" else "☿ Mercury Retrograde Active"
                     } else {
-                        "☿ ${mercury.localizedName(isEs = isSpanish)}: ${mercury.motionState.localizedBadge(isSpanish)}"
+                        "☿ ${mercury.localizedName(isSpanish)}: ${mercury.motionState.localizedBadge(isSpanish)}"
                     }
                     Text(
                         text = mercuryHeadline,

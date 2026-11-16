@@ -1,5 +1,6 @@
 package com.anacatavc.oneuiextrawidgets.data.media
 
+import android.app.Notification
 import android.content.ComponentName
 import android.content.Context
 import android.graphics.Bitmap
@@ -9,10 +10,13 @@ import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import android.util.Log
+import com.anacatavc.oneuiextrawidgets.utils.LocaleHelper
 import com.anacatavc.oneuiextrawidgets.widgets.music.RetroMusicWidgetUpdater
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 data class ActiveMediaState(
@@ -30,27 +34,48 @@ data class ActiveMediaState(
  */
 class MediaNotificationListener : NotificationListenerService() {
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     override fun onListenerConnected() {
         super.onListenerConnected()
-        refreshActiveMediaSession(applicationContext)
+        refreshActiveMediaSession(applicationContext, serviceScope)
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        refreshActiveMediaSession(applicationContext)
+        if (sbn == null || isMediaNotification(sbn)) {
+            refreshActiveMediaSession(applicationContext, serviceScope)
+        }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        refreshActiveMediaSession(applicationContext)
+        if (sbn == null || isMediaNotification(sbn)) {
+            refreshActiveMediaSession(applicationContext, serviceScope)
+        }
+    }
+
+    override fun onDestroy() {
+        serviceScope.cancel()
+        super.onDestroy()
+    }
+
+    private fun isMediaNotification(sbn: StatusBarNotification): Boolean {
+        val extras = sbn.notification?.extras ?: return false
+        return extras.containsKey(Notification.EXTRA_MEDIA_SESSION) ||
+            sbn.packageName == latestState.packageName
     }
 
     companion object {
+        private val widgetUpdateScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
         @Volatile
         var latestState: ActiveMediaState = ActiveMediaState()
             private set
 
-        fun refreshActiveMediaSession(context: Context): ActiveMediaState {
+        fun refreshActiveMediaSession(
+            context: Context,
+            scope: CoroutineScope = widgetUpdateScope
+        ): ActiveMediaState {
+            val previousState = latestState
             val controller = getActiveController(context)
             if (controller != null) {
                 val meta = controller.metadata
@@ -61,19 +86,25 @@ class MediaNotificationListener : NotificationListenerService() {
                 val art = meta?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
                     ?: meta?.getBitmap(MediaMetadata.METADATA_KEY_ART)
 
+                val isSpanish = LocaleHelper.isSpanishActive()
+                val fallbackTitle = if (isSpanish) "Sin título" else "Untitled"
+                val fallbackArtist = if (isSpanish) "Artista desconocido" else "Unknown Artist"
+
                 latestState = ActiveMediaState(
                     title = meta?.getString(MediaMetadata.METADATA_KEY_TITLE)
-                        ?.takeIf { it.isNotBlank() } ?: "Sin título",
+                        ?.takeIf { it.isNotBlank() } ?: fallbackTitle,
                     artist = meta?.getString(MediaMetadata.METADATA_KEY_ARTIST)
-                        ?.takeIf { it.isNotBlank() } ?: "Artista desconocido",
+                        ?.takeIf { it.isNotBlank() } ?: fallbackArtist,
                     album = meta?.getString(MediaMetadata.METADATA_KEY_ALBUM) ?: "",
                     isPlaying = isPlaying,
                     packageName = controller.packageName ?: "",
                     albumArt = art
                 )
             }
-            CoroutineScope(Dispatchers.Main).launch {
-                RetroMusicWidgetUpdater.updateAllMusicWidgets(context)
+            if (latestState != previousState) {
+                scope.launch {
+                    RetroMusicWidgetUpdater.updateAllMusicWidgets(context)
+                }
             }
             return latestState
         }
@@ -103,6 +134,8 @@ class MediaNotificationListener : NotificationListenerService() {
                 controllers.firstOrNull {
                     it.playbackState?.state == PlaybackState.STATE_PLAYING
                 } ?: controllers.firstOrNull()
+            }.onFailure { err ->
+                Log.w("MediaNotification", "Failed querying active media sessions", err)
             }.getOrNull()
         }
     }

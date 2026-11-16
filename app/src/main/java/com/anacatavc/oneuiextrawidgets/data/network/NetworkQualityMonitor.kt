@@ -73,7 +73,12 @@ object NetworkQualityMonitor {
         val ssid = if (rawSsid.isNullOrBlank() || rawSsid == "<unknown ssid>") "Wi-Fi ($bandLabel)" else rawSsid
 
         // 2. 5G NR / LTE Cellular Metrics
-        val carrier = tm.networkOperatorName?.takeIf { it.isNotBlank() } ?: "Red Móvil"
+        val defaultCarrier = if (com.anacatavc.oneuiextrawidgets.utils.LocaleHelper.isSpanishActive()) {
+            "Red Móvil"
+        } else {
+            "Mobile Network"
+        }
+        val carrier = tm.networkOperatorName?.takeIf { it.isNotBlank() } ?: defaultCarrier
         val signalStrength = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) tm.signalStrength else null
         val mobileBars = signalStrength?.level?.coerceIn(0, 4) ?: 3
 
@@ -103,6 +108,8 @@ object NetworkQualityMonitor {
                     TelephonyManager.NETWORK_TYPE_HSPAP,
                     TelephonyManager.NETWORK_TYPE_HSPA -> generation = "3G HSPA+"
                 }
+            }.onFailure { err ->
+                android.util.Log.w("NetworkQualityMonitor", "Failed reading dataNetworkType", err)
             }
         }
 

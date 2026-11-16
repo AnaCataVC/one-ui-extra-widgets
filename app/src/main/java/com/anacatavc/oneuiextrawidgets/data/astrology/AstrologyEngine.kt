@@ -4,14 +4,12 @@ import io.github.cosinekitty.astronomy.Aberration
 import io.github.cosinekitty.astronomy.Body
 import io.github.cosinekitty.astronomy.Time
 import io.github.cosinekitty.astronomy.eclipticGeoMoon
-import io.github.cosinekitty.astronomy.equator
+import io.github.cosinekitty.astronomy.equatorialToEcliptic
 import io.github.cosinekitty.astronomy.geoVector
-import io.github.cosinekitty.astronomy.horizon
 import io.github.cosinekitty.astronomy.illumination
 import io.github.cosinekitty.astronomy.moonPhase
 import io.github.cosinekitty.astronomy.sunPosition
 import java.time.Instant
-import kotlin.math.abs
 
 enum class ZodiacSign(
     val symbol: String,
@@ -184,7 +182,7 @@ object AstrologyEngine {
      */
     fun geocentricEclipticLongitude(body: Body, time: Time): Double {
         val vec = geoVector(body, time, Aberration.Corrected)
-        val ecl = io.github.cosinekitty.astronomy.ecliptic(vec)
+        val ecl = equatorialToEcliptic(vec)
         return ((ecl.elon % 360.0) + 360.0) % 360.0
     }
 

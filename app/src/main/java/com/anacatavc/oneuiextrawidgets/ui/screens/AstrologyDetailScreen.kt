@@ -97,8 +97,9 @@ fun AstrologyDetailScreen(
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold
                         )
+                        val speedUnit = if (isSpanish) "°/día" else "°/day"
                         Text(
-                            text = "${String.format(Locale.US, "%.1f", planet.degreeInSign)}° • Δ ${String.format(Locale.US, "%+.2f", planet.dailySpeedDeg)}°/día",
+                            text = "${String.format(Locale.US, "%.1f", planet.degreeInSign)}° • Δ ${String.format(Locale.US, "%+.2f", planet.dailySpeedDeg)}$speedUnit",
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

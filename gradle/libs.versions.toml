@@ -9,9 +9,8 @@ composeBom = "2024.11.00"
 glance = "1.1.1"
 workRuntimeKtx = "2.10.0"
 datastorePreferences = "1.1.1"
-kotlinxSerializationJson = "1.7.3"
 kotlinxCoroutines = "1.9.0"
-astronomy = "2.1.19"
+astronomy = "v2.1.19"
 playServicesLocation = "21.3.0"
 junit = "4.13.2"
 
@@ -23,15 +22,12 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
-androidx-glance-material3 = { group = "androidx.glance", name = "glance-material3", version.ref = "glance" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
-kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
-astronomy-engine = { group = "io.github.cosinekitty", name = "astronomy", version.ref = "astronomy" }
+astronomy-engine = { group = "com.github.cosinekitty", name = "astronomy", version.ref = "astronomy" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 
@@ -39,4 +35,3 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

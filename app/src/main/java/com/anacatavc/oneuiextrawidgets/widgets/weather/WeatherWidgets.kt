@@ -38,6 +38,7 @@ import androidx.glance.text.TextStyle
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.anacatavc.oneuiextrawidgets.MainActivity
+import com.anacatavc.oneuiextrawidgets.R
 import com.anacatavc.oneuiextrawidgets.data.astrology.AstrologyEngine
 import com.anacatavc.oneuiextrawidgets.data.preferences.AppPreferences
 import com.anacatavc.oneuiextrawidgets.data.preferences.CachedWeatherState
@@ -166,7 +167,7 @@ class OneUiWeatherWidget : GlanceAppWidget() {
                 )
                 Spacer(modifier = GlanceModifier.width(6.dp))
                 MetricPill(
-                    title = "AQI (${aqiCategory(state.europeanAqi, isSpanish)})",
+                    title = "AQI (${aqiCategory(context, state.europeanAqi)})",
                     value = "${state.europeanAqi}",
                     modifier = GlanceModifier.defaultWeight()
                 )
@@ -210,12 +211,12 @@ class OneUiWeatherWidget : GlanceAppWidget() {
         }
     }
 
-    private fun aqiCategory(aqi: Int, isSpanish: Boolean): String = when {
-        aqi <= 20 -> if (isSpanish) "Buena" else "Good"
-        aqi <= 40 -> if (isSpanish) "Aceptable" else "Fair"
-        aqi <= 60 -> if (isSpanish) "Moderada" else "Moderate"
-        aqi <= 80 -> if (isSpanish) "Mala" else "Poor"
-        else -> if (isSpanish) "Muy Mala" else "Very Poor"
+    private fun aqiCategory(context: Context, aqi: Int): String = when {
+        aqi <= 20 -> context.getString(R.string.aqi_good)
+        aqi <= 40 -> context.getString(R.string.aqi_fair)
+        aqi <= 60 -> context.getString(R.string.aqi_moderate)
+        aqi <= 80 -> context.getString(R.string.aqi_poor)
+        else -> context.getString(R.string.aqi_very_poor)
     }
 }
 

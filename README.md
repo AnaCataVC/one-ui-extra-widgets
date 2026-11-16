@@ -40,7 +40,7 @@ One UI Extra Widgets enforces a clear separation between Jetpack Glance widget s
 flowchart TD
     subgraph UI ["Presentation Layer (Jetpack Glance & Compose)"]
         GlanceWidgets["Jetpack Glance Widgets<br/>(Weather, Astrology, iPod, MP3, Discman, 5G/Wi-Fi)"]
-        ComposeApp["One UI Detail Screens<br/>(HomeScreen, WeatherDetail, AstrologyDetail, NetworkDetail)"]
+        ComposeApp["One UI Detail Screens<br/>(HomeScreen, WeatherDetailScreen, AstrologyDetailScreen, NetworkDetailScreen)"]
         CanvasRenderer["WidgetCanvasRenderer<br/>(Moon Sphere, iPod Click Wheel & Discman CD Mask)"]
     end
 
@@ -67,10 +67,11 @@ flowchart TD
 
 | Component / Package | Responsibility |
 | :--- | :--- |
-| **`widgets/`** | 100% Jetpack Glance widget implementations (`OneUiWeatherWidget`, `OneUiAstrologyWidget`, `IpodClassicWidget`, `RetroMp3Widget`, `DiscmanWidget`, `OneUiNetworkWidget`) and `OneUiGlanceTokens` (`26dp` corner radius, day/night adaptive surfaces). |
+| **`widgets/`** | 100% Jetpack Glance widget implementations (`OneUiWeatherWidget`, `WeatherRefreshWorker`, `OneUiAstrologyWidget`, `IpodClassicWidget`, `RetroMp3Widget`, `DiscmanWidget`, `OneUiNetworkWidget`) and `OneUiGlanceTokens` (`26dp` corner radius, day/night adaptive surfaces). |
 | **`ui/`** | Jetpack Compose Material 3 companion application styled after Samsung One UI, providing widget catalog overview, permission onboarding, language selector, and deep-linked detail screens. |
 | **`data/astrology/`** | Pure-computation `AstrologyEngine` calculating tropical zodiac positions, lunar phase angles, and planetary retrograde/shadow states offline. |
-| **`data/weather/`** | `OpenMeteoClient` HTTP client and `DataStore` cache (`AppPreferences`) synchronized periodically via `WorkManager`. |
+| **`data/weather/`** | `OpenMeteoClient` HTTP client fetching real-time forecast, precipitation probability, UV index, and European AQI metrics. |
+| **`data/preferences/`** | `AppPreferences` `DataStore` cache persisting weather, location, and widget configuration state. |
 | **`data/media/`** | `MediaNotificationListener` bridging active system `MediaController` sessions and dispatching transport controls (`play`, `pause`, `skipToNext`, `skipToPrevious`). |
 | **`data/network/`** | `NetworkQualityMonitor` extracting 5G NR / LTE `dBm` and Wi-Fi 6 `Mbps`, frequency band, and `RSSI` metrics. |
 | **`utils/`** | Centralized `WidgetCanvasRenderer`, `LocaleHelper`, and `PermissionHelper` shared across widgets and activities with zero code duplication. |

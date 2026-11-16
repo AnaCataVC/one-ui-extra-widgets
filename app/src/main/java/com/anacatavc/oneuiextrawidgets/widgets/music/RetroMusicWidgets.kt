@@ -1,6 +1,7 @@
 package com.anacatavc.oneuiextrawidgets.widgets.music
 
 import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -36,6 +37,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.anacatavc.oneuiextrawidgets.data.media.MediaNotificationListener
 import com.anacatavc.oneuiextrawidgets.data.media.TransportCommand
+import com.anacatavc.oneuiextrawidgets.utils.LocaleHelper
 import com.anacatavc.oneuiextrawidgets.utils.WidgetCanvasRenderer
 import com.anacatavc.oneuiextrawidgets.widgets.theme.OneUiGlanceTokens
 
@@ -45,7 +47,10 @@ import com.anacatavc.oneuiextrawidgets.widgets.theme.OneUiGlanceTokens
 class IpodClassicWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val media = MediaNotificationListener.latestState
-        val wheelBitmap = WidgetCanvasRenderer.renderIpodClickWheelBitmap(sizePx = 190, isDarkTheme = true)
+        val isDark = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+        val isSpanish = LocaleHelper.isSpanishActive()
+        val wheelBitmap = WidgetCanvasRenderer.renderIpodClickWheelBitmap(sizePx = 190, isDarkTheme = isDark)
 
         provideContent {
             Column(
@@ -64,8 +69,13 @@ class IpodClassicWidget : GlanceAppWidget() {
                         .background(ColorProvider(day = Color(0xFFD6E4E8), night = Color(0xFF121820)))
                         .padding(8.dp)
                 ) {
+                    val statusLabel = when {
+                        media.isPlaying && isSpanish -> "▶ iPod  •  Reproduciendo"
+                        media.isPlaying -> "▶ iPod  •  Now Playing"
+                        else -> "⏸ iPod  •  One UI"
+                    }
                     Text(
-                        text = if (media.isPlaying) "▶ iPod  •  Now Playing" else "⏸ iPod  •  One UI",
+                        text = statusLabel,
                         style = TextStyle(
                             color = OneUiGlanceTokens.OneUiAccentBlue,
                             fontSize = 10.sp,

@@ -40,8 +40,12 @@ import com.anacatavc.oneuiextrawidgets.ui.theme.OneUiTheme
 import com.anacatavc.oneuiextrawidgets.utils.LocaleHelper
 import com.anacatavc.oneuiextrawidgets.utils.PermissionHelper
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import java.util.Locale
+import kotlin.coroutines.resume
 
 class MainActivity : AppCompatActivity() {
 
@@ -191,15 +195,30 @@ class MainActivity : AppCompatActivity() {
         if (PermissionHelper.hasLocationPermission(this)) {
             runCatching {
                 val client = LocationServices.getFusedLocationProviderClient(this)
-                client.lastLocation.addOnSuccessListener { loc ->
-                    if (loc != null) {
-                        lat = loc.latitude
-                        lon = loc.longitude
+                val loc = suspendCancellableCoroutine { cont ->
+                    client.lastLocation
+                        .addOnSuccessListener { result ->
+                            if (cont.isActive) cont.resume(result)
+                        }
+                        .addOnFailureListener {
+                            if (cont.isActive) cont.resume(null)
+                        }
+                        .addOnCanceledListener {
+                            if (cont.isActive) cont.resume(null)
+                        }
+                }
+                if (loc != null) {
+                    lat = loc.latitude
+                    lon = loc.longitude
+                    city = withContext(Dispatchers.IO) {
                         @Suppress("DEPRECATION")
-                        val addresses = Geocoder(this, Locale.getDefault()).getFromLocation(lat, lon, 1)
-                        city = addresses?.firstOrNull()?.locality ?: city
+                        val addresses = Geocoder(this@MainActivity, Locale.getDefault())
+                            .getFromLocation(lat, lon, 1)
+                        addresses?.firstOrNull()?.locality ?: city
                     }
                 }
+            }.onFailure { err ->
+                android.util.Log.w("MainActivity", "Failed to resolve device location", err)
             }
         }
 
@@ -209,6 +228,8 @@ class MainActivity : AppCompatActivity() {
             cityName = city
         ).onSuccess { updated ->
             AppPreferences.saveWeather(this, updated)
+        }.onFailure { err ->
+            android.util.Log.w("MainActivity", "Failed to fetch weather and air quality", err)
         }
     }
 }
