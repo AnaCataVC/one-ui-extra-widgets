@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.anacatavc.oneuiextrawidgets.data.astrology.AstrologySnapshot
 import com.anacatavc.oneuiextrawidgets.ui.components.OneUiCard
 import com.anacatavc.oneuiextrawidgets.ui.components.OneUiHeader
@@ -52,24 +51,24 @@ fun AstrologyDetailScreen(
                 Column {
                     Text(
                         text = if (isSpanish) "Signo Solar Actual" else "Current Sun Sign",
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = "${snapshot.sunSign.symbol} ${snapshot.sunSign.localizedName(isSpanish)} (${String.format(Locale.US, "%.1f", snapshot.sunDegreeInSign)}°)",
-                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
                         text = if (isSpanish) "Tránsito Lunar" else "Moon Transit",
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = "${snapshot.lunarStatus.moonSign.symbol} ${snapshot.lunarStatus.moonSign.localizedName(isSpanish)}",
-                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -94,19 +93,19 @@ fun AstrologyDetailScreen(
                     Column {
                         Text(
                             text = "${planet.symbol} ${planet.localizedName(isSpanish)} — ${planet.zodiacSign.symbol} ${planet.zodiacSign.localizedName(isSpanish)}",
-                            fontSize = 15.sp,
+                            style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold
                         )
                         val speedUnit = if (isSpanish) "°/día" else "°/day"
                         Text(
                             text = "${String.format(Locale.US, "%.1f", planet.degreeInSign)}° • Δ ${String.format(Locale.US, "%+.2f", planet.dailySpeedDeg)}$speedUnit",
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     Text(
                         text = planet.motionState.localizedBadge(isSpanish),
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold,
                         color = if (planet.isRetrograde) {
                             MaterialTheme.colorScheme.error

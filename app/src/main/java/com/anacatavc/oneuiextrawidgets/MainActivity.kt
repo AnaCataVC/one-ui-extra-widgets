@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -23,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -76,6 +78,9 @@ class MainActivity : AppCompatActivity() {
                 var networkSnapshot by remember {
                     mutableStateOf(NetworkQualityMonitor.readSnapshot(this))
                 }
+                var isRefreshingWeather by remember { mutableStateOf(false) }
+                var weatherError by remember { mutableStateOf<String?>(null) }
+                var isRefreshingNetwork by remember { mutableStateOf(false) }
 
                 var hasLocationPerm by remember {
                     mutableStateOf(PermissionHelper.hasLocationPermission(this))
@@ -94,7 +99,19 @@ class MainActivity : AppCompatActivity() {
                     hasPhonePerm = PermissionHelper.hasPhoneStatePermission(this)
                     networkSnapshot = NetworkQualityMonitor.readSnapshot(this)
                     if (hasLocationPerm) {
-                        scope.launch { refreshWeatherWithLocation(weatherState) }
+                        scope.launch {
+                            isRefreshingWeather = true
+                            weatherError = null
+                            val ok = refreshWeatherWithLocation(weatherState)
+                            if (!ok) {
+                                weatherError = if (isSpanish) {
+                                    "No pudimos actualizar el clima. Verifica tu conexión e inténtalo de nuevo."
+                                } else {
+                                    "We couldn't refresh the weather. Check your connection and retry."
+                                }
+                            }
+                            isRefreshingWeather = false
+                        }
                     }
                 }
 
@@ -116,25 +133,45 @@ class MainActivity : AppCompatActivity() {
                             NavigationBarItem(
                                 selected = currentTab == TAB_HOME,
                                 onClick = { currentTab = TAB_HOME },
-                                icon = { Text("⊞") },
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_nav_home),
+                                        contentDescription = null
+                                    )
+                                },
                                 label = { Text(stringResource(R.string.tab_home)) }
                             )
                             NavigationBarItem(
                                 selected = currentTab == TAB_WEATHER,
                                 onClick = { currentTab = TAB_WEATHER },
-                                icon = { Text("☁") },
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_nav_weather),
+                                        contentDescription = null
+                                    )
+                                },
                                 label = { Text(stringResource(R.string.tab_weather)) }
                             )
                             NavigationBarItem(
                                 selected = currentTab == TAB_ASTROLOGY,
                                 onClick = { currentTab = TAB_ASTROLOGY },
-                                icon = { Text("☿") },
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_nav_astrology),
+                                        contentDescription = null
+                                    )
+                                },
                                 label = { Text(stringResource(R.string.tab_astrology)) }
                             )
                             NavigationBarItem(
                                 selected = currentTab == TAB_NETWORK,
                                 onClick = { currentTab = TAB_NETWORK },
-                                icon = { Text("5G") },
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_nav_network),
+                                        contentDescription = null
+                                    )
+                                },
                                 label = { Text(stringResource(R.string.tab_network)) }
                             )
                         }
@@ -164,8 +201,22 @@ class MainActivity : AppCompatActivity() {
                                 weather = weatherState,
                                 lunarStatus = astroSnapshot.lunarStatus,
                                 isSpanish = isSpanish,
+                                isRefreshing = isRefreshingWeather,
+                                errorMessage = weatherError,
                                 onRefreshWeather = {
-                                    scope.launch { refreshWeatherWithLocation(weatherState) }
+                                    scope.launch {
+                                        isRefreshingWeather = true
+                                        weatherError = null
+                                        val ok = refreshWeatherWithLocation(weatherState)
+                                        if (!ok) {
+                                            weatherError = if (isSpanish) {
+                                                "No pudimos actualizar el clima. Verifica tu conexión e inténtalo de nuevo."
+                                            } else {
+                                                "We couldn't refresh the weather. Check your connection and retry."
+                                            }
+                                        }
+                                        isRefreshingWeather = false
+                                    }
                                 }
                             )
                             TAB_ASTROLOGY -> AstrologyDetailScreen(
@@ -175,8 +226,11 @@ class MainActivity : AppCompatActivity() {
                             TAB_NETWORK -> NetworkDetailScreen(
                                 snapshot = networkSnapshot,
                                 isSpanish = isSpanish,
+                                isRefreshing = isRefreshingNetwork,
                                 onRefresh = {
+                                    isRefreshingNetwork = true
                                     networkSnapshot = NetworkQualityMonitor.readSnapshot(this@MainActivity)
+                                    isRefreshingNetwork = false
                                 }
                             )
                         }
@@ -187,7 +241,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("MissingPermission")
-    private suspend fun refreshWeatherWithLocation(fallback: CachedWeatherState) {
+    private suspend fun refreshWeatherWithLocation(fallback: CachedWeatherState): Boolean {
         var lat = fallback.latitude
         var lon = fallback.longitude
         var city = fallback.cityName
@@ -222,7 +276,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        OpenMeteoClient.fetchWeatherAndAirQuality(
+        return OpenMeteoClient.fetchWeatherAndAirQuality(
             latitude = lat,
             longitude = lon,
             cityName = city
@@ -230,6 +284,6 @@ class MainActivity : AppCompatActivity() {
             AppPreferences.saveWeather(this, updated)
         }.onFailure { err ->
             android.util.Log.w("MainActivity", "Failed to fetch weather and air quality", err)
-        }
+        }.isSuccess
     }
 }

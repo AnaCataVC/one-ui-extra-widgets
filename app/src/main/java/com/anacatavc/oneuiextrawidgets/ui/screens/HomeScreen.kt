@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.anacatavc.oneuiextrawidgets.R
 import com.anacatavc.oneuiextrawidgets.ui.components.LanguageSelectorRow
 import com.anacatavc.oneuiextrawidgets.ui.components.OneUiCard
@@ -128,19 +127,22 @@ private fun PermissionRow(
             modifier = Modifier
                 .weight(1f)
                 .padding(end = 12.dp),
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
         if (granted) {
             Text(
                 text = if (isSpanish) "✓ Activo" else "✓ Active",
-                fontSize = 13.sp,
+                style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
         } else {
-            Button(onClick = onGrant) {
-                Text(text = if (isSpanish) "Permitir" else "Grant", fontSize = 12.sp)
+            FilledTonalButton(onClick = onGrant) {
+                Text(
+                    text = if (isSpanish) "Permitir" else "Grant",
+                    style = MaterialTheme.typography.labelMedium
+                )
             }
         }
     }
@@ -151,13 +153,13 @@ private fun WidgetSummaryItem(title: String, desc: String) {
     Column(modifier = Modifier.padding(vertical = 6.dp)) {
         Text(
             text = title,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = desc,
-            fontSize = 12.sp,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }

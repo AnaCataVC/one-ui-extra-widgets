@@ -8,16 +8,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.anacatavc.oneuiextrawidgets.data.network.NetworkQualitySnapshot
 import com.anacatavc.oneuiextrawidgets.ui.components.OneUiCard
 import com.anacatavc.oneuiextrawidgets.ui.components.OneUiHeader
@@ -26,6 +28,7 @@ import com.anacatavc.oneuiextrawidgets.ui.components.OneUiHeader
 fun NetworkDetailScreen(
     snapshot: NetworkQualitySnapshot,
     isSpanish: Boolean,
+    isRefreshing: Boolean = false,
     onRefresh: () -> Unit
 ) {
     Column(
@@ -69,8 +72,22 @@ fun NetworkDetailScreen(
                 value = "${snapshot.wifiRssiDbm} dBm (${snapshot.qualityLabel(snapshot.wifiLevelBars, isSpanish)})"
             )
             Spacer(modifier = Modifier.height(10.dp))
-            Button(onClick = onRefresh, modifier = Modifier.fillMaxWidth()) {
-                Text(text = if (isSpanish) "Actualizar Medición de Red" else "Refresh Network Metrics")
+            Button(
+                onClick = onRefresh,
+                enabled = !isRefreshing,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (isRefreshing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = if (isSpanish) "Midiendo señal..." else "Measuring signal...")
+                } else {
+                    Text(text = if (isSpanish) "Actualizar Medición de Red" else "Refresh Network Metrics")
+                }
             }
         }
     }
@@ -86,12 +103,12 @@ private fun NetworkInfoRow(label: String, value: String) {
     ) {
         Text(
             text = label,
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = value,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )

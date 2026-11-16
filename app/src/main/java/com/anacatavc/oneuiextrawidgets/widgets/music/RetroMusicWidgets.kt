@@ -3,7 +3,6 @@ package com.anacatavc.oneuiextrawidgets.widgets.music
 import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -20,7 +19,6 @@ import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
-import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -32,6 +30,8 @@ import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -57,7 +57,7 @@ class IpodClassicWidget : GlanceAppWidget() {
                 modifier = GlanceModifier
                     .fillMaxSize()
                     .cornerRadius(OneUiGlanceTokens.CornerRadius)
-                    .background(ColorProvider(day = Color(0xFFEAECEF), night = Color(0xFF1F2024)))
+                    .background(OneUiGlanceTokens.IpodShellSurface)
                     .padding(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -66,7 +66,7 @@ class IpodClassicWidget : GlanceAppWidget() {
                     modifier = GlanceModifier
                         .fillMaxWidth()
                         .cornerRadius(12.dp)
-                        .background(ColorProvider(day = Color(0xFFD6E4E8), night = Color(0xFF121820)))
+                        .background(OneUiGlanceTokens.IpodLcdSurface)
                         .padding(8.dp)
                 ) {
                     val statusLabel = when {
@@ -121,18 +121,31 @@ class IpodClassicWidget : GlanceAppWidget() {
                             modifier = GlanceModifier
                                 .defaultWeight()
                                 .height(48.dp)
+                                .semantics {
+                                    contentDescription = if (isSpanish) "Pista anterior" else "Previous track"
+                                }
                                 .clickable(actionRunCallback<PrevTrackAction>())
                         ) {}
                         Box(
                             modifier = GlanceModifier
                                 .defaultWeight()
                                 .height(48.dp)
+                                .semantics {
+                                    contentDescription = if (media.isPlaying) {
+                                        if (isSpanish) "Pausar" else "Pause"
+                                    } else {
+                                        if (isSpanish) "Reproducir" else "Play"
+                                    }
+                                }
                                 .clickable(actionRunCallback<PlayPauseAction>())
                         ) {}
                         Box(
                             modifier = GlanceModifier
                                 .defaultWeight()
                                 .height(48.dp)
+                                .semantics {
+                                    contentDescription = if (isSpanish) "Siguiente pista" else "Next track"
+                                }
                                 .clickable(actionRunCallback<NextTrackAction>())
                         ) {}
                     }
@@ -148,13 +161,14 @@ class IpodClassicWidget : GlanceAppWidget() {
 class RetroMp3Widget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val media = MediaNotificationListener.latestState
+        val isSpanish = LocaleHelper.isSpanishActive()
 
         provideContent {
             Row(
                 modifier = GlanceModifier
                     .fillMaxSize()
                     .cornerRadius(OneUiGlanceTokens.CornerRadius)
-                    .background(ColorProvider(day = Color(0xFF282C34), night = Color(0xFF15171C)))
+                    .background(OneUiGlanceTokens.RetroMp3ShellSurface)
                     .padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -169,7 +183,7 @@ class RetroMp3Widget : GlanceAppWidget() {
                     Text(
                         text = "MP3 128KBPS • STEREO",
                         style = TextStyle(
-                            color = ColorProvider(day = Color(0xFF0F290F), night = Color(0xFF092218)),
+                            color = OneUiGlanceTokens.RetroLcdSecondaryText,
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -178,7 +192,7 @@ class RetroMp3Widget : GlanceAppWidget() {
                         text = "${media.title} — ${media.artist}",
                         maxLines = 1,
                         style = TextStyle(
-                            color = ColorProvider(day = Color(0xFF081C08), night = Color(0xFF04140E)),
+                            color = OneUiGlanceTokens.RetroLcdPrimaryText,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -189,11 +203,27 @@ class RetroMp3Widget : GlanceAppWidget() {
 
                 // Tactile Silver Buttons
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    RetroControlButton("⏮", actionRunCallback<PrevTrackAction>())
+                    RetroControlButton(
+                        label = "⏮",
+                        a11yLabel = if (isSpanish) "Pista anterior" else "Previous track",
+                        action = actionRunCallback<PrevTrackAction>()
+                    )
                     Spacer(modifier = GlanceModifier.width(4.dp))
-                    RetroControlButton(if (media.isPlaying) "⏸" else "▶", actionRunCallback<PlayPauseAction>())
+                    RetroControlButton(
+                        label = if (media.isPlaying) "⏸" else "▶",
+                        a11yLabel = if (media.isPlaying) {
+                            if (isSpanish) "Pausar" else "Pause"
+                        } else {
+                            if (isSpanish) "Reproducir" else "Play"
+                        },
+                        action = actionRunCallback<PlayPauseAction>()
+                    )
                     Spacer(modifier = GlanceModifier.width(4.dp))
-                    RetroControlButton("⏭", actionRunCallback<NextTrackAction>())
+                    RetroControlButton(
+                        label = "⏭",
+                        a11yLabel = if (isSpanish) "Siguiente pista" else "Next track",
+                        action = actionRunCallback<NextTrackAction>()
+                    )
                 }
             }
         }
@@ -206,6 +236,7 @@ class RetroMp3Widget : GlanceAppWidget() {
 class DiscmanWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val media = MediaNotificationListener.latestState
+        val isSpanish = LocaleHelper.isSpanishActive()
         val cdBitmap = WidgetCanvasRenderer.renderDiscmanCdBitmap(
             albumArt = media.albumArt,
             sizePx = 180
@@ -260,11 +291,27 @@ class DiscmanWidget : GlanceAppWidget() {
                     )
                     Spacer(modifier = GlanceModifier.height(6.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        RetroControlButton("⏮", actionRunCallback<PrevTrackAction>())
+                        RetroControlButton(
+                            label = "⏮",
+                            a11yLabel = if (isSpanish) "Pista anterior" else "Previous track",
+                            action = actionRunCallback<PrevTrackAction>()
+                        )
                         Spacer(modifier = GlanceModifier.width(6.dp))
-                        RetroControlButton(if (media.isPlaying) "⏸" else "▶", actionRunCallback<PlayPauseAction>())
+                        RetroControlButton(
+                            label = if (media.isPlaying) "⏸" else "▶",
+                            a11yLabel = if (media.isPlaying) {
+                                if (isSpanish) "Pausar" else "Pause"
+                            } else {
+                                if (isSpanish) "Reproducir" else "Play"
+                            },
+                            action = actionRunCallback<PlayPauseAction>()
+                        )
                         Spacer(modifier = GlanceModifier.width(6.dp))
-                        RetroControlButton("⏭", actionRunCallback<NextTrackAction>())
+                        RetroControlButton(
+                            label = "⏭",
+                            a11yLabel = if (isSpanish) "Siguiente pista" else "Next track",
+                            action = actionRunCallback<NextTrackAction>()
+                        )
                     }
                 }
             }
@@ -273,13 +320,18 @@ class DiscmanWidget : GlanceAppWidget() {
 }
 
 @Composable
-private fun RetroControlButton(label: String, action: androidx.glance.action.Action) {
+private fun RetroControlButton(
+    label: String,
+    a11yLabel: String,
+    action: androidx.glance.action.Action
+) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = GlanceModifier
             .size(34.dp)
             .cornerRadius(17.dp)
             .background(OneUiGlanceTokens.InnerCardSurface)
+            .semantics { contentDescription = a11yLabel }
             .clickable(action)
     ) {
         Text(

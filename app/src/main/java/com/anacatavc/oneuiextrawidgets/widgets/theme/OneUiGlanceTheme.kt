@@ -6,7 +6,8 @@ import androidx.glance.color.ColorProvider
 
 object OneUiGlanceTokens {
     val CornerRadius = 26.dp
-    val InnerRadius = 18.dp
+    // Concentric law: R_inner <= R_outer (26.dp) - CardPadding (14.dp) = 12.dp
+    val InnerRadius = 12.dp
     val CardPadding = 14.dp
 
     val SurfaceBackground = ColorProvider(
@@ -42,5 +43,30 @@ object OneUiGlanceTokens {
     val RetroAlertAmber = ColorProvider(
         day = Color(0xFFD97706),
         night = Color(0xFFFBBF24)
+    )
+
+    val IpodShellSurface = ColorProvider(
+        day = Color(0xFFEAECEF),
+        night = Color(0xFF1F2024)
+    )
+
+    val IpodLcdSurface = ColorProvider(
+        day = Color(0xFFD6E4E8),
+        night = Color(0xFF121820)
+    )
+
+    val RetroMp3ShellSurface = ColorProvider(
+        day = Color(0xFF282C34),
+        night = Color(0xFF15171C)
+    )
+
+    val RetroLcdPrimaryText = ColorProvider(
+        day = Color(0xFF081C08),
+        night = Color(0xFF04140E)
+    )
+
+    val RetroLcdSecondaryText = ColorProvider(
+        day = Color(0xFF0F290F),
+        night = Color(0xFF092218)
     )
 }

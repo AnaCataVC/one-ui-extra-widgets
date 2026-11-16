@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -22,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.anacatavc.oneuiextrawidgets.data.astrology.LunarPhaseStatus
 import com.anacatavc.oneuiextrawidgets.data.preferences.CachedWeatherState
 import com.anacatavc.oneuiextrawidgets.ui.components.OneUiCard
@@ -35,6 +37,8 @@ fun WeatherDetailScreen(
     weather: CachedWeatherState,
     lunarStatus: LunarPhaseStatus,
     isSpanish: Boolean,
+    isRefreshing: Boolean = false,
+    errorMessage: String? = null,
     onRefreshWeather: () -> Unit
 ) {
     val moonBitmap = remember(lunarStatus.phaseAngleDeg) {
@@ -72,8 +76,38 @@ fun WeatherDetailScreen(
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
-            Button(onClick = onRefreshWeather, modifier = Modifier.fillMaxWidth()) {
-                Text(text = if (isSpanish) "Actualizar Clima y AQI Ahora" else "Refresh Weather & AQI Now")
+            Button(
+                onClick = onRefreshWeather,
+                enabled = !isRefreshing,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (isRefreshing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = if (isSpanish) "Actualizando clima..." else "Refreshing weather...")
+                } else {
+                    Text(text = if (isSpanish) "Actualizar Clima y AQI Ahora" else "Refresh Weather & AQI Now")
+                }
+            }
+            if (errorMessage != null) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = errorMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                OutlinedButton(
+                    onClick = onRefreshWeather,
+                    enabled = !isRefreshing,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = if (isSpanish) "Reintentar" else "Retry")
+                }
             }
         }
 
@@ -111,7 +145,7 @@ fun WeatherDetailScreen(
                 Column {
                     Text(
                         text = lunarStatus.localizedPhaseName(isSpanish),
-                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
@@ -120,7 +154,7 @@ fun WeatherDetailScreen(
                         } else {
                             "Illumination: ${lunarStatus.illuminationPercent}% • Moon in ${lunarStatus.moonSign.symbol} ${lunarStatus.moonSign.nameEn}"
                         },
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -134,12 +168,12 @@ private fun MetricBlock(label: String, value: String) {
     Column {
         Text(
             text = label,
-            fontSize = 12.sp,
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = value,
-            fontSize = 22.sp,
+            style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
