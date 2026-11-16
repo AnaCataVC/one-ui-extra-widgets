@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">One UI Extra Widgets</string>
+    <string name="app_subtitle">Designed for Samsung Galaxy A55 &amp; One UI</string>
+
+    <!-- Language Selector -->
+    <string name="language_label">Language</string>
+    <string name="language_system">System default</string>
+    <string name="language_es">Español</string>
+    <string name="language_en">English</string>
+
+    <!-- Navigation Tabs -->
+    <string name="tab_home">Widgets</string>
+    <string name="tab_weather">Weather</string>
+    <string name="tab_astrology">Astrology</string>
+    <string name="tab_network">5G &amp; Wi-Fi</string>
+
+    <!-- Permissions -->
+    <string name="permissions_card_title">Permissions &amp; Access</string>
+    <string name="perm_location_desc">Location for local Weather, AQI &amp; Wi-Fi SSID</string>
+    <string name="perm_notification_desc">Notification Access for iPod, MP3 &amp; Discman music widgets</string>
+    <string name="perm_phone_desc">Phone State for 5G NR / LTE signal dBm</string>
+    <string name="btn_grant">Grant</string>
+    <string name="status_granted">Active</string>
+
+    <!-- Weather Widget & Screen -->
+    <string name="widget_weather_title">One UI Weather Pro (Rain, AQI &amp; Moon)</string>
+    <string name="widget_weather_desc">Rain probability, Air Quality Index (AQI), UV &amp; Lunar Phase via Open-Meteo</string>
+    <string name="weather_rain_prob">Rain Prob.</string>
+    <string name="weather_aqi_label">Air Quality (AQI)</string>
+    <string name="weather_uv_label">UV Index</string>
+    <string name="weather_feels_like">Feels like</string>
+    <string name="weather_refresh">Refresh Weather</string>
+    <string name="aqi_good">Good</string>
+    <string name="aqi_fair">Fair</string>
+    <string name="aqi_moderate">Moderate</string>
+    <string name="aqi_poor">Poor</string>
+    <string name="aqi_very_poor">Very Poor</string>
+
+    <!-- Astrology Widget & Screen -->
+    <string name="widget_astrology_title">One UI Ephemeris &amp; Retrogrades</string>
+    <string name="widget_astrology_desc">Sun sign, Moon transit, Lunar phase &amp; Mercury/Planetary Retrograde status</string>
+    <string name="astro_sun_sign">Sun Sign</string>
+    <string name="astro_moon_transit">Moon Transit</string>
+    <string name="astro_moon_phase">Lunar Phase</string>
+    <string name="astro_retrograde_status">Planetary Motion</string>
+    <string name="planet_direct">Direct</string>
+    <string name="planet_retrograde">Retrograde</string>
+    <string name="planet_pre_shadow">Pre-Retrograde Shadow</string>
+    <string name="planet_post_shadow">Post-Retrograde Shadow</string>
+
+    <!-- Retro Music Widgets -->
+    <string name="media_listener_service_name">One UI Retro Music Bridge</string>
+    <string name="widget_music_ipod_title">Retro Music: iPod Classic</string>
+    <string name="widget_music_ipod_desc">Classic click-wheel player synced with Spotify, YouTube Music &amp; Samsung Music</string>
+    <string name="widget_music_mp3_title">Retro Music: 2000s MP3 LCD</string>
+    <string name="widget_music_mp3_desc">Backlit dot-matrix LCD stick player</string>
+    <string name="widget_music_discman_title">Retro Music: Portable CD Discman</string>
+    <string name="widget_music_discman_desc">Spinning CD player with ESP Anti-Shock aesthetic</string>
+    <string name="music_no_track">No active music session</string>
+    <string name="music_tap_to_play">Play music in any app to sync</string>
+
+    <!-- 5G & Wi-Fi Network Quality Widget -->
+    <string name="widget_network_title">One UI 5G &amp; Wi-Fi Quality</string>
+    <string name="widget_network_desc">Real-time 5G NR / LTE dBm, Wi-Fi 6 link speed (Mbps) &amp; frequency band</string>
+    <string name="network_mobile_label">Mobile Network</string>
+    <string name="network_wifi_label">Wi-Fi Network</string>
+    <string name="network_disconnected">Disconnected</string>
+</resources>

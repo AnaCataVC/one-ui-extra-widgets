@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">One UI Extra Widgets</string>
+    <string name="app_subtitle">Diseñado para Samsung Galaxy A55 y One UI</string>
+
+    <!-- Selector de Idioma -->
+    <string name="language_label">Idioma</string>
+    <string name="language_system">Automático del sistema</string>
+    <string name="language_es">Español</string>
+    <string name="language_en">English</string>
+
+    <!-- Pestañas de Navegación -->
+    <string name="tab_home">Widgets</string>
+    <string name="tab_weather">Clima</string>
+    <string name="tab_astrology">Astrología</string>
+    <string name="tab_network">5G y Wi-Fi</string>
+
+    <!-- Permisos -->
+    <string name="permissions_card_title">Permisos y Accesos</string>
+    <string name="perm_location_desc">Ubicación para Clima local, Calidad del Aire (AQI) y nombre Wi-Fi</string>
+    <string name="perm_notification_desc">Acceso a notificaciones para widgets iPod, MP3 y Discman</string>
+    <string name="perm_phone_desc">Estado del teléfono para potencia de señal 5G NR / LTE en dBm</string>
+    <string name="btn_grant">Permitir</string>
+    <string name="status_granted">Activo</string>
+
+    <!-- Widget y Pantalla de Clima -->
+    <string name="widget_weather_title">Clima Pro One UI (Lluvia, AQI y Luna)</string>
+    <string name="widget_weather_desc">Probabilidad de lluvia, Calidad del Aire (AQI), UV y Fase Lunar vía Open-Meteo</string>
+    <string name="weather_rain_prob">Prob. Lluvia</string>
+    <string name="weather_aqi_label">Calidad del Aire (AQI)</string>
+    <string name="weather_uv_label">Índice UV</string>
+    <string name="weather_feels_like">Sensación</string>
+    <string name="weather_refresh">Actualizar Clima</string>
+    <string name="aqi_good">Buena</string>
+    <string name="aqi_fair">Aceptable</string>
+    <string name="aqi_moderate">Moderada</string>
+    <string name="aqi_poor">Mala</string>
+    <string name="aqi_very_poor">Muy Mala</string>
+
+    <!-- Widget y Pantalla de Astrología -->
+    <string name="widget_astrology_title">Efemérides y Retrógrados One UI</string>
+    <string name="widget_astrology_desc">Signo solar, tránsito lunar, fase de la luna y Mercurio/Planetas retrógrados</string>
+    <string name="astro_sun_sign">Signo Solar</string>
+    <string name="astro_moon_transit">Luna Hoy</string>
+    <string name="astro_moon_phase">Fase Lunar</string>
+    <string name="astro_retrograde_status">Movimiento Planetario</string>
+    <string name="planet_direct">Directo</string>
+    <string name="planet_retrograde">Retrógrado</string>
+    <string name="planet_pre_shadow">Sombra Pre-Retrógrada</string>
+    <string name="planet_post_shadow">Sombra Post-Retrógrada</string>
+
+    <!-- Widgets de Música Retro -->
+    <string name="media_listener_service_name">Puente de Música Retro One UI</string>
+    <string name="widget_music_ipod_title">Música Retro: iPod Classic</string>
+    <string name="widget_music_ipod_desc">Reproductor con rueda clic sincronizado con Spotify, YouTube Music y Samsung Music</string>
+    <string name="widget_music_mp3_title">Música Retro: MP3 LCD 2000s</string>
+    <string name="widget_music_mp3_desc">Reproductor MP3 compacto con pantalla LCD retroiluminada</string>
+    <string name="widget_music_discman_title">Música Retro: Discman CD</string>
+    <string name="widget_music_discman_desc">Reproductor de CD portátil con carátula en disco y ESP Anti-Shock</string>
+    <string name="music_no_track">Sin música activa</string>
+    <string name="music_tap_to_play">Reproduce música en tu app favorita</string>
+
+    <!-- Widget de Calidad de Red 5G y Wi-Fi -->
+    <string name="widget_network_title">Calidad de Red 5G y Wi-Fi One UI</string>
+    <string name="widget_network_desc">Potencia 5G NR / LTE en dBm, velocidad Wi-Fi 6 (Mbps) y banda en tiempo real</string>
+    <string name="network_mobile_label">Red Móvil</string>
+    <string name="network_wifi_label">Red Wi-Fi</string>
+    <string name="network_disconnected">Desconectado</string>
+</resources>
