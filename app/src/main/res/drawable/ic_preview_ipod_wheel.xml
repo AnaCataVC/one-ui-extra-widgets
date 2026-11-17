@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="104dp"
+    android:height="104dp"
+    android:viewportWidth="104"
+    android:viewportHeight="104">
+    <!-- Outer wheel -->
+    <path
+        android:fillColor="#E5E6EB"
+        android:strokeColor="#C6C8D0"
+        android:strokeWidth="1.5"
+        android:pathData="M52,4 A48,48 0 1,1 51.99,4 Z" />
+    <!-- Center select button -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#C6C8D0"
+        android:strokeWidth="1.5"
+        android:pathData="M52,34 A18,18 0 1,1 51.99,34 Z" />
+    <!-- Top MENU indicator bar -->
+    <path
+        android:fillColor="#5A5D66"
+        android:pathData="M43,14 H61 V16.5 H43 Z" />
+    <!-- Left Prev icon -->
+    <path
+        android:fillColor="#5A5D66"
+        android:pathData="M15,48 H17 V56 H15 Z M24,48 L18,52 L24,56 Z" />
+    <!-- Right Next icon -->
+    <path
+        android:fillColor="#5A5D66"
+        android:pathData="M87,48 H89 V56 H87 Z M80,48 L86,52 L80,56 Z" />
+    <!-- Bottom Play/Pause icon -->
+    <path
+        android:fillColor="#5A5D66"
+        android:pathData="M46,85 L52,89 L46,93 Z M54,85 H56 V93 H54 Z M57.5,85 H59.5 V93 H57.5 Z" />
+</vector>
