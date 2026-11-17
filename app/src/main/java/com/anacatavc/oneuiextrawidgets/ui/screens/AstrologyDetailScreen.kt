@@ -40,7 +40,8 @@ fun AstrologyDetailScreen(
             } else {
                 if (isSpanish) "☿ Mercurio está Directo" else "☿ Mercury is Direct"
             },
-            subtitle = "${mercury.motionState.localizedBadge(isSpanish)} • ${mercury.zodiacSign.symbol} ${mercury.zodiacSign.localizedName(isSpanish)}"
+            subtitle = "${mercury.motionState.localizedBadge(isSpanish)} • " +
+                "${mercury.zodiacSign.symbol} ${mercury.zodiacSign.localizedName(isSpanish)}"
         )
 
         OneUiCard(title = if (isSpanish) "Sol y Luna Hoy" else "Sun & Moon Today") {
@@ -54,8 +55,9 @@ fun AstrologyDetailScreen(
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    val sunDeg = String.format(Locale.US, "%.1f", snapshot.sunDegreeInSign)
                     Text(
-                        text = "${snapshot.sunSign.symbol} ${snapshot.sunSign.localizedName(isSpanish)} (${String.format(Locale.US, "%.1f", snapshot.sunDegreeInSign)}°)",
+                        text = "${snapshot.sunSign.symbol} ${snapshot.sunSign.localizedName(isSpanish)} ($sunDeg°)",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -91,14 +93,18 @@ fun AstrologyDetailScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
+                        val signName = planet.zodiacSign.localizedName(isSpanish)
                         Text(
-                            text = "${planet.symbol} ${planet.localizedName(isSpanish)} — ${planet.zodiacSign.symbol} ${planet.zodiacSign.localizedName(isSpanish)}",
+                            text = "${planet.symbol} ${planet.localizedName(isSpanish)} — " +
+                                "${planet.zodiacSign.symbol} $signName",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold
                         )
                         val speedUnit = if (isSpanish) "°/día" else "°/day"
+                        val degStr = String.format(Locale.US, "%.1f", planet.degreeInSign)
+                        val speedStr = String.format(Locale.US, "%+.2f", planet.dailySpeedDeg)
                         Text(
-                            text = "${String.format(Locale.US, "%.1f", planet.degreeInSign)}° • Δ ${String.format(Locale.US, "%+.2f", planet.dailySpeedDeg)}$speedUnit",
+                            text = "$degStr° • Δ $speedStr$speedUnit",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

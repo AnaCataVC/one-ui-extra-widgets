@@ -150,9 +150,11 @@ fun WeatherDetailScreen(
                     )
                     Text(
                         text = if (isSpanish) {
-                            "Iluminación: ${lunarStatus.illuminationPercent}% • Luna en ${lunarStatus.moonSign.symbol} ${lunarStatus.moonSign.nameEs}"
+                            "Iluminación: ${lunarStatus.illuminationPercent}% • " +
+                                "Luna en ${lunarStatus.moonSign.symbol} ${lunarStatus.moonSign.nameEs}"
                         } else {
-                            "Illumination: ${lunarStatus.illuminationPercent}% • Moon in ${lunarStatus.moonSign.symbol} ${lunarStatus.moonSign.nameEn}"
+                            "Illumination: ${lunarStatus.illuminationPercent}% • " +
+                                "Moon in ${lunarStatus.moonSign.symbol} ${lunarStatus.moonSign.nameEn}"
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
