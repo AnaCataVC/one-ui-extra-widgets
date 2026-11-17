@@ -36,8 +36,8 @@ object OneUiGlanceTokens {
     )
 
     val RetroLcdBacklight = ColorProvider(
-        day = Color(0xFF9BBC0F),
-        night = Color(0xFF79E2B6)
+        day = Color(0xFF35E8F7),
+        night = Color(0xFF1FD6E8)
     )
 
     val RetroAlertAmber = ColorProvider(
@@ -56,17 +56,42 @@ object OneUiGlanceTokens {
     )
 
     val RetroMp3ShellSurface = ColorProvider(
-        day = Color(0xFF282C34),
-        night = Color(0xFF15171C)
+        day = Color(0xFF27359B),
+        night = Color(0xFF1A236B)
+    )
+
+    val RetroMp3CapSeam = ColorProvider(
+        day = Color(0xFF1A2473),
+        night = Color(0xFF11174A)
+    )
+
+    val RetroMp3BezelSurface = ColorProvider(
+        day = Color(0xFF0F1117),
+        night = Color(0xFF090A0E)
+    )
+
+    val RetroMp3GoldLabel = ColorProvider(
+        day = Color(0xFFEBC94B),
+        night = Color(0xFFF3D564)
+    )
+
+    val RetroMp3SilverSurface = ColorProvider(
+        day = Color(0xFFE4E7F0),
+        night = Color(0xFFD0D5E2)
+    )
+
+    val RetroMp3SilverText = ColorProvider(
+        day = Color(0xFF1B1F2A),
+        night = Color(0xFF141821)
     )
 
     val RetroLcdPrimaryText = ColorProvider(
-        day = Color(0xFF081C08),
-        night = Color(0xFF04140E)
+        day = Color(0xFF04262E),
+        night = Color(0xFF031C22)
     )
 
     val RetroLcdSecondaryText = ColorProvider(
-        day = Color(0xFF0F290F),
-        night = Color(0xFF092218)
+        day = Color(0xFF0A4352),
+        night = Color(0xFF073440)
     )
 }

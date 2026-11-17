@@ -197,4 +197,109 @@ object WidgetCanvasRenderer {
 
         return bitmap
     }
+
+    /**
+     * Renders a circular portable CD player (Discman) shell with metallic bevel rim,
+     * COMPACT DISC / ESP ANTI-SHOCK branding, central pill module recess, and bottom speaker grille.
+     */
+    fun renderDiscmanBodyBitmap(sizePx: Int = 420, isDarkTheme: Boolean = true): Bitmap {
+        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val cx = sizePx / 2f
+        val cy = sizePx / 2f
+        val outerR = sizePx * 0.485f
+        val bodyR = sizePx * 0.46f
+
+        // Outer metallic bevel rim
+        val bevelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            shader = LinearGradient(
+                0f, cy - outerR, 0f, cy + outerR,
+                intArrayOf(
+                    Color.parseColor("#6A6F7D"),
+                    Color.parseColor("#2A2D35"),
+                    Color.parseColor("#545966")
+                ),
+                null,
+                Shader.TileMode.CLAMP
+            )
+            style = Paint.Style.FILL
+        }
+        canvas.drawCircle(cx, cy, outerR, bevelPaint)
+
+        // Matte dark graphite Discman body
+        val bodyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            shader = LinearGradient(
+                0f, cy - bodyR, 0f, cy + bodyR,
+                if (isDarkTheme) Color.parseColor("#323640") else Color.parseColor("#3C404B"),
+                if (isDarkTheme) Color.parseColor("#1B1D23") else Color.parseColor("#23262E"),
+                Shader.TileMode.CLAMP
+            )
+            style = Paint.Style.FILL
+        }
+        canvas.drawCircle(cx, cy, bodyR, bodyPaint)
+
+        val bodyRimPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#44FFFFFF")
+            style = Paint.Style.STROKE
+            strokeWidth = sizePx * 0.005f
+        }
+        canvas.drawCircle(cx, cy, bodyR, bodyRimPaint)
+
+        // Top branding: COMPACT DISC DIGITAL AUDIO + ESP ANTI-SHOCK
+        val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#E6E8EE")
+            textSize = sizePx * 0.048f
+            textAlign = Paint.Align.CENTER
+            isFakeBoldText = true
+        }
+        val subtitlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#B5BAC7")
+            textSize = sizePx * 0.026f
+            textAlign = Paint.Align.CENTER
+            isFakeBoldText = true
+        }
+        canvas.drawText("COMPACT DISC", cx, cy - bodyR * 0.56f, titlePaint)
+        canvas.drawText("DIGITAL AUDIO  •  ESP ANTI-SHOCK", cx, cy - bodyR * 0.42f, subtitlePaint)
+
+        // Center pill-shaped control module recess
+        val pillW = bodyR * 1.66f
+        val pillH = bodyR * 0.48f
+        val pillRect = RectF(cx - pillW / 2f, cy - pillH / 2f, cx + pillW / 2f, cy + pillH / 2f)
+        val pillRadius = pillH / 2f
+        val pillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#13151A")
+            style = Paint.Style.FILL
+        }
+        val pillStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#4B505C")
+            style = Paint.Style.STROKE
+            strokeWidth = sizePx * 0.006f
+        }
+        canvas.drawRoundRect(pillRect, pillRadius, pillRadius, pillPaint)
+        canvas.drawRoundRect(pillRect, pillRadius, pillRadius, pillStrokePaint)
+
+        // Bottom perforated speaker grille dots arranged in concentric arcs
+        val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#101216")
+            style = Paint.Style.FILL
+        }
+        val dotRadius = sizePx * 0.0085f
+        val arcRadii = floatArrayOf(bodyR * 0.56f, bodyR * 0.67f, bodyR * 0.78f)
+        val dotCounts = intArrayOf(11, 13, 15)
+        for (row in arcRadii.indices) {
+            val r = arcRadii[row]
+            val count = dotCounts[row]
+            val startAngle = 42.0
+            val endAngle = 138.0
+            for (i in 0 until count) {
+                val t = if (count == 1) 0.5 else i.toDouble() / (count - 1)
+                val angleRad = Math.toRadians(startAngle + t * (endAngle - startAngle))
+                val dx = cx + (r * cos(angleRad)).toFloat()
+                val dy = cy + (r * kotlin.math.sin(angleRad)).toFloat()
+                canvas.drawCircle(dx, dy, dotRadius, dotPaint)
+            }
+        }
+
+        return bitmap
+    }
 }
