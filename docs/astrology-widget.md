@@ -1,6 +1,6 @@
 # One UI Astrology: Transits & Retrogrades (`OneUiAstrologyWidget`)
 
-The **One UI Astrology: Transits & Retrogrades** widget (`OneUiAstrologyWidget`) is a 100% offline Jetpack Glance home-screen widget designed for **Samsung One UI 6.1 – 8.5**. It computes real-time tropical zodiac positions and planetary retrograde states locally via `Astronomy Engine` (`io.github.cosinekitty:astronomy`).
+The **One UI Astrology: Transits & Retrogrades** widget (`OneUiAstrologyWidget`) is a 100% offline Jetpack Glance home-screen widget designed for **Samsung One UI 6.1 – 8.5**. It computes real-time tropical zodiac positions and planetary retrograde states locally via [`AstrologyEngine`](astrology-engine.md) (`io.github.cosinekitty:astronomy`).
 
 > **Separation of Concerns:** Lunar phase illumination, synodic age, and elongation live exclusively in the scientific `OneUiMoonPhaseWidget` ([Weather & Lunar Widgets](weather-widgets.md)). `OneUiAstrologyWidget` focuses strictly on astrological transits and planetary motion.
 
@@ -10,13 +10,13 @@ The **One UI Astrology: Transits & Retrogrades** widget (`OneUiAstrologyWidget`)
 
 `OneUiAstrologyWidget` uses `SizeMode.Exact` and delegates dimension math to `calculateAstrologyLayout(widthDp, heightDp)` across three responsive tiers:
 
-1. **Hero Header (`Canvas` Orbital Emblem + Mercury Status):**
-   - Renders a deterministic `Bitmap` orbital badge via `WidgetCanvasRenderer.renderAstrologyEmblemBitmap` featuring a vector Mercury glyph (`☿`) and status-colored sweep arc (Blue for Direct, Purple for Pre/Post-Retrograde Shadow, Amber for Retrograde).
-   - Displays Mercury's live motion state, current zodiac sign, and a summary of any planets currently in retrograde.
-2. **Sun Sign & Daily Moon Transit Cards (`Canvas` Zodiac Badges):**
+1. **Hero Header (`Canvas` Orbital Emblem + Mercury Status & State Chip):**
+   - Renders a deterministic `Bitmap` orbital badge via `WidgetCanvasRenderer.renderAstrologyEmblemBitmap` reflecting Mercury's own motion state (Blue for Direct, Purple for Pre/Post-Retrograde Shadow, Amber for Retrograde).
+   - Displays a `TODAY'S TRANSITS` / `TRÁNSITOS DE HOY` eyebrow, `Mercury • <Sign>` headline, a retrograde summary line in Amber when any tracked planet is retrograde, and a right-aligned status chip (`Direct`, `Pre-Shadow`, `Post-Shadow`, `Retrograde`) in `STANDARD` and `EXPANDED` modes.
+2. **Sun Sign & Moon Today Cards (`Canvas` Zodiac Badges):**
    - Renders bespoke, emoji-free circular zodiac badges via `WidgetCanvasRenderer.renderZodiacSignBitmap` with element-tinted backdrops (Fire, Earth, Air, Water) and custom vector line-art for all 12 signs.
    - **Sun Sign:** Current tropical Sun sign and ecliptic degree within the sign (`0°–30°`, shown in `STANDARD` and `EXPANDED` modes).
-   - **Moon Transit:** Current tropical zodiac sign of the Moon today.
+   - **Moon Today:** Current tropical zodiac sign and lunar illumination percentage (shown in `STANDARD` and `EXPANDED` modes), plus the localized lunar phase name in `EXPANDED`.
 3. **5-Planet Transit Strip (`STANDARD` & `EXPANDED`):**
    - Displays **Mercury, Venus, Mars, Jupiter, and Saturn** with mini `Canvas` zodiac badges, 3-letter planet codes (`Mer`, `Ven`, `Mar`, `Jup`/`Júp`, `Sat`), and color-coded motion indicators (`R` for Retrograde, `S` for Shadow in `EXPANDED` mode).
 
