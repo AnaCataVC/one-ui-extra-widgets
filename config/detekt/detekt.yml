@@ -1,0 +1,27 @@
+build:
+  maxIssues: 0
+
+style:
+  MagicNumber:
+    active: false
+  MaxLineLength:
+    active: true
+    maxLineLength: 140
+  UnusedPrivateMember:
+    active: true
+  WildcardImport:
+    active: false
+
+naming:
+  FunctionNaming:
+    # Allow PascalCase @Composable and Glance @Composable functions
+    ignoreAnnotated: ['Composable']
+    functionPattern: '[a-zA-Z][a-zA-Z0-9]*'
+
+complexity:
+  LongMethod:
+    active: false
+  LongParameterList:
+    active: false
+  TooManyFunctions:
+    active: false
