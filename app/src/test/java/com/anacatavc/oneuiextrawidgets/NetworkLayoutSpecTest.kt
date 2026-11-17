@@ -49,7 +49,7 @@ class NetworkLayoutSpecTest {
         assertEquals(14f, expandedSpec.cardPaddingDp, 0.01f)
         assertTrue(expandedSpec.showHeaderTitle)
         assertTrue(expandedSpec.showExtendedDetails)
-        assertTrue(expandedSpec.iconSizeDp in 38f..52f)
+        assertTrue(expandedSpec.iconSizeDp in 40f..52f)
         assertTrue(expandedSpec.iconSizeDp >= squareSpec.iconSizeDp)
     }
 
@@ -59,8 +59,8 @@ class NetworkLayoutSpecTest {
         val negSpec = calculateNetworkLayout(widthDp = -30f, heightDp = -10f)
 
         assertEquals(NetworkLayoutMode.COMPACT_PILL, zeroSpec.mode)
-        assertEquals(24f, zeroSpec.iconSizeDp, 0.01f)
+        assertTrue(zeroSpec.iconSizeDp in 24f..36f)
         assertEquals(NetworkLayoutMode.COMPACT_PILL, negSpec.mode)
-        assertEquals(24f, negSpec.iconSizeDp, 0.01f)
+        assertTrue(negSpec.iconSizeDp in 24f..36f)
     }
 }

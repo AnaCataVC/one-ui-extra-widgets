@@ -89,7 +89,7 @@ internal fun calculateNetworkLayout(widthDp: Float, heightDp: Float): NetworkLay
         NetworkLayoutMode.SQUARE -> {
             val padding = 12f
             val innerMin = (minOf(safeW, safeH) - padding * 2f).coerceAtLeast(96f)
-            val iconSize = (innerMin * 0.28f).coerceIn(32f, 44f)
+            val iconSize = (innerMin * 0.28f).coerceIn(32f, 40f)
             NetworkLayoutSpec(
                 mode = mode,
                 cardPaddingDp = padding,
@@ -102,7 +102,7 @@ internal fun calculateNetworkLayout(widthDp: Float, heightDp: Float): NetworkLay
         NetworkLayoutMode.EXPANDED -> {
             val padding = 14f
             val innerMin = (minOf(safeW * 0.5f, safeH) - padding * 2f).coerceAtLeast(100f)
-            val iconSize = (innerMin * 0.36f).coerceIn(38f, 52f)
+            val iconSize = (innerMin * 0.42f).coerceIn(40f, 52f)
             NetworkLayoutSpec(
                 mode = mode,
                 cardPaddingDp = padding,
