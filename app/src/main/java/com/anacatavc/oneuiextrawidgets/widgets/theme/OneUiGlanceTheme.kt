@@ -200,5 +200,30 @@ object OneUiCanvasPalette {
     const val DISCMAN_PILL_BG: Int = 0xFF13151A.toInt()
     const val DISCMAN_PILL_STROKE: Int = 0xFF4B505C.toInt()
     const val DISCMAN_SPEAKER_DOT: Int = 0xFF101216.toInt()
+
+    const val ASTRO_DIRECT_LIGHT: Int = 0xFF0381FE.toInt()
+    const val ASTRO_DIRECT_DARK: Int = 0xFF3E9BFF.toInt()
+    const val ASTRO_RETRO_LIGHT: Int = 0xFFD97706.toInt()
+    const val ASTRO_RETRO_DARK: Int = 0xFFFBBF24.toInt()
+    const val ASTRO_SHADOW_LIGHT: Int = 0xFF7C3AED.toInt()
+    const val ASTRO_SHADOW_DARK: Int = 0xFFA78BFA.toInt()
+    const val ASTRO_GLOW_DIRECT: Int = 0x220381FE
+    const val ASTRO_GLOW_RETRO: Int = 0x26D97706
+    const val ASTRO_GLOW_SHADOW: Int = 0x227C3AED
+
+    const val ZODIAC_FIRE_LIGHT: Int = 0xFFEA580C.toInt()
+    const val ZODIAC_FIRE_DARK: Int = 0xFFFB923C.toInt()
+    const val ZODIAC_FIRE_GLOW: Int = 0x24EA580C
+    const val ZODIAC_EARTH_LIGHT: Int = 0xFF059669.toInt()
+    const val ZODIAC_EARTH_DARK: Int = 0xFF34D399.toInt()
+    const val ZODIAC_EARTH_GLOW: Int = 0x24059669
+    const val ZODIAC_AIR_LIGHT: Int = 0xFF0284C7.toInt()
+    const val ZODIAC_AIR_DARK: Int = 0xFF38BDF8.toInt()
+    const val ZODIAC_AIR_GLOW: Int = 0x240284C7
+    const val ZODIAC_WATER_LIGHT: Int = 0xFF4F46E5.toInt()
+    const val ZODIAC_WATER_DARK: Int = 0xFFA5B4FC.toInt()
+    const val ZODIAC_WATER_GLOW: Int = 0x244F46E5
 }
+
+
 

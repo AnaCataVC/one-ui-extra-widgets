@@ -45,12 +45,17 @@
     <string name="aqi_very_poor">Muy Mala</string>
 
     <!-- Widget y Pantalla de Astrología -->
-    <string name="widget_astrology_title">Efemérides y Retrógrados One UI</string>
-    <string name="widget_astrology_desc">Signo solar, tránsito lunar, fase de la luna y Mercurio/Planetas retrógrados</string>
+    <string name="widget_astrology_title">Astrología One UI: Tránsitos y Retrógrados</string>
+    <string name="widget_astrology_desc">Signo solar, tránsito lunar diario y estado de Mercurio y planetas retrógrados</string>
     <string name="astro_sun_sign">Signo Solar</string>
     <string name="astro_moon_transit">Luna Hoy</string>
     <string name="astro_moon_phase">Fase Lunar</string>
     <string name="astro_retrograde_status">Movimiento Planetario</string>
+    <string name="astro_preview_eyebrow">ASTROLOGÍA • ONE UI</string>
+    <string name="astro_preview_mercury">Mercurio: Directo</string>
+    <string name="astro_preview_summary">Sagitario • Retrógrados: Júpiter</string>
+    <string name="astro_preview_sun_value">Escorpio • 25°</string>
+    <string name="astro_preview_moon_value">Leo</string>
     <string name="planet_direct">Directo</string>
     <string name="planet_retrograde">Retrógrado</string>
     <string name="planet_pre_shadow">Sombra Pre-Retrógrada</string>

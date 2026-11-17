@@ -45,12 +45,17 @@
     <string name="aqi_very_poor">Very Poor</string>
 
     <!-- Astrology Widget & Screen -->
-    <string name="widget_astrology_title">One UI Ephemeris &amp; Retrogrades</string>
-    <string name="widget_astrology_desc">Sun sign, Moon transit, Lunar phase &amp; Mercury/Planetary Retrograde status</string>
+    <string name="widget_astrology_title">One UI Astrology: Transits &amp; Retrogrades</string>
+    <string name="widget_astrology_desc">Sun sign, daily Moon transit &amp; live Mercury/planetary retrograde status</string>
     <string name="astro_sun_sign">Sun Sign</string>
     <string name="astro_moon_transit">Moon Transit</string>
     <string name="astro_moon_phase">Lunar Phase</string>
     <string name="astro_retrograde_status">Planetary Motion</string>
+    <string name="astro_preview_eyebrow">ASTROLOGY • ONE UI</string>
+    <string name="astro_preview_mercury">Mercury: Direct</string>
+    <string name="astro_preview_summary">Sagittarius • Retrograde: Jupiter</string>
+    <string name="astro_preview_sun_value">Scorpio • 25°</string>
+    <string name="astro_preview_moon_value">Leo</string>
     <string name="planet_direct">Direct</string>
     <string name="planet_retrograde">Retrograde</string>
     <string name="planet_pre_shadow">Pre-Retrograde Shadow</string>
