@@ -26,11 +26,11 @@
 
 - **One UI Weather Pro Widget (`OneUiWeatherWidget`)**: Fetches hourly precipitation probability (`%`), European Air Quality Index (`AQI`), $\text{PM}_{2.5}$ / $\text{PM}_{10}$ particulate matter, UV index, and temperature from the free, zero-key **Open-Meteo** Forecast and Air Quality APIs. Includes a custom `Canvas`-rendered Lunar Phase sphere and opens the in-app Weather Detail view on tap.
 - **100% Offline Astrology & Ephemeris Widget (`OneUiAstrologyWidget`)**: Powered locally by `Astronomy Engine` (`io.github.cosinekitty:astronomy`) with zero network calls. Computes apparent geocentric ecliptic longitudes ($\lambda$) and daily angular velocities ($d\lambda/dt$) to display the current **Sun Sign**, daily **Moon Zodiac Transit**, **Lunar Illumination**, and whether **Mercury, Venus, Mars, Jupiter, or Saturn** are **Direct**, **Retrograde** ($d\lambda/dt < 0$), or in **Pre/Post-Retrograde Shadow**.
-- **Retro Music Players — iPod Classic, 2000s MP3 LCD & Portable CD Discman**:
-  1. *iPod Classic (`IpodClassicWidget`)*: Features a custom `Canvas` Click Wheel with interactive previous, play/pause, and next hit-zones.
-  2. *2000s MP3 LCD Stick (`RetroMp3Widget`)*: Compact `4×1` horizontal player with a backlit dot-matrix LCD aesthetic and `128KBPS STEREO` readout.
-  3. *Portable CD Discman (`DiscmanWidget`)*: Circular window that dynamically masks the active track's Album Art into a spinning-style Compact Disc (CD) with a polycarbonate hub and *ESP Anti-Shock* controls.
-  - All three music widgets synchronize automatically with **Spotify, YouTube Music, Apple Music, Samsung Music, Tidal**, and any active Android `MediaSession` via `NotificationListenerService`.
+- **Retro Music Players — iPod Classic, 2000s USB MP3 & Circular CD Discman** ([full specs](docs/retro-music-widgets.md)):
+  1. *iPod Classic (`IpodClassicWidget`)*: Responsive `SizeMode.Exact` layout with a 5-zone `Canvas` Click Wheel (`MENU`, previous, play/pause, next) and dynamic device model fallback.
+  2. *2000s USB MP3 Stick (`RetroMp3Widget`)*: Cobalt-blue `4×1` stick with left silver controls, glossy black bezel, gold print, and a **cyan** backlit LCD that stacks cleanly when resized vertically.
+  3. *Circular CD Discman (`DiscmanWidget`)*: 1:1 circular matte-graphite Discman with metallic rim, bottom speaker grille, and a central pill module featuring a **cyan** LCD and transport controls.
+  - All three widgets include One UI `previewLayout` XML previews and synchronize with **Spotify, YouTube Music, Apple Music, Samsung Music, Tidal**, and any active Android `MediaSession` (with `AudioManager` media-key fallback).
 - **5G NR & Wi-Fi 6 Network Quality Widget (`OneUiNetworkWidget`)**: Inspects `TelephonyManager`, `CellSignalStrengthNr`, `ConnectivityManager`, and `WifiInfo` to display real-time cellular generation (`5G NR` / `4G LTE`), carrier name, RSRP signal power in `dBm` and bars (`0–4`), alongside Wi-Fi link speed in `Mbps`, frequency band (`5 GHz` / `2.4 GHz`), `RSSI` in `dBm`, and `SSID`.
 - **Automatic & Manual Bilingual Localization (ES / EN)**: Automatically follows the device's system locale (Spanish by default) and provides an instant in-app switcher (**System / Español / English**) powered by `AppCompatDelegate.setApplicationLocales` and Android 14+ `LocaleConfig`.
 
