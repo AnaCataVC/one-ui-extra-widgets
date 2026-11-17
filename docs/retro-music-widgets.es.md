@@ -17,10 +17,10 @@ La suite de Música Retro ofrece tres reproductores para la pantalla de inicio c
 
 ## 2. Reproductor MP3 USB 2000s (`RetroMp3Widget`)
 - **Proveedor:** `app/src/main/res/xml/widget_music_mp3_info.xml` (`4×1` por defecto, `resizeMode="horizontal|vertical"`)
-- **Diseño visual:** Carcasa azul cobalto (`#27359B` día / `#1A236B` noche) con esquinas `26.dp` de One UI, línea de unión de tapa USB a la derecha, botones circulares plateados a la izquierda (`⏮`, botón principal `▶`/`⏸`, `⏭`) y bisel negro brillante (`#0F1117`) con etiquetas doradas (`DIGITAL MP3 PLAYER`, `MP3 / FM`, `USB`) rodeando una pantalla LCD retroiluminada en **cyan** (`#35E8F7` día / `#1FD6E8` noche).
+- **Diseño visual:** Carcasa estilo One UI azul índigo-cobalto (`#3F46A8` día / `#2D3380` noche) con esquinas `26.dp`, tapa USB lateral derecha con línea de unión y ranura para correa, controles circulares ergonómicos a la izquierda (`⏮`, botón principal `▶`/`⏸` más grande, `⏭`) y pantalla oscura de alto contraste (`#0E121B`) con etiquetas doradas (`DIGITAL MP3`, `USB`), jerarquía visual en dos líneas (título cyan + subtítulo en gris pizarra suave), ecualizador de 5 barras y barra de estado cyan en la base.
 - **Modos responsivos (`calculateMp3Layout`):**
-  - `PILL`: Barra horizontal; reduce los botones secundarios a `30.dp` si el ancho baja de `220.dp`.
-  - `STACKED`: Apila el bisel negro + LCD cyan arriba y redistribuye los botones plateados a lo ancho en la parte inferior al estirarse verticalmente.
+  - `PILL`: Barra horizontal; ajusta el tamaño de botones y oculta la tapa USB por debajo de `240.dp` de ancho (y el ecualizador por debajo de `220.dp`) para preservar la legibilidad.
+  - `STACKED`: Apila la pantalla oscura arriba y redistribuye los botones circulares a lo ancho en la parte inferior al estirarse verticalmente.
 
 ## 3. Discman CD Portátil Circular (`DiscmanWidget`)
 - **Proveedor:** `app/src/main/res/xml/widget_music_discman_info.xml` (`2×2` por defecto, `resizeMode="horizontal|vertical"`)

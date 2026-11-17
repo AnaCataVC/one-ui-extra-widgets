@@ -64,8 +64,10 @@ object OneUiGlanceTokens {
     private val InnerCardNightBase = Color(0xFF2C2C2E)
     private val IpodShellDayBase = Color(0xFFEAECEF)
     private val IpodShellNightBase = Color(0xFF1F2024)
-    private val RetroMp3ShellDayBase = Color(0xFF27359B)
-    private val RetroMp3ShellNightBase = Color(0xFF1A236B)
+    private val RetroMp3ShellDayBase = Color(0xFF3F46A8)
+    private val RetroMp3ShellNightBase = Color(0xFF2D3380)
+    private val RetroMp3CapSeamDayBase = Color(0xFF252A6E)
+    private val RetroMp3CapSeamNightBase = Color(0xFF191D4D)
 
     val SurfaceBackground: ColorProvider = dayNightColorProvider(
         day = SurfaceDayBase,
@@ -117,6 +119,14 @@ object OneUiGlanceTokens {
         )
     }
 
+    fun retroMp3CapSeam(opacityPct: Int): ColorProvider {
+        if (opacityPct >= 100) return RetroMp3CapSeam
+        return dayNightColorProvider(
+            day = scaleColorAlpha(RetroMp3CapSeamDayBase, opacityPct),
+            night = scaleColorAlpha(RetroMp3CapSeamNightBase, opacityPct)
+        )
+    }
+
     val PrimaryText = dayNightColorProvider(
         day = Color(0xFF121316),
         night = Color(0xFFF5F6F9)
@@ -158,13 +168,13 @@ object OneUiGlanceTokens {
     )
 
     val RetroMp3CapSeam = dayNightColorProvider(
-        day = Color(0xFF1A2473),
-        night = Color(0xFF11174A)
+        day = RetroMp3CapSeamDayBase,
+        night = RetroMp3CapSeamNightBase
     )
 
     val RetroMp3BezelSurface = dayNightColorProvider(
-        day = Color(0xFF0F1117),
-        night = Color(0xFF090A0E)
+        day = Color(0xFF0E121B),
+        night = Color(0xFF0A0D14)
     )
 
     val RetroMp3GoldLabel = dayNightColorProvider(
@@ -173,13 +183,28 @@ object OneUiGlanceTokens {
     )
 
     val RetroMp3SilverSurface = dayNightColorProvider(
-        day = Color(0xFFE4E7F0),
-        night = Color(0xFFD0D5E2)
+        day = Color(0xFFEDEFF8),
+        night = Color(0xFFDCE1F0)
     )
 
     val RetroMp3SilverText = dayNightColorProvider(
-        day = Color(0xFF1B1F2A),
-        night = Color(0xFF141821)
+        day = Color(0xFF232854),
+        night = Color(0xFF1A1E40)
+    )
+
+    val RetroMp3ScreenSubtext = dayNightColorProvider(
+        day = Color(0xFFA8B5C8),
+        night = Color(0xFF94A3B8)
+    )
+
+    val RetroMp3TrackBg = dayNightColorProvider(
+        day = Color(0xFF232C3D),
+        night = Color(0xFF1E2636)
+    )
+
+    val RetroMp3EqIdle = dayNightColorProvider(
+        day = Color(0xFF4F5E78),
+        night = Color(0xFF435168)
     )
 
     val RetroLcdPrimaryText = dayNightColorProvider(

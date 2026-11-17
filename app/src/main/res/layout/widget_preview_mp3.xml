@@ -4,18 +4,17 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_preview_mp3_shell"
     android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:paddingLeft="12dp"
-    android:paddingTop="8dp"
-    android:paddingRight="12dp"
-    android:paddingBottom="8dp">
+    android:orientation="horizontal">
 
     <!-- Left Silver Control Cluster -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
         <ImageView
             android:layout_width="26dp"
@@ -26,9 +25,9 @@
             android:src="@drawable/ic_media_prev" />
 
         <ImageView
-            android:layout_width="34dp"
-            android:layout_height="34dp"
-            android:layout_marginStart="5dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="6dp"
             android:background="@drawable/bg_preview_silver_circle"
             android:contentDescription="@string/widget_music_mp3_title"
             android:padding="7dp"
@@ -37,26 +36,29 @@
         <ImageView
             android:layout_width="26dp"
             android:layout_height="26dp"
-            android:layout_marginStart="5dp"
+            android:layout_marginStart="6dp"
             android:background="@drawable/bg_preview_silver_circle"
             android:contentDescription="@string/widget_music_mp3_title"
             android:padding="6dp"
             android:src="@drawable/ic_media_next" />
     </LinearLayout>
 
-    <!-- Glossy Black Bezel with Cyan LCD -->
+    <!-- High-Contrast Dark Display Bezel -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginStart="10dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="7dp"
         android:layout_weight="1"
         android:background="@drawable/bg_preview_mp3_bezel"
-        android:gravity="center"
+        android:gravity="center_vertical"
         android:orientation="vertical"
-        android:paddingLeft="8dp"
-        android:paddingTop="4dp"
-        android:paddingRight="8dp"
-        android:paddingBottom="4dp">
+        android:paddingLeft="9dp"
+        android:paddingTop="5dp"
+        android:paddingRight="9dp"
+        android:paddingBottom="5dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -85,20 +87,76 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:background="@drawable/bg_preview_lcd_cyan"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:paddingLeft="7dp"
-            android:paddingTop="4dp"
-            android:paddingRight="7dp"
-            android:paddingBottom="4dp"
-            android:text="Retro Player — Audio"
-            android:textColor="@color/oneui_preview_lcd_text_primary"
-            android:textSize="11sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="2dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@string/music_no_track"
+                    android:textColor="@color/oneui_preview_mp3_title_cyan"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="Samsung Music"
+                    android:textColor="@color/oneui_preview_mp3_subtitle"
+                    android:textSize="9sp" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="3dp"
+                    android:layout_marginTop="3dp"
+                    android:background="@drawable/bg_preview_mp3_track">
+
+                    <FrameLayout
+                        android:layout_width="28dp"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_preview_mp3_track_active" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="6dp"
+                android:contentDescription="@string/widget_music_mp3_title"
+                android:src="@drawable/ic_preview_mp3_eq" />
+        </LinearLayout>
     </LinearLayout>
+
+    <!-- Right USB Cap Seam -->
+    <FrameLayout
+        android:layout_width="2dp"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_preview_mp3_seam" />
+
+    <!-- Right USB Cap & Lanyard Slot Notch -->
+    <FrameLayout
+        android:layout_width="32dp"
+        android:layout_height="match_parent"
+        android:paddingEnd="8dp">
+
+        <FrameLayout
+            android:layout_width="4dp"
+            android:layout_height="16dp"
+            android:layout_gravity="end|center_vertical"
+            android:background="@drawable/bg_preview_mp3_seam" />
+    </FrameLayout>
 </LinearLayout>

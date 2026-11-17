@@ -6,6 +6,7 @@ import com.anacatavc.oneuiextrawidgets.widgets.music.calculateDiscmanLayout
 import com.anacatavc.oneuiextrawidgets.widgets.music.calculateIpodLayout
 import com.anacatavc.oneuiextrawidgets.widgets.music.calculateMp3Layout
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -42,12 +43,23 @@ class IpodLayoutSpecTest {
     @Test
     fun `retro mp3 switches between PILL and STACKED layouts cleanly`() {
         val pillSpec = calculateMp3Layout(widthDp = 300f, heightDp = 80f)
+        val narrowPillSpec = calculateMp3Layout(widthDp = 190f, heightDp = 80f)
         val stackedSpec = calculateMp3Layout(widthDp = 180f, heightDp = 160f)
 
         assertEquals(RetroMp3LayoutMode.PILL, pillSpec.mode)
-        assertEquals(34f, pillSpec.buttonSizeDp, 0.01f)
+        assertEquals(38f, pillSpec.buttonSizeDp, 0.01f)
+        assertEquals(28f, pillSpec.sideButtonSizeDp, 0.01f)
+        assertTrue(pillSpec.showUsbCap)
+        assertTrue(pillSpec.usbCapWidthDp > 0f)
+        assertTrue(pillSpec.showEqualizer)
+
+        assertEquals(RetroMp3LayoutMode.PILL, narrowPillSpec.mode)
+        assertFalse(narrowPillSpec.showUsbCap)
+
         assertEquals(RetroMp3LayoutMode.STACKED, stackedSpec.mode)
-        assertTrue(stackedSpec.buttonSizeDp in 34f..44f)
+        assertTrue(stackedSpec.buttonSizeDp in 36f..46f)
+        assertTrue(stackedSpec.buttonSizeDp > stackedSpec.sideButtonSizeDp)
+        assertFalse(stackedSpec.showUsbCap)
     }
 
     @Test

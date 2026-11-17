@@ -46,6 +46,7 @@ import androidx.glance.semantics.semantics
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import com.anacatavc.oneuiextrawidgets.MainActivity
 import com.anacatavc.oneuiextrawidgets.R
 import com.anacatavc.oneuiextrawidgets.data.media.ActiveMediaState
@@ -450,7 +451,11 @@ internal enum class RetroMp3LayoutMode {
 
 internal data class RetroMp3LayoutSpec(
     val mode: RetroMp3LayoutMode,
-    val buttonSizeDp: Float
+    val buttonSizeDp: Float,
+    val sideButtonSizeDp: Float,
+    val showUsbCap: Boolean,
+    val usbCapWidthDp: Float,
+    val showEqualizer: Boolean
 )
 
 internal fun calculateMp3Layout(widthDp: Float, heightDp: Float): RetroMp3LayoutSpec {
@@ -458,11 +463,30 @@ internal fun calculateMp3Layout(widthDp: Float, heightDp: Float): RetroMp3Layout
     val safeH = heightDp.coerceAtLeast(70f)
     val isStacked = safeH >= 120f && safeW < safeH * 2.2f
     return if (isStacked) {
-        val btnSize = (safeW * 0.18f).coerceIn(34f, 44f)
-        RetroMp3LayoutSpec(mode = RetroMp3LayoutMode.STACKED, buttonSizeDp = btnSize)
+        val btnSize = (safeW * 0.18f).coerceIn(36f, 46f)
+        val sideBtnSize = (btnSize - 8f).coerceAtLeast(28f)
+        RetroMp3LayoutSpec(
+            mode = RetroMp3LayoutMode.STACKED,
+            buttonSizeDp = btnSize,
+            sideButtonSizeDp = sideBtnSize,
+            showUsbCap = false,
+            usbCapWidthDp = 0f,
+            showEqualizer = safeW >= 170f
+        )
     } else {
-        val btnSize = if (safeW < 220f) 28f else 34f
-        RetroMp3LayoutSpec(mode = RetroMp3LayoutMode.PILL, buttonSizeDp = btnSize)
+        val btnSize = if (safeW < 220f) 32f else 38f
+        val sideBtnSize = if (safeW < 220f) 24f else 28f
+        val showCap = safeW >= 240f
+        val capWidth = if (safeW >= 300f) 38f else if (showCap) 30f else 0f
+        val showEq = safeW >= 220f
+        RetroMp3LayoutSpec(
+            mode = RetroMp3LayoutMode.PILL,
+            buttonSizeDp = btnSize,
+            sideButtonSizeDp = sideBtnSize,
+            showUsbCap = showCap,
+            usbCapWidthDp = capWidth,
+            showEqualizer = showEq
+        )
     }
 }
 
@@ -510,6 +534,7 @@ class RetroMp3Widget : GlanceAppWidget() {
             val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
             val fontScaleMode by fontScaleFlow.collectAsState(initial = initialFontScale)
             val shellBg = OneUiGlanceTokens.retroMp3ShellSurface(opacityPct)
+            val seamColor = OneUiGlanceTokens.retroMp3CapSeam(opacityPct)
             val size = LocalSize.current
             val layout = calculateMp3Layout(size.width.value, size.height.value)
             val systemScale = OneUiGlanceTokens.systemFontScale(context)
@@ -541,6 +566,7 @@ class RetroMp3Widget : GlanceAppWidget() {
                     Mp3BezelDisplay(
                         media = media,
                         isStacked = true,
+                        showEqualizer = layout.showEqualizer,
                         sp = sp,
                         modifier = GlanceModifier
                             .fillMaxWidth()
@@ -560,14 +586,14 @@ class RetroMp3Widget : GlanceAppWidget() {
                             iconRes = R.drawable.ic_media_prev,
                             a11yLabel = if (isSpanish) "Pista anterior" else "Previous track",
                             action = actionRunCallback<PrevTrackAction>(),
-                            sizeDp = layout.buttonSizeDp - 4f
+                            sizeDp = layout.sideButtonSizeDp
                         )
                         Spacer(modifier = GlanceModifier.defaultWeight())
                         Mp3SilverButton(
                             iconRes = playPauseIcon,
                             a11yLabel = playPauseA11y,
                             action = actionRunCallback<PlayPauseAction>(),
-                            sizeDp = layout.buttonSizeDp + 4f,
+                            sizeDp = layout.buttonSizeDp,
                             isPrimary = true
                         )
                         Spacer(modifier = GlanceModifier.defaultWeight())
@@ -575,7 +601,7 @@ class RetroMp3Widget : GlanceAppWidget() {
                             iconRes = R.drawable.ic_media_next,
                             a11yLabel = if (isSpanish) "Siguiente pista" else "Next track",
                             action = actionRunCallback<NextTrackAction>(),
-                            sizeDp = layout.buttonSizeDp - 4f
+                            sizeDp = layout.sideButtonSizeDp
                         )
                         Spacer(modifier = GlanceModifier.defaultWeight())
                     }
@@ -585,45 +611,65 @@ class RetroMp3Widget : GlanceAppWidget() {
                     modifier = GlanceModifier
                         .fillMaxSize()
                         .cornerRadius(OneUiGlanceTokens.CornerRadius)
-                        .background(shellBg)
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                        .background(shellBg),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Mp3SilverButton(
-                            iconRes = R.drawable.ic_media_prev,
-                            a11yLabel = if (isSpanish) "Pista anterior" else "Previous track",
-                            action = actionRunCallback<PrevTrackAction>(),
-                            sizeDp = (layout.buttonSizeDp - 6f).coerceAtLeast(24f)
-                        )
-                        Spacer(modifier = GlanceModifier.width(5.dp))
-                        Mp3SilverButton(
-                            iconRes = playPauseIcon,
-                            a11yLabel = playPauseA11y,
-                            action = actionRunCallback<PlayPauseAction>(),
-                            sizeDp = layout.buttonSizeDp,
-                            isPrimary = true
-                        )
-                        Spacer(modifier = GlanceModifier.width(5.dp))
-                        Mp3SilverButton(
-                            iconRes = R.drawable.ic_media_next,
-                            a11yLabel = if (isSpanish) "Siguiente pista" else "Next track",
-                            action = actionRunCallback<NextTrackAction>(),
-                            sizeDp = (layout.buttonSizeDp - 6f).coerceAtLeast(24f)
-                        )
-                    }
-
-                    Spacer(modifier = GlanceModifier.width(10.dp))
-
-                    Mp3BezelDisplay(
-                        media = media,
-                        isStacked = false,
-                        sp = sp,
+                    Row(
                         modifier = GlanceModifier
                             .defaultWeight()
                             .fillMaxHeight()
-                            .clickable(actionStartActivity(lcdClickIntent))
-                    )
+                            .padding(
+                                start = 12.dp,
+                                top = 8.dp,
+                                bottom = 8.dp,
+                                end = if (layout.showUsbCap) 10.dp else 12.dp
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Mp3SilverButton(
+                                iconRes = R.drawable.ic_media_prev,
+                                a11yLabel = if (isSpanish) "Pista anterior" else "Previous track",
+                                action = actionRunCallback<PrevTrackAction>(),
+                                sizeDp = layout.sideButtonSizeDp
+                            )
+                            Spacer(modifier = GlanceModifier.width(6.dp))
+                            Mp3SilverButton(
+                                iconRes = playPauseIcon,
+                                a11yLabel = playPauseA11y,
+                                action = actionRunCallback<PlayPauseAction>(),
+                                sizeDp = layout.buttonSizeDp,
+                                isPrimary = true
+                            )
+                            Spacer(modifier = GlanceModifier.width(6.dp))
+                            Mp3SilverButton(
+                                iconRes = R.drawable.ic_media_next,
+                                a11yLabel = if (isSpanish) "Siguiente pista" else "Next track",
+                                action = actionRunCallback<NextTrackAction>(),
+                                sizeDp = layout.sideButtonSizeDp
+                            )
+                        }
+
+                        Spacer(modifier = GlanceModifier.width(10.dp))
+
+                        Mp3BezelDisplay(
+                            media = media,
+                            isStacked = false,
+                            showEqualizer = layout.showEqualizer,
+                            sp = sp,
+                            modifier = GlanceModifier
+                                .defaultWeight()
+                                .fillMaxHeight()
+                                .clickable(actionStartActivity(lcdClickIntent))
+                        )
+                    }
+
+                    if (layout.showUsbCap) {
+                        Mp3UsbCapSection(
+                            capWidthDp = layout.usbCapWidthDp,
+                            seamColor = seamColor
+                        )
+                    }
                 }
             }
         }
@@ -634,6 +680,7 @@ class RetroMp3Widget : GlanceAppWidget() {
 private fun Mp3BezelDisplay(
     media: ActiveMediaState,
     isStacked: Boolean,
+    showEqualizer: Boolean,
     sp: (Float) -> TextUnit,
     modifier: GlanceModifier
 ) {
@@ -641,7 +688,7 @@ private fun Mp3BezelDisplay(
         modifier = modifier
             .cornerRadius(14.dp)
             .background(OneUiGlanceTokens.RetroMp3BezelSurface)
-            .padding(horizontal = 8.dp, vertical = if (isStacked) 8.dp else 5.dp),
+            .padding(horizontal = 10.dp, vertical = if (isStacked) 8.dp else 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -654,7 +701,7 @@ private fun Mp3BezelDisplay(
                 maxLines = 1,
                 style = TextStyle(
                     color = OneUiGlanceTokens.RetroMp3GoldLabel,
-                    fontSize = sp(if (isStacked) 9f else 7f),
+                    fontSize = sp(if (isStacked) 9f else 7.5f),
                     fontWeight = FontWeight.Bold
                 )
             )
@@ -664,42 +711,130 @@ private fun Mp3BezelDisplay(
                 maxLines = 1,
                 style = TextStyle(
                     color = OneUiGlanceTokens.RetroMp3GoldLabel,
-                    fontSize = sp(if (isStacked) 9f else 7f),
+                    fontSize = sp(if (isStacked) 9f else 7.5f),
                     fontWeight = FontWeight.Bold
                 )
             )
         }
 
-        Spacer(modifier = GlanceModifier.height(if (isStacked) 6.dp else 3.dp))
+        Spacer(modifier = GlanceModifier.height(if (isStacked) 5.dp else 2.dp))
 
-        // Cyan Backlit LCD Screen
-        Column(
-            modifier = GlanceModifier
-                .fillMaxWidth()
-                .cornerRadius(6.dp)
-                .background(OneUiGlanceTokens.RetroLcdBacklight)
-                .padding(horizontal = 8.dp, vertical = if (isStacked) 8.dp else 4.dp),
+        Row(
+            modifier = GlanceModifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = if (isStacked) media.title else "${media.title} — ${media.artist}",
-                maxLines = 1,
-                style = TextStyle(
-                    color = OneUiGlanceTokens.RetroLcdPrimaryText,
-                    fontSize = sp(if (isStacked) 13f else 11f),
-                    fontWeight = FontWeight.Bold
+            Column(modifier = GlanceModifier.defaultWeight()) {
+                Text(
+                    text = media.title,
+                    maxLines = 1,
+                    style = TextStyle(
+                        color = OneUiGlanceTokens.RetroLcdBacklight,
+                        fontSize = sp(if (isStacked) 14f else 12f),
+                        fontWeight = FontWeight.Bold
+                    )
                 )
-            )
-            if (isStacked) {
                 Text(
                     text = media.artist,
                     maxLines = 1,
                     style = TextStyle(
-                        color = OneUiGlanceTokens.RetroLcdSecondaryText,
-                        fontSize = sp(11f)
+                        color = OneUiGlanceTokens.RetroMp3ScreenSubtext,
+                        fontSize = sp(if (isStacked) 11f else 9.5f)
                     )
                 )
+                Spacer(modifier = GlanceModifier.height(if (isStacked) 6.dp else 4.dp))
+                Mp3ScreenProgressBar(isPlaying = media.isPlaying)
             }
+
+            if (showEqualizer) {
+                Spacer(modifier = GlanceModifier.width(8.dp))
+                Mp3EqualizerGraphic(
+                    isPlaying = media.isPlaying,
+                    isStacked = isStacked
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Mp3ScreenProgressBar(isPlaying: Boolean) {
+    Row(
+        modifier = GlanceModifier
+            .fillMaxWidth()
+            .height(3.dp)
+            .cornerRadius(2.dp)
+            .background(OneUiGlanceTokens.RetroMp3TrackBg)
+    ) {
+        Box(
+            modifier = GlanceModifier
+                .width(if (isPlaying) 56.dp else 28.dp)
+                .fillMaxHeight()
+                .cornerRadius(2.dp)
+                .background(OneUiGlanceTokens.RetroLcdBacklight)
+        ) {}
+    }
+}
+
+@Composable
+private fun Mp3EqualizerGraphic(
+    isPlaying: Boolean,
+    isStacked: Boolean
+) {
+    val scale = if (isStacked) 1.2f else 1.0f
+    val barHeights = listOf(8f, 15f, 10f, 18f, 11f)
+    Row(verticalAlignment = Alignment.Bottom) {
+        barHeights.forEachIndexed { index, rawHeight ->
+            if (index > 0) {
+                Spacer(modifier = GlanceModifier.width(2.dp))
+            }
+            val barColor = if (isPlaying) {
+                OneUiGlanceTokens.RetroLcdBacklight
+            } else {
+                OneUiGlanceTokens.RetroMp3EqIdle
+            }
+            Box(
+                modifier = GlanceModifier
+                    .width(2.5.dp)
+                    .height((rawHeight * scale).dp)
+                    .cornerRadius(1.5.dp)
+                    .background(barColor)
+            ) {}
+        }
+    }
+}
+
+@Composable
+private fun Mp3UsbCapSection(
+    capWidthDp: Float,
+    seamColor: ColorProvider
+) {
+    Row(
+        modifier = GlanceModifier
+            .width(capWidthDp.dp)
+            .fillMaxHeight(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = GlanceModifier
+                .width(2.dp)
+                .fillMaxHeight()
+                .background(seamColor)
+        ) {}
+        Row(
+            modifier = GlanceModifier
+                .defaultWeight()
+                .fillMaxHeight()
+                .padding(end = 9.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalAlignment = Alignment.End
+        ) {
+            Box(
+                modifier = GlanceModifier
+                    .width(4.dp)
+                    .height(18.dp)
+                    .cornerRadius(2.dp)
+                    .background(seamColor)
+            ) {}
         }
     }
 }

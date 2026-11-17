@@ -25,12 +25,16 @@
     <color name="oneui_preview_ipod_text_primary">#FF121316</color>
     <color name="oneui_preview_ipod_text_secondary">#FF5D6068</color>
 
-    <color name="oneui_preview_mp3_shell">#FF27359B</color>
-    <color name="oneui_preview_mp3_bezel">#FF0F1117</color>
-    <color name="oneui_preview_mp3_seam">#FF1A2473</color>
+    <color name="oneui_preview_mp3_shell">#FF3F46A8</color>
+    <color name="oneui_preview_mp3_bezel">#FF0E121B</color>
+    <color name="oneui_preview_mp3_seam">#FF252A6E</color>
     <color name="oneui_preview_mp3_gold">#FFEBC94B</color>
-    <color name="oneui_preview_mp3_silver_bg">#FFE4E7F0</color>
-    <color name="oneui_preview_mp3_silver_text">#FF1B1F2A</color>
+    <color name="oneui_preview_mp3_silver_bg">#FFEDEFF8</color>
+    <color name="oneui_preview_mp3_silver_text">#FF232854</color>
+    <color name="oneui_preview_mp3_title_cyan">#FF35E8F7</color>
+    <color name="oneui_preview_mp3_subtitle">#FFA8B5C8</color>
+    <color name="oneui_preview_mp3_track_bg">#FF232C3D</color>
+    <color name="oneui_preview_mp3_eq_bar">#FF4F5E78</color>
 
     <color name="oneui_preview_lcd_cyan_bg">#FF35E8F7</color>
     <color name="oneui_preview_lcd_text_primary">#FF04262E</color>
