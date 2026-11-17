@@ -42,8 +42,8 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.anacatavc.oneuiextrawidgets.MainActivity
+import com.anacatavc.oneuiextrawidgets.data.media.ActiveMediaState
 import com.anacatavc.oneuiextrawidgets.data.media.MediaNotificationListener
-import com.anacatavc.oneuiextrawidgets.data.media.MediaPlaybackState
 import com.anacatavc.oneuiextrawidgets.data.media.TransportCommand
 import com.anacatavc.oneuiextrawidgets.utils.LocaleHelper
 import com.anacatavc.oneuiextrawidgets.utils.WidgetCanvasRenderer
