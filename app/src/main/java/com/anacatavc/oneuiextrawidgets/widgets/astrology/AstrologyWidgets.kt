@@ -6,8 +6,8 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -39,6 +39,7 @@ import com.anacatavc.oneuiextrawidgets.MainActivity
 import com.anacatavc.oneuiextrawidgets.data.astrology.AstrologyEngine
 import com.anacatavc.oneuiextrawidgets.data.astrology.AstrologySnapshot
 import com.anacatavc.oneuiextrawidgets.data.astrology.PlanetaryMotionState
+import com.anacatavc.oneuiextrawidgets.data.preferences.WidgetFontScaleMode
 import com.anacatavc.oneuiextrawidgets.utils.LocaleHelper
 import com.anacatavc.oneuiextrawidgets.utils.WidgetCanvasRenderer
 import com.anacatavc.oneuiextrawidgets.widgets.OneUiGlanceWidgetReceiver
@@ -113,10 +114,13 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
         val snapshot = AstrologyEngine.computeSnapshot()
         val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
         val initialOpacity = opacityFlow.first()
+        val fontScaleFlow = WidgetInstanceHelper.observeWidgetFontScale(context, id)
+        val initialFontScale = fontScaleFlow.first()
         val isDark = OneUiGlanceTokens.isNightModeActive(context)
 
         provideContent {
             val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
+            val fontScaleMode by fontScaleFlow.collectAsState(initial = initialFontScale)
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateAstrologyLayout(size.width.value, size.height.value)
@@ -126,7 +130,8 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                 layout = layout,
                 isDarkTheme = isDark,
                 isSpanish = isEs,
-                opacityPct = opacityPct
+                opacityPct = opacityPct,
+                fontScaleMode = fontScaleMode
             )
         }
     }
@@ -138,7 +143,8 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
         layout: AstrologyLayoutSpec,
         isDarkTheme: Boolean,
         isSpanish: Boolean,
-        opacityPct: Int
+        opacityPct: Int,
+        fontScaleMode: WidgetFontScaleMode
     ) {
         val detailIntent = Intent(context, MainActivity::class.java).apply {
             putExtra(MainActivity.EXTRA_INITIAL_TAB, MainActivity.TAB_ASTROLOGY)
@@ -172,6 +178,15 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
         val paddingDp = layout.cardPaddingDp.dp
         val surfaceBg = OneUiGlanceTokens.surfaceBackground(opacityPct)
         val innerBg = OneUiGlanceTokens.innerCardSurface(opacityPct)
+        val systemScale = OneUiGlanceTokens.systemFontScale(context)
+        val sp: (Float) -> TextUnit = { base ->
+            OneUiGlanceTokens.scaledSp(
+                baseSp = base,
+                systemFontScale = systemScale,
+                mode = fontScaleMode,
+                isCompactLayout = layout.mode == AstrologyLayoutMode.COMPACT
+            )
+        }
 
         Box(
             modifier = GlanceModifier
@@ -203,7 +218,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                             maxLines = 1,
                             style = TextStyle(
                                 color = OneUiGlanceTokens.SecondaryText,
-                                fontSize = 10.sp,
+                                fontSize = sp(10f),
                                 fontWeight = FontWeight.Medium
                             )
                         )
@@ -222,7 +237,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                                 } else {
                                     OneUiGlanceTokens.PrimaryText
                                 },
-                                fontSize = 14.sp,
+                                fontSize = sp(14f),
                                 fontWeight = FontWeight.Bold
                             )
                         )
@@ -245,7 +260,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                                 } else {
                                     OneUiGlanceTokens.SecondaryText
                                 },
-                                fontSize = 11.sp
+                                fontSize = sp(11f)
                             )
                         )
                     }
@@ -272,6 +287,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                             null
                         },
                         background = innerBg,
+                        sp = sp,
                         modifier = GlanceModifier.defaultWeight()
                     )
 
@@ -289,6 +305,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                             null
                         },
                         background = innerBg,
+                        sp = sp,
                         modifier = GlanceModifier.defaultWeight()
                     )
                 }
@@ -340,7 +357,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                                     maxLines = 1,
                                     style = TextStyle(
                                         color = statusColor,
-                                        fontSize = 10.sp,
+                                        fontSize = sp(10f),
                                         fontWeight = if (planet.isRetrograde) FontWeight.Bold else FontWeight.Medium
                                     )
                                 )
@@ -369,6 +386,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
         value: String,
         subLabel: String?,
         background: ColorProvider,
+        sp: (Float) -> TextUnit,
         modifier: GlanceModifier = GlanceModifier
     ) {
         Row(
@@ -390,7 +408,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                     maxLines = 1,
                     style = TextStyle(
                         color = OneUiGlanceTokens.SecondaryText,
-                        fontSize = 10.sp
+                        fontSize = sp(10f)
                     )
                 )
                 Text(
@@ -398,7 +416,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                     maxLines = 1,
                     style = TextStyle(
                         color = OneUiGlanceTokens.PrimaryText,
-                        fontSize = 12.sp,
+                        fontSize = sp(12f),
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -408,7 +426,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                         maxLines = 1,
                         style = TextStyle(
                             color = OneUiGlanceTokens.SecondaryText,
-                            fontSize = 9.sp
+                            fontSize = sp(9f)
                         )
                     )
                 }

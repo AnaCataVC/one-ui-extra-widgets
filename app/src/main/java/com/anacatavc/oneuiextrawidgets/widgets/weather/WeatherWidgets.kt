@@ -6,8 +6,8 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -50,6 +50,7 @@ import com.anacatavc.oneuiextrawidgets.data.astrology.AstrologyEngine
 import com.anacatavc.oneuiextrawidgets.data.astrology.LunarPhaseStatus
 import com.anacatavc.oneuiextrawidgets.data.preferences.AppPreferences
 import com.anacatavc.oneuiextrawidgets.data.preferences.CachedWeatherState
+import com.anacatavc.oneuiextrawidgets.data.preferences.WidgetFontScaleMode
 import com.anacatavc.oneuiextrawidgets.data.weather.OpenMeteoClient
 import com.anacatavc.oneuiextrawidgets.utils.LocaleHelper
 import com.anacatavc.oneuiextrawidgets.utils.WidgetCanvasRenderer
@@ -201,11 +202,14 @@ class OneUiRainWidget : GlanceAppWidget() {
         val initialWeather = weatherFlow.first()
         val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
         val initialOpacity = opacityFlow.first()
+        val fontScaleFlow = WidgetInstanceHelper.observeWidgetFontScale(context, id)
+        val initialFontScale = fontScaleFlow.first()
         val isDark = OneUiGlanceTokens.isNightModeActive(context)
 
         provideContent {
             val state by weatherFlow.collectAsState(initial = initialWeather)
             val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
+            val fontScaleMode by fontScaleFlow.collectAsState(initial = initialFontScale)
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
@@ -247,7 +251,8 @@ class OneUiRainWidget : GlanceAppWidget() {
                 detailRightValue = state.cityName,
                 isSpanish = isEs,
                 showRefreshAction = true,
-                opacityPct = opacityPct
+                opacityPct = opacityPct,
+                fontScaleMode = fontScaleMode
             )
         }
     }
@@ -265,11 +270,14 @@ class OneUiAqiWidget : GlanceAppWidget() {
         val initialWeather = weatherFlow.first()
         val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
         val initialOpacity = opacityFlow.first()
+        val fontScaleFlow = WidgetInstanceHelper.observeWidgetFontScale(context, id)
+        val initialFontScale = fontScaleFlow.first()
         val isDark = OneUiGlanceTokens.isNightModeActive(context)
 
         provideContent {
             val state by weatherFlow.collectAsState(initial = initialWeather)
             val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
+            val fontScaleMode by fontScaleFlow.collectAsState(initial = initialFontScale)
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
@@ -313,7 +321,8 @@ class OneUiAqiWidget : GlanceAppWidget() {
                 detailRightValue = "${state.pm10.roundToInt()} µg/m³",
                 isSpanish = isEs,
                 showRefreshAction = true,
-                opacityPct = opacityPct
+                opacityPct = opacityPct,
+                fontScaleMode = fontScaleMode
             )
         }
     }
@@ -331,11 +340,14 @@ class OneUiUvWidget : GlanceAppWidget() {
         val initialWeather = weatherFlow.first()
         val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
         val initialOpacity = opacityFlow.first()
+        val fontScaleFlow = WidgetInstanceHelper.observeWidgetFontScale(context, id)
+        val initialFontScale = fontScaleFlow.first()
         val isDark = OneUiGlanceTokens.isNightModeActive(context)
 
         provideContent {
             val state by weatherFlow.collectAsState(initial = initialWeather)
             val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
+            val fontScaleMode by fontScaleFlow.collectAsState(initial = initialFontScale)
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
@@ -386,7 +398,8 @@ class OneUiUvWidget : GlanceAppWidget() {
                 detailRightValue = state.cityName,
                 isSpanish = isEs,
                 showRefreshAction = true,
-                opacityPct = opacityPct
+                opacityPct = opacityPct,
+                fontScaleMode = fontScaleMode
             )
         }
     }
@@ -404,6 +417,8 @@ class OneUiMoonPhaseWidget : GlanceAppWidget() {
         val lunar: LunarPhaseStatus = astroSnapshot.lunarStatus
         val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
         val initialOpacity = opacityFlow.first()
+        val fontScaleFlow = WidgetInstanceHelper.observeWidgetFontScale(context, id)
+        val initialFontScale = fontScaleFlow.first()
         val moonBitmap = WidgetCanvasRenderer.renderMoonPhaseBitmap(
             phaseAngleDeg = lunar.phaseAngleDeg,
             sizePx = 160
@@ -411,6 +426,7 @@ class OneUiMoonPhaseWidget : GlanceAppWidget() {
 
         provideContent {
             val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
+            val fontScaleMode by fontScaleFlow.collectAsState(initial = initialFontScale)
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
@@ -438,7 +454,8 @@ class OneUiMoonPhaseWidget : GlanceAppWidget() {
                 detailRightValue = "$elongationFormatted ($cycleTrend)",
                 isSpanish = isEs,
                 showRefreshAction = false,
-                opacityPct = opacityPct
+                opacityPct = opacityPct,
+                fontScaleMode = fontScaleMode
             )
         }
     }
@@ -463,12 +480,19 @@ private fun WeatherModularCard(
     detailRightValue: String,
     isSpanish: Boolean,
     showRefreshAction: Boolean,
-    opacityPct: Int
+    opacityPct: Int,
+    fontScaleMode: WidgetFontScaleMode
 ) {
     val detailIntent = createWeatherDetailIntent(context)
     val refreshDescription = if (isSpanish) "Actualizar datos del clima" else "Refresh weather data"
     val surfaceBg = OneUiGlanceTokens.surfaceBackground(opacityPct)
     val innerBg = OneUiGlanceTokens.innerCardSurface(opacityPct)
+    val systemScale = OneUiGlanceTokens.systemFontScale(context)
+    val isCompact = layout.mode == WeatherCardLayoutMode.COMPACT_1X1 ||
+        layout.mode == WeatherCardLayoutMode.PILL
+    val sp: (Float) -> TextUnit = { base ->
+        OneUiGlanceTokens.scaledSp(base, systemScale, fontScaleMode, isCompact)
+    }
 
     when (layout.mode) {
         WeatherCardLayoutMode.COMPACT_1X1 -> {
@@ -492,7 +516,7 @@ private fun WeatherModularCard(
                     text = compactLabel,
                     style = TextStyle(
                         color = compactColor,
-                        fontSize = 11.sp,
+                        fontSize = sp(11f),
                         fontWeight = FontWeight.Bold
                     ),
                     maxLines = 1
@@ -525,7 +549,7 @@ private fun WeatherModularCard(
                             text = headerLabel,
                             style = TextStyle(
                                 color = OneUiGlanceTokens.SecondaryText,
-                                fontSize = 11.sp,
+                                fontSize = sp(11f),
                                 fontWeight = FontWeight.Medium
                             ),
                             maxLines = 1,
@@ -535,7 +559,8 @@ private fun WeatherModularCard(
                             RefreshPillBadge(
                                 label = if (layout.showExtendedDetails) "$pillText ↻" else "↻",
                                 contentDesc = refreshDescription,
-                                background = innerBg
+                                background = innerBg,
+                                fontSize = sp(10f)
                             )
                         }
                     }
@@ -543,7 +568,7 @@ private fun WeatherModularCard(
                         text = primaryValue,
                         style = TextStyle(
                             color = OneUiGlanceTokens.PrimaryText,
-                            fontSize = if (primaryValue.length > 10) 14.sp else 18.sp,
+                            fontSize = sp(if (primaryValue.length > 10) 14f else 18f),
                             fontWeight = FontWeight.Bold
                         ),
                         maxLines = 1
@@ -552,7 +577,7 @@ private fun WeatherModularCard(
                         text = statusBadge,
                         style = TextStyle(
                             color = statusColor,
-                            fontSize = 11.sp,
+                            fontSize = sp(11f),
                             fontWeight = FontWeight.Bold
                         ),
                         maxLines = 1
@@ -579,7 +604,7 @@ private fun WeatherModularCard(
                         text = headerLabel,
                         style = TextStyle(
                             color = OneUiGlanceTokens.SecondaryText,
-                            fontSize = 11.sp,
+                            fontSize = sp(11f),
                             fontWeight = FontWeight.Medium
                         ),
                         maxLines = 1,
@@ -589,7 +614,8 @@ private fun WeatherModularCard(
                         RefreshPillBadge(
                             label = "↻",
                             contentDesc = refreshDescription,
-                            background = innerBg
+                            background = innerBg,
+                            fontSize = sp(10f)
                         )
                     }
                 }
@@ -604,7 +630,7 @@ private fun WeatherModularCard(
                     text = primaryValue,
                     style = TextStyle(
                         color = OneUiGlanceTokens.PrimaryText,
-                        fontSize = if (primaryValue.length > 10) 15.sp else 20.sp,
+                        fontSize = sp(if (primaryValue.length > 10) 15f else 20f),
                         fontWeight = FontWeight.Bold
                     ),
                     maxLines = 1
@@ -613,7 +639,7 @@ private fun WeatherModularCard(
                     text = statusBadge,
                     style = TextStyle(
                         color = statusColor,
-                        fontSize = 11.sp,
+                        fontSize = sp(11f),
                         fontWeight = FontWeight.Bold
                     ),
                     maxLines = 1
@@ -623,6 +649,8 @@ private fun WeatherModularCard(
                     label = detailLeftLabel,
                     value = detailLeftValue,
                     background = innerBg,
+                    labelFontSize = sp(10f),
+                    valueFontSize = sp(12f),
                     modifier = GlanceModifier.fillMaxWidth()
                 )
             }
@@ -653,7 +681,7 @@ private fun WeatherModularCard(
                             text = headerLabel,
                             style = TextStyle(
                                 color = OneUiGlanceTokens.SecondaryText,
-                                fontSize = 12.sp,
+                                fontSize = sp(12f),
                                 fontWeight = FontWeight.Medium
                             ),
                             maxLines = 1,
@@ -663,7 +691,8 @@ private fun WeatherModularCard(
                             RefreshPillBadge(
                                 label = "$pillText ↻",
                                 contentDesc = refreshDescription,
-                                background = innerBg
+                                background = innerBg,
+                                fontSize = sp(10f)
                             )
                         }
                     }
@@ -672,7 +701,7 @@ private fun WeatherModularCard(
                             text = primaryValue,
                             style = TextStyle(
                                 color = OneUiGlanceTokens.PrimaryText,
-                                fontSize = 20.sp,
+                                fontSize = sp(20f),
                                 fontWeight = FontWeight.Bold
                             ),
                             maxLines = 1
@@ -682,7 +711,7 @@ private fun WeatherModularCard(
                             text = statusBadge,
                             style = TextStyle(
                                 color = statusColor,
-                                fontSize = 12.sp,
+                                fontSize = sp(12f),
                                 fontWeight = FontWeight.Bold
                             ),
                             maxLines = 1
@@ -694,6 +723,8 @@ private fun WeatherModularCard(
                             label = detailLeftLabel,
                             value = detailLeftValue,
                             background = innerBg,
+                            labelFontSize = sp(10f),
+                            valueFontSize = sp(12f),
                             modifier = GlanceModifier.defaultWeight()
                         )
                         Spacer(modifier = GlanceModifier.width(6.dp))
@@ -701,6 +732,8 @@ private fun WeatherModularCard(
                             label = detailRightLabel,
                             value = detailRightValue,
                             background = innerBg,
+                            labelFontSize = sp(10f),
+                            valueFontSize = sp(12f),
                             modifier = GlanceModifier.defaultWeight()
                         )
                     }
@@ -714,7 +747,8 @@ private fun WeatherModularCard(
 private fun RefreshPillBadge(
     label: String,
     contentDesc: String,
-    background: ColorProvider
+    background: ColorProvider,
+    fontSize: TextUnit
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -729,7 +763,7 @@ private fun RefreshPillBadge(
             text = label,
             style = TextStyle(
                 color = OneUiGlanceTokens.SecondaryText,
-                fontSize = 10.sp,
+                fontSize = fontSize,
                 fontWeight = FontWeight.Bold
             ),
             maxLines = 1
@@ -742,6 +776,8 @@ private fun DetailSubPill(
     label: String,
     value: String,
     background: ColorProvider,
+    labelFontSize: TextUnit,
+    valueFontSize: TextUnit,
     modifier: GlanceModifier = GlanceModifier
 ) {
     Column(
@@ -754,7 +790,7 @@ private fun DetailSubPill(
             text = label,
             style = TextStyle(
                 color = OneUiGlanceTokens.SecondaryText,
-                fontSize = 10.sp
+                fontSize = labelFontSize
             ),
             maxLines = 1
         )
@@ -762,7 +798,7 @@ private fun DetailSubPill(
             text = value,
             style = TextStyle(
                 color = OneUiGlanceTokens.PrimaryText,
-                fontSize = 12.sp,
+                fontSize = valueFontSize,
                 fontWeight = FontWeight.Bold
             ),
             maxLines = 1

@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -44,6 +45,7 @@ import androidx.glance.unit.ColorProvider
 import com.anacatavc.oneuiextrawidgets.MainActivity
 import com.anacatavc.oneuiextrawidgets.data.network.NetworkQualityMonitor
 import com.anacatavc.oneuiextrawidgets.data.network.NetworkQualitySnapshot
+import com.anacatavc.oneuiextrawidgets.data.preferences.WidgetFontScaleMode
 import com.anacatavc.oneuiextrawidgets.widgets.OneUiGlanceWidgetReceiver
 import com.anacatavc.oneuiextrawidgets.widgets.WidgetInstanceHelper
 import kotlinx.coroutines.flow.first
@@ -137,10 +139,13 @@ class OneUiNetworkWidget : GlanceAppWidget() {
         val snapshot = NetworkQualityMonitor.readSnapshot(context)
         val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
         val initialOpacity = opacityFlow.first()
+        val fontScaleFlow = WidgetInstanceHelper.observeWidgetFontScale(context, id)
+        val initialFontScale = fontScaleFlow.first()
         val isDark = OneUiGlanceTokens.isNightModeActive(context)
 
         provideContent {
             val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
+            val fontScaleMode by fontScaleFlow.collectAsState(initial = initialFontScale)
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateNetworkLayout(size.width.value, size.height.value)
@@ -165,7 +170,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                 mobileBitmap = mobileBitmap,
                 wifiBitmap = wifiBitmap,
                 isSpanish = isEs,
-                opacityPct = opacityPct
+                opacityPct = opacityPct,
+                fontScaleMode = fontScaleMode
             )
         }
     }
@@ -178,7 +184,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
         mobileBitmap: Bitmap,
         wifiBitmap: Bitmap,
         isSpanish: Boolean,
-        opacityPct: Int
+        opacityPct: Int,
+        fontScaleMode: WidgetFontScaleMode
     ) {
         val detailIntent = Intent(context, MainActivity::class.java).apply {
             putExtra(MainActivity.EXTRA_INITIAL_TAB, MainActivity.TAB_NETWORK)
@@ -186,6 +193,15 @@ class OneUiNetworkWidget : GlanceAppWidget() {
         }
         val surfaceBg = OneUiGlanceTokens.surfaceBackground(opacityPct)
         val innerBg = OneUiGlanceTokens.innerCardSurface(opacityPct)
+        val systemScale = OneUiGlanceTokens.systemFontScale(context)
+        val sp: (Float) -> TextUnit = { base ->
+            OneUiGlanceTokens.scaledSp(
+                baseSp = base,
+                systemFontScale = systemScale,
+                mode = fontScaleMode,
+                isCompactLayout = layout.mode == NetworkLayoutMode.COMPACT_PILL
+            )
+        }
 
         Column(
             modifier = GlanceModifier
@@ -198,7 +214,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
             if (layout.showHeaderTitle) {
                 HeaderBar(
                     isSpanish = isSpanish,
-                    compact = layout.mode == NetworkLayoutMode.SQUARE
+                    compact = layout.mode == NetworkLayoutMode.SQUARE,
+                    sp = sp
                 )
                 Spacer(modifier = GlanceModifier.height(6.dp))
             }
@@ -211,7 +228,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                         mobileBitmap = mobileBitmap,
                         wifiBitmap = wifiBitmap,
                         isSpanish = isSpanish,
-                        innerSurface = innerBg
+                        innerSurface = innerBg,
+                        sp = sp
                     )
                 }
                 NetworkLayoutMode.SQUARE -> {
@@ -221,7 +239,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                         mobileBitmap = mobileBitmap,
                         wifiBitmap = wifiBitmap,
                         isSpanish = isSpanish,
-                        innerSurface = innerBg
+                        innerSurface = innerBg,
+                        sp = sp
                     )
                 }
                 NetworkLayoutMode.EXPANDED -> {
@@ -231,7 +250,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                         mobileBitmap = mobileBitmap,
                         wifiBitmap = wifiBitmap,
                         isSpanish = isSpanish,
-                        innerSurface = innerBg
+                        innerSurface = innerBg,
+                        sp = sp
                     )
                 }
             }
@@ -239,7 +259,11 @@ class OneUiNetworkWidget : GlanceAppWidget() {
     }
 
     @Composable
-    private fun HeaderBar(isSpanish: Boolean, compact: Boolean) {
+    private fun HeaderBar(
+        isSpanish: Boolean,
+        compact: Boolean,
+        sp: (Float) -> TextUnit
+    ) {
         Row(
             modifier = GlanceModifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -256,16 +280,19 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                 maxLines = 1,
                 style = TextStyle(
                     color = OneUiGlanceTokens.SecondaryText,
-                    fontSize = 11.sp,
+                    fontSize = sp(11f),
                     fontWeight = FontWeight.Medium
                 )
             )
-            RefreshHitButton(isSpanish = isSpanish)
+            RefreshHitButton(isSpanish = isSpanish, sp = sp)
         }
     }
 
     @Composable
-    private fun RefreshHitButton(isSpanish: Boolean) {
+    private fun RefreshHitButton(
+        isSpanish: Boolean,
+        sp: (Float) -> TextUnit
+    ) {
         Box(
             modifier = GlanceModifier
                 .size(26.dp)
@@ -281,7 +308,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                 text = "↻",
                 style = TextStyle(
                     color = OneUiGlanceTokens.OneUiAccentBlue,
-                    fontSize = 14.sp,
+                    fontSize = sp(14f),
                     fontWeight = FontWeight.Bold
                 )
             )
@@ -295,7 +322,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
         mobileBitmap: Bitmap,
         wifiBitmap: Bitmap,
         isSpanish: Boolean,
-        innerSurface: ColorProvider
+        innerSurface: ColorProvider,
+        sp: (Float) -> TextUnit
     ) {
         val mobileColor = signalAccentColor(snapshot.mobileLevelBars, snapshot.isMobileConnected)
         val wifiColor = signalAccentColor(snapshot.wifiLevelBars, snapshot.isWifiConnected)
@@ -326,7 +354,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                         maxLines = 1,
                         style = TextStyle(
                             color = mobileColor,
-                            fontSize = 10.sp,
+                            fontSize = sp(10f),
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -339,7 +367,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                         maxLines = 1,
                         style = TextStyle(
                             color = OneUiGlanceTokens.PrimaryText,
-                            fontSize = 12.sp,
+                            fontSize = sp(12f),
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -369,7 +397,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                         maxLines = 1,
                         style = TextStyle(
                             color = wifiColor,
-                            fontSize = 10.sp,
+                            fontSize = sp(10f),
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -382,7 +410,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                         maxLines = 1,
                         style = TextStyle(
                             color = OneUiGlanceTokens.PrimaryText,
-                            fontSize = 12.sp,
+                            fontSize = sp(12f),
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -390,7 +418,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
             }
 
             Spacer(modifier = GlanceModifier.width(4.dp))
-            RefreshHitButton(isSpanish = isSpanish)
+            RefreshHitButton(isSpanish = isSpanish, sp = sp)
         }
     }
 
@@ -401,7 +429,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
         mobileBitmap: Bitmap,
         wifiBitmap: Bitmap,
         isSpanish: Boolean,
-        innerSurface: ColorProvider
+        innerSurface: ColorProvider,
+        sp: (Float) -> TextUnit
     ) {
         val mobileColor = signalAccentColor(snapshot.mobileLevelBars, snapshot.isMobileConnected)
         val wifiColor = signalAccentColor(snapshot.wifiLevelBars, snapshot.isWifiConnected)
@@ -445,7 +474,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                             modifier = GlanceModifier.defaultWeight(),
                             style = TextStyle(
                                 color = mobileColor,
-                                fontSize = 11.sp,
+                                fontSize = sp(11f),
                                 fontWeight = FontWeight.Bold
                             )
                         )
@@ -454,7 +483,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                             maxLines = 1,
                             style = TextStyle(
                                 color = mobileColor,
-                                fontSize = 10.sp,
+                                fontSize = sp(10f),
                                 fontWeight = FontWeight.Medium
                             )
                         )
@@ -468,7 +497,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                         maxLines = 1,
                         style = TextStyle(
                             color = OneUiGlanceTokens.PrimaryText,
-                            fontSize = 15.sp,
+                            fontSize = sp(15f),
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -478,7 +507,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                             maxLines = 1,
                             style = TextStyle(
                                 color = OneUiGlanceTokens.SecondaryText,
-                                fontSize = 10.sp
+                                fontSize = sp(10f)
                             )
                         )
                     }
@@ -514,7 +543,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                             modifier = GlanceModifier.defaultWeight(),
                             style = TextStyle(
                                 color = wifiColor,
-                                fontSize = 11.sp,
+                                fontSize = sp(11f),
                                 fontWeight = FontWeight.Bold
                             )
                         )
@@ -523,7 +552,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                             maxLines = 1,
                             style = TextStyle(
                                 color = wifiColor,
-                                fontSize = 10.sp,
+                                fontSize = sp(10f),
                                 fontWeight = FontWeight.Medium
                             )
                         )
@@ -537,7 +566,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                         maxLines = 1,
                         style = TextStyle(
                             color = OneUiGlanceTokens.PrimaryText,
-                            fontSize = 15.sp,
+                            fontSize = sp(15f),
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -547,7 +576,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                             maxLines = 1,
                             style = TextStyle(
                                 color = OneUiGlanceTokens.SecondaryText,
-                                fontSize = 10.sp
+                                fontSize = sp(10f)
                             )
                         )
                     }
@@ -563,7 +592,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
         mobileBitmap: Bitmap,
         wifiBitmap: Bitmap,
         isSpanish: Boolean,
-        innerSurface: ColorProvider
+        innerSurface: ColorProvider,
+        sp: (Float) -> TextUnit
     ) {
         val mobileColor = signalAccentColor(snapshot.mobileLevelBars, snapshot.isMobileConnected)
         val wifiColor = signalAccentColor(snapshot.wifiLevelBars, snapshot.isWifiConnected)
@@ -605,7 +635,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                             maxLines = 1,
                             style = TextStyle(
                                 color = mobileColor,
-                                fontSize = 12.sp,
+                                fontSize = sp(12f),
                                 fontWeight = FontWeight.Bold
                             )
                         )
@@ -614,7 +644,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                             maxLines = 1,
                             style = TextStyle(
                                 color = mobileColor,
-                                fontSize = 10.sp,
+                                fontSize = sp(10f),
                                 fontWeight = FontWeight.Medium
                             )
                         )
@@ -630,7 +660,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                     maxLines = 1,
                     style = TextStyle(
                         color = OneUiGlanceTokens.PrimaryText,
-                        fontSize = 17.sp,
+                        fontSize = sp(17f),
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -639,7 +669,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                     maxLines = 1,
                     style = TextStyle(
                         color = OneUiGlanceTokens.SecondaryText,
-                        fontSize = 10.sp
+                        fontSize = sp(10f)
                     )
                 )
             }
@@ -671,7 +701,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                             maxLines = 1,
                             style = TextStyle(
                                 color = wifiColor,
-                                fontSize = 12.sp,
+                                fontSize = sp(12f),
                                 fontWeight = FontWeight.Bold
                             )
                         )
@@ -680,7 +710,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                             maxLines = 1,
                             style = TextStyle(
                                 color = wifiColor,
-                                fontSize = 10.sp,
+                                fontSize = sp(10f),
                                 fontWeight = FontWeight.Medium
                             )
                         )
@@ -696,7 +726,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                     maxLines = 1,
                     style = TextStyle(
                         color = OneUiGlanceTokens.PrimaryText,
-                        fontSize = 17.sp,
+                        fontSize = sp(17f),
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -705,7 +735,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                     maxLines = 1,
                     style = TextStyle(
                         color = OneUiGlanceTokens.SecondaryText,
-                        fontSize = 10.sp
+                        fontSize = sp(10f)
                     )
                 )
             }

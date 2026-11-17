@@ -90,4 +90,8 @@
     <string name="widget_config_low_contrast_hint">Low opacity may reduce text readability on bright or busy wallpapers.</string>
     <string name="widget_config_save">Save</string>
     <string name="widget_config_cancel">Cancel</string>
+    <string name="widget_config_font_scale_label">Text size</string>
+    <string name="widget_config_font_system">System</string>
+    <string name="widget_config_font_compact">Compact</string>
+    <string name="widget_config_font_large">Large</string>
 </resources>

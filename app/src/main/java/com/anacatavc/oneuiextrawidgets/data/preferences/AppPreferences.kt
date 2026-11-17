@@ -30,6 +30,21 @@ data class CachedWeatherState(
     val lastUpdatedMillis: Long = 0L
 )
 
+enum class WidgetFontScaleMode(
+    val storageKey: String,
+    val maxSystemScale: Float,
+    val multiplier: Float
+) {
+    SYSTEM(storageKey = "system", maxSystemScale = 1.20f, multiplier = 1.0f),
+    COMPACT(storageKey = "compact", maxSystemScale = 1.0f, multiplier = 0.88f),
+    LARGE(storageKey = "large", maxSystemScale = 1.35f, multiplier = 1.12f);
+
+    companion object {
+        fun fromStorageKey(value: String?): WidgetFontScaleMode =
+            entries.firstOrNull { it.storageKey == value } ?: SYSTEM
+    }
+}
+
 object AppPreferences {
     const val DEFAULT_WIDGET_OPACITY = 100
     const val MIN_WIDGET_OPACITY = 0
@@ -50,6 +65,9 @@ object AppPreferences {
 
     private fun widgetOpacityKey(appWidgetId: Int) =
         intPreferencesKey("widget_opacity_$appWidgetId")
+
+    private fun widgetFontScaleKey(appWidgetId: Int) =
+        stringPreferencesKey("widget_font_scale_$appWidgetId")
 
     fun clampWidgetOpacity(opacityPct: Int): Int =
         opacityPct.coerceIn(MIN_WIDGET_OPACITY, MAX_WIDGET_OPACITY)
@@ -82,10 +100,48 @@ object AppPreferences {
     }
 
     suspend fun clearWidgetOpacities(context: Context, appWidgetIds: IntArray) {
+        clearWidgetInstancePrefs(context, appWidgetIds)
+    }
+
+    fun observeWidgetFontScale(context: Context, appWidgetId: Int): Flow<WidgetFontScaleMode> {
+        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+            return flowOf(WidgetFontScaleMode.SYSTEM)
+        }
+        val key = widgetFontScaleKey(appWidgetId)
+        return context.appDataStore.data.map { prefs ->
+            WidgetFontScaleMode.fromStorageKey(prefs[key])
+        }
+    }
+
+    suspend fun getWidgetFontScale(context: Context, appWidgetId: Int): WidgetFontScaleMode {
+        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+            return WidgetFontScaleMode.SYSTEM
+        }
+        val key = widgetFontScaleKey(appWidgetId)
+        val prefs = context.appDataStore.data.first()
+        return WidgetFontScaleMode.fromStorageKey(prefs[key])
+    }
+
+    suspend fun saveWidgetFontScale(
+        context: Context,
+        appWidgetId: Int,
+        mode: WidgetFontScaleMode
+    ) {
+        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) return
+        val key = widgetFontScaleKey(appWidgetId)
+        context.appDataStore.edit { prefs ->
+            prefs[key] = mode.storageKey
+        }
+    }
+
+    suspend fun clearWidgetInstancePrefs(context: Context, appWidgetIds: IntArray) {
         val validIds = appWidgetIds.filter { it != AppWidgetManager.INVALID_APPWIDGET_ID }
         if (validIds.isEmpty()) return
         context.appDataStore.edit { prefs ->
-            validIds.forEach { prefs.remove(widgetOpacityKey(it)) }
+            validIds.forEach { id ->
+                prefs.remove(widgetOpacityKey(id))
+                prefs.remove(widgetFontScaleKey(id))
+            }
         }
     }
 

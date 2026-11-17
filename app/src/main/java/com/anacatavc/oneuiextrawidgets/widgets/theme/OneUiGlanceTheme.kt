@@ -3,9 +3,12 @@ package com.anacatavc.oneuiextrawidgets.widgets.theme
 import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.color.ColorProvider as dayNightColorProvider
 import androidx.glance.unit.ColorProvider
+import com.anacatavc.oneuiextrawidgets.data.preferences.WidgetFontScaleMode
 import kotlin.math.roundToInt
 
 object OneUiGlanceTokens {
@@ -17,6 +20,43 @@ object OneUiGlanceTokens {
     fun isNightModeActive(context: Context): Boolean =
         (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
             Configuration.UI_MODE_NIGHT_YES
+
+    fun systemFontScale(context: Context): Float =
+        context.resources.configuration.fontScale
+
+    /**
+     * Computes the bounded effective font scale factor so widgets respect One UI system
+     * font scaling without overflowing tight RemoteViews bounds.
+     */
+    fun effectiveTextScale(
+        systemFontScale: Float,
+        mode: WidgetFontScaleMode,
+        isCompactLayout: Boolean = false
+    ): Float {
+        val safeSystem = if (systemFontScale > 0.1f) systemFontScale else 1.0f
+        val maxSystem = if (isCompactLayout) {
+            minOf(mode.maxSystemScale, 1.10f)
+        } else {
+            mode.maxSystemScale
+        }
+        val clampedSystem = safeSystem.coerceIn(0.85f, maxSystem)
+        return clampedSystem * mode.multiplier
+    }
+
+    /**
+     * Returns an `sp` [TextUnit] compensated for `RemoteViews` automatic [systemFontScale]
+     * multiplication so the rendered size matches [effectiveTextScale].
+     */
+    fun scaledSp(
+        baseSp: Float,
+        systemFontScale: Float,
+        mode: WidgetFontScaleMode,
+        isCompactLayout: Boolean = false
+    ): TextUnit {
+        val safeSystem = if (systemFontScale > 0.1f) systemFontScale else 1.0f
+        val effective = effectiveTextScale(safeSystem, mode, isCompactLayout)
+        return (baseSp * (effective / safeSystem)).sp
+    }
 
     private val SurfaceDayBase = Color(0xF2F4F5F8)
     private val SurfaceNightBase = Color(0xEB1C1C1E)

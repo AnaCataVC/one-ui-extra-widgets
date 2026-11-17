@@ -90,4 +90,8 @@
     <string name="widget_config_low_contrast_hint">Una opacidad baja puede reducir la legibilidad del texto sobre fondos claros o muy cargados.</string>
     <string name="widget_config_save">Guardar</string>
     <string name="widget_config_cancel">Cancelar</string>
+    <string name="widget_config_font_scale_label">Tamaño de texto</string>
+    <string name="widget_config_font_system">Sistema</string>
+    <string name="widget_config_font_compact">Compacto</string>
+    <string name="widget_config_font_large">Grande</string>
 </resources>

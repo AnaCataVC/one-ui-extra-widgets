@@ -44,8 +44,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.anacatavc.oneuiextrawidgets.R
 import com.anacatavc.oneuiextrawidgets.data.preferences.AppPreferences
+import com.anacatavc.oneuiextrawidgets.data.preferences.WidgetFontScaleMode
 import com.anacatavc.oneuiextrawidgets.ui.components.OneUiCard
 import com.anacatavc.oneuiextrawidgets.ui.components.OneUiHeader
 import com.anacatavc.oneuiextrawidgets.ui.theme.OneUiTheme
@@ -91,8 +93,9 @@ class WidgetConfigActivity : AppCompatActivity() {
                 WidgetConfigScreen(
                     appWidgetId = appWidgetId,
                     widgetLabel = widgetLabel,
-                    onSave = { opacityPct ->
+                    onSave = { opacityPct, fontScaleMode ->
                         AppPreferences.saveWidgetOpacity(this, appWidgetId, opacityPct)
+                        AppPreferences.saveWidgetFontScale(this, appWidgetId, fontScaleMode)
                         WidgetInstanceHelper.updateWidgetInstance(this, appWidgetId)
                         setResult(RESULT_OK, resultIntent)
                         finish()
@@ -108,16 +111,18 @@ class WidgetConfigActivity : AppCompatActivity() {
 private fun WidgetConfigScreen(
     appWidgetId: Int,
     widgetLabel: String,
-    onSave: suspend (Int) -> Unit,
+    onSave: suspend (Int, WidgetFontScaleMode) -> Unit,
     onCancel: () -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
     var opacityPct by remember { mutableIntStateOf(AppPreferences.DEFAULT_WIDGET_OPACITY) }
+    var fontScaleMode by remember { mutableStateOf(WidgetFontScaleMode.SYSTEM) }
     var isSaving by remember { mutableStateOf(false) }
 
     LaunchedEffect(appWidgetId) {
         opacityPct = AppPreferences.getWidgetOpacity(context, appWidgetId)
+        fontScaleMode = AppPreferences.getWidgetFontScale(context, appWidgetId)
     }
 
     Scaffold(
@@ -142,7 +147,8 @@ private fun WidgetConfigScreen(
             OneUiCard(title = stringResource(R.string.widget_config_preview_title)) {
                 TransparencyPreviewBox(
                     widgetLabel = widgetLabel,
-                    opacityPct = opacityPct
+                    opacityPct = opacityPct,
+                    fontScaleMode = fontScaleMode
                 )
             }
 
@@ -185,6 +191,27 @@ private fun WidgetConfigScreen(
                 }
             }
 
+            OneUiCard(title = stringResource(R.string.widget_config_font_scale_label)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val options = listOf(
+                        WidgetFontScaleMode.SYSTEM to R.string.widget_config_font_system,
+                        WidgetFontScaleMode.COMPACT to R.string.widget_config_font_compact,
+                        WidgetFontScaleMode.LARGE to R.string.widget_config_font_large
+                    )
+                    options.forEach { (mode, labelRes) ->
+                        FilterChip(
+                            selected = fontScaleMode == mode,
+                            onClick = { fontScaleMode = mode },
+                            label = { Text(stringResource(labelRes)) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -200,7 +227,7 @@ private fun WidgetConfigScreen(
                     onClick = {
                         isSaving = true
                         scope.launch {
-                            onSave(opacityPct)
+                            onSave(opacityPct, fontScaleMode)
                         }
                     },
                     enabled = !isSaving,
@@ -216,12 +243,17 @@ private fun WidgetConfigScreen(
 @Composable
 private fun TransparencyPreviewBox(
     widgetLabel: String,
-    opacityPct: Int
+    opacityPct: Int,
+    fontScaleMode: WidgetFontScaleMode
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val isDark = isSystemInDarkTheme()
     val baseSurface = if (isDark) Color(0xEB1C1C1E) else Color(0xF2F4F5F8)
     val previewSurface = OneUiGlanceTokens.scaleColorAlpha(baseSurface, opacityPct)
     val previewText = if (isDark) Color(0xFFF5F6F9) else Color(0xFF121316)
+    val systemScale = OneUiGlanceTokens.systemFontScale(context)
+    val titleSp = OneUiGlanceTokens.scaledSp(16f, systemScale, fontScaleMode)
+    val subSp = OneUiGlanceTokens.scaledSp(12f, systemScale, fontScaleMode)
 
     Box(
         contentAlignment = Alignment.Center,
@@ -250,14 +282,14 @@ private fun TransparencyPreviewBox(
         ) {
             Text(
                 text = widgetLabel.ifBlank { stringResource(R.string.widget_config_preview_sample) },
-                style = MaterialTheme.typography.titleMedium,
+                fontSize = titleSp,
                 fontWeight = FontWeight.Bold,
                 color = previewText,
                 maxLines = 1
             )
             Text(
                 text = "${stringResource(R.string.widget_config_opacity_label)}: $opacityPct%",
-                style = MaterialTheme.typography.bodySmall,
+                fontSize = subSp,
                 color = previewText.copy(alpha = 0.78f),
                 maxLines = 1
             )

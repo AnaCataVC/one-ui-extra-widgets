@@ -2,6 +2,7 @@ package com.anacatavc.oneuiextrawidgets
 
 import androidx.compose.ui.graphics.Color
 import com.anacatavc.oneuiextrawidgets.data.preferences.AppPreferences
+import com.anacatavc.oneuiextrawidgets.data.preferences.WidgetFontScaleMode
 import com.anacatavc.oneuiextrawidgets.widgets.WidgetInstanceHelper
 import com.anacatavc.oneuiextrawidgets.widgets.astrology.OneUiAstrologyWidgetReceiver
 import com.anacatavc.oneuiextrawidgets.widgets.music.DiscmanWidgetReceiver
@@ -69,5 +70,35 @@ class WidgetOpacityTest {
         }
         assertNull(WidgetInstanceHelper.resolveWidgetForProvider(null))
         assertNull(WidgetInstanceHelper.resolveWidgetForProvider("com.example.UnknownReceiver"))
+    }
+
+    @Test
+    fun `effectiveTextScale bounds extreme system fontScale and applies mode multiplier`() {
+        assertEquals(1.0f, OneUiGlanceTokens.effectiveTextScale(1.0f, WidgetFontScaleMode.SYSTEM), 0.001f)
+        assertEquals(1.20f, OneUiGlanceTokens.effectiveTextScale(1.6f, WidgetFontScaleMode.SYSTEM), 0.001f)
+        assertEquals(
+            1.10f,
+            OneUiGlanceTokens.effectiveTextScale(1.6f, WidgetFontScaleMode.SYSTEM, isCompactLayout = true),
+            0.001f
+        )
+        assertEquals(0.88f, OneUiGlanceTokens.effectiveTextScale(1.5f, WidgetFontScaleMode.COMPACT), 0.001f)
+        assertEquals(
+            1.35f * 1.12f,
+            OneUiGlanceTokens.effectiveTextScale(1.8f, WidgetFontScaleMode.LARGE),
+            0.001f
+        )
+    }
+
+    @Test
+    fun `scaledSp compensates RemoteViews systemFontScale multiplication`() {
+        val spAt150 = OneUiGlanceTokens.scaledSp(
+            baseSp = 12f,
+            systemFontScale = 1.5f,
+            mode = WidgetFontScaleMode.SYSTEM
+        )
+        // Rendered size = spAt150.value * 1.5f == 12f * 1.20f
+        assertEquals(12f * 1.20f, spAt150.value * 1.5f, 0.01f)
+        assertEquals(WidgetFontScaleMode.SYSTEM, WidgetFontScaleMode.fromStorageKey(null))
+        assertEquals(WidgetFontScaleMode.COMPACT, WidgetFontScaleMode.fromStorageKey("compact"))
     }
 }

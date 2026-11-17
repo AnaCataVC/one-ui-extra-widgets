@@ -7,6 +7,7 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import com.anacatavc.oneuiextrawidgets.data.preferences.AppPreferences
+import com.anacatavc.oneuiextrawidgets.data.preferences.WidgetFontScaleMode
 import com.anacatavc.oneuiextrawidgets.widgets.astrology.OneUiAstrologyWidget
 import com.anacatavc.oneuiextrawidgets.widgets.astrology.OneUiAstrologyWidgetReceiver
 import com.anacatavc.oneuiextrawidgets.widgets.music.DiscmanWidget
@@ -45,6 +46,11 @@ object WidgetInstanceHelper {
     fun observeWidgetOpacity(context: Context, glanceId: GlanceId): Flow<Int> {
         val appWidgetId = resolveAppWidgetId(context, glanceId)
         return AppPreferences.observeWidgetOpacity(context, appWidgetId)
+    }
+
+    fun observeWidgetFontScale(context: Context, glanceId: GlanceId): Flow<WidgetFontScaleMode> {
+        val appWidgetId = resolveAppWidgetId(context, glanceId)
+        return AppPreferences.observeWidgetFontScale(context, appWidgetId)
     }
 
     fun resolveWidgetForProvider(providerClassName: String?): GlanceAppWidget? = when (providerClassName) {
@@ -87,7 +93,7 @@ abstract class OneUiGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
         super.onDeleted(context, appWidgetIds)
         val appContext = context.applicationContext
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            AppPreferences.clearWidgetOpacities(appContext, appWidgetIds)
+            AppPreferences.clearWidgetInstancePrefs(appContext, appWidgetIds)
         }
     }
 }
