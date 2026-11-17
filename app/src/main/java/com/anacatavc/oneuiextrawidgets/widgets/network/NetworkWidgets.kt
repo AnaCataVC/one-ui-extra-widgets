@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -14,7 +16,6 @@ import androidx.glance.LocalSize
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
@@ -43,6 +44,9 @@ import androidx.glance.unit.ColorProvider
 import com.anacatavc.oneuiextrawidgets.MainActivity
 import com.anacatavc.oneuiextrawidgets.data.network.NetworkQualityMonitor
 import com.anacatavc.oneuiextrawidgets.data.network.NetworkQualitySnapshot
+import com.anacatavc.oneuiextrawidgets.widgets.OneUiGlanceWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.WidgetInstanceHelper
+import kotlinx.coroutines.flow.first
 import com.anacatavc.oneuiextrawidgets.utils.LocaleHelper
 import com.anacatavc.oneuiextrawidgets.utils.WidgetCanvasRenderer
 import com.anacatavc.oneuiextrawidgets.widgets.theme.OneUiGlanceTokens
@@ -131,9 +135,12 @@ class OneUiNetworkWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val snapshot = NetworkQualityMonitor.readSnapshot(context)
+        val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
+        val initialOpacity = opacityFlow.first()
         val isDark = OneUiGlanceTokens.isNightModeActive(context)
 
         provideContent {
+            val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateNetworkLayout(size.width.value, size.height.value)
@@ -157,7 +164,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                 layout = layout,
                 mobileBitmap = mobileBitmap,
                 wifiBitmap = wifiBitmap,
-                isSpanish = isEs
+                isSpanish = isEs,
+                opacityPct = opacityPct
             )
         }
     }
@@ -169,18 +177,21 @@ class OneUiNetworkWidget : GlanceAppWidget() {
         layout: NetworkLayoutSpec,
         mobileBitmap: Bitmap,
         wifiBitmap: Bitmap,
-        isSpanish: Boolean
+        isSpanish: Boolean,
+        opacityPct: Int
     ) {
         val detailIntent = Intent(context, MainActivity::class.java).apply {
             putExtra(MainActivity.EXTRA_INITIAL_TAB, MainActivity.TAB_NETWORK)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
+        val surfaceBg = OneUiGlanceTokens.surfaceBackground(opacityPct)
+        val innerBg = OneUiGlanceTokens.innerCardSurface(opacityPct)
 
         Column(
             modifier = GlanceModifier
                 .fillMaxSize()
                 .cornerRadius(OneUiGlanceTokens.CornerRadius)
-                .background(OneUiGlanceTokens.SurfaceBackground)
+                .background(surfaceBg)
                 .padding(layout.cardPaddingDp.dp)
                 .clickable(actionStartActivity(detailIntent))
         ) {
@@ -199,7 +210,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                         layout = layout,
                         mobileBitmap = mobileBitmap,
                         wifiBitmap = wifiBitmap,
-                        isSpanish = isSpanish
+                        isSpanish = isSpanish,
+                        innerSurface = innerBg
                     )
                 }
                 NetworkLayoutMode.SQUARE -> {
@@ -208,7 +220,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                         layout = layout,
                         mobileBitmap = mobileBitmap,
                         wifiBitmap = wifiBitmap,
-                        isSpanish = isSpanish
+                        isSpanish = isSpanish,
+                        innerSurface = innerBg
                     )
                 }
                 NetworkLayoutMode.EXPANDED -> {
@@ -217,7 +230,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                         layout = layout,
                         mobileBitmap = mobileBitmap,
                         wifiBitmap = wifiBitmap,
-                        isSpanish = isSpanish
+                        isSpanish = isSpanish,
+                        innerSurface = innerBg
                     )
                 }
             }
@@ -280,7 +294,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
         layout: NetworkLayoutSpec,
         mobileBitmap: Bitmap,
         wifiBitmap: Bitmap,
-        isSpanish: Boolean
+        isSpanish: Boolean,
+        innerSurface: ColorProvider
     ) {
         val mobileColor = signalAccentColor(snapshot.mobileLevelBars, snapshot.isMobileConnected)
         val wifiColor = signalAccentColor(snapshot.wifiLevelBars, snapshot.isWifiConnected)
@@ -295,7 +310,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                     .defaultWeight()
                     .fillMaxHeight()
                     .cornerRadius(OneUiGlanceTokens.InnerRadius)
-                    .background(OneUiGlanceTokens.InnerCardSurface)
+                    .background(innerSurface)
                     .padding(layout.innerPaddingDp.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -338,7 +353,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                     .defaultWeight()
                     .fillMaxHeight()
                     .cornerRadius(OneUiGlanceTokens.InnerRadius)
-                    .background(OneUiGlanceTokens.InnerCardSurface)
+                    .background(innerSurface)
                     .padding(layout.innerPaddingDp.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -385,7 +400,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
         layout: NetworkLayoutSpec,
         mobileBitmap: Bitmap,
         wifiBitmap: Bitmap,
-        isSpanish: Boolean
+        isSpanish: Boolean,
+        innerSurface: ColorProvider
     ) {
         val mobileColor = signalAccentColor(snapshot.mobileLevelBars, snapshot.isMobileConnected)
         val wifiColor = signalAccentColor(snapshot.wifiLevelBars, snapshot.isWifiConnected)
@@ -408,7 +424,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                     .fillMaxWidth()
                     .defaultWeight()
                     .cornerRadius(OneUiGlanceTokens.InnerRadius)
-                    .background(OneUiGlanceTokens.InnerCardSurface)
+                    .background(innerSurface)
                     .padding(layout.innerPaddingDp.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -477,7 +493,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                     .fillMaxWidth()
                     .defaultWeight()
                     .cornerRadius(OneUiGlanceTokens.InnerRadius)
-                    .background(OneUiGlanceTokens.InnerCardSurface)
+                    .background(innerSurface)
                     .padding(layout.innerPaddingDp.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -546,7 +562,8 @@ class OneUiNetworkWidget : GlanceAppWidget() {
         layout: NetworkLayoutSpec,
         mobileBitmap: Bitmap,
         wifiBitmap: Bitmap,
-        isSpanish: Boolean
+        isSpanish: Boolean,
+        innerSurface: ColorProvider
     ) {
         val mobileColor = signalAccentColor(snapshot.mobileLevelBars, snapshot.isMobileConnected)
         val wifiColor = signalAccentColor(snapshot.wifiLevelBars, snapshot.isWifiConnected)
@@ -569,7 +586,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                     .defaultWeight()
                     .fillMaxHeight()
                     .cornerRadius(OneUiGlanceTokens.InnerRadius)
-                    .background(OneUiGlanceTokens.InnerCardSurface)
+                    .background(innerSurface)
                     .padding(layout.innerPaddingDp.dp)
             ) {
                 Row(
@@ -635,7 +652,7 @@ class OneUiNetworkWidget : GlanceAppWidget() {
                     .defaultWeight()
                     .fillMaxHeight()
                     .cornerRadius(OneUiGlanceTokens.InnerRadius)
-                    .background(OneUiGlanceTokens.InnerCardSurface)
+                    .background(innerSurface)
                     .padding(layout.innerPaddingDp.dp)
             ) {
                 Row(
@@ -706,6 +723,6 @@ class RefreshNetworkAction : ActionCallback {
     }
 }
 
-class OneUiNetworkWidgetReceiver : GlanceAppWidgetReceiver() {
+class OneUiNetworkWidgetReceiver : OneUiGlanceWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = OneUiNetworkWidget()
 }

@@ -9,6 +9,7 @@ import android.graphics.RectF
 import android.graphics.Shader
 import com.anacatavc.oneuiextrawidgets.data.astrology.ZodiacSign
 import com.anacatavc.oneuiextrawidgets.widgets.theme.OneUiCanvasPalette
+import com.anacatavc.oneuiextrawidgets.widgets.theme.OneUiGlanceTokens
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -390,7 +391,15 @@ object WidgetCanvasRenderer {
      * Renders a circular portable CD player (Discman) shell with metallic bevel rim,
      * COMPACT DISC / ESP ANTI-SHOCK branding, central pill module recess, and bottom speaker grille.
      */
-    fun renderDiscmanBodyBitmap(sizePx: Int = 420, isDarkTheme: Boolean = true): Bitmap {
+    fun renderDiscmanBodyBitmap(
+        sizePx: Int = 420,
+        isDarkTheme: Boolean = true,
+        opacityPct: Int = 100
+    ): Bitmap {
+        val alphaInt = OneUiGlanceTokens.bitmapAlphaFromOpacity(opacityPct)
+        if (alphaInt == 0) {
+            return Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        }
         val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val cx = sizePx / 2f
@@ -488,7 +497,17 @@ object WidgetCanvasRenderer {
             }
         }
 
-        return bitmap
+        return if (alphaInt >= 255) {
+            bitmap
+        } else {
+            // Composite the opaque body as a single layer to avoid alpha-stacking seams
+            val fadedBitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+            val fadedCanvas = Canvas(fadedBitmap)
+            val layerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { alpha = alphaInt }
+            fadedCanvas.drawBitmap(bitmap, 0f, 0f, layerPaint)
+            bitmap.recycle()
+            fadedBitmap
+        }
     }
 
     /**

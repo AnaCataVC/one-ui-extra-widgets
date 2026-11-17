@@ -1,5 +1,6 @@
 package com.anacatavc.oneuiextrawidgets.data.preferences
 
+import android.appwidget.AppWidgetManager
 import android.content.Context
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -8,6 +9,8 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 val Context.appDataStore by preferencesDataStore(name = "oneui_extra_widgets_prefs")
@@ -28,6 +31,10 @@ data class CachedWeatherState(
 )
 
 object AppPreferences {
+    const val DEFAULT_WIDGET_OPACITY = 100
+    const val MIN_WIDGET_OPACITY = 0
+    const val MAX_WIDGET_OPACITY = 100
+
     private val KEY_CITY = stringPreferencesKey("weather_city")
     private val KEY_LAT = doublePreferencesKey("weather_lat")
     private val KEY_LON = doublePreferencesKey("weather_lon")
@@ -40,6 +47,47 @@ object AppPreferences {
     private val KEY_PM10 = doublePreferencesKey("weather_pm10")
     private val KEY_WMO = intPreferencesKey("weather_wmo_code")
     private val KEY_UPDATED = longPreferencesKey("weather_updated_ms")
+
+    private fun widgetOpacityKey(appWidgetId: Int) =
+        intPreferencesKey("widget_opacity_$appWidgetId")
+
+    fun clampWidgetOpacity(opacityPct: Int): Int =
+        opacityPct.coerceIn(MIN_WIDGET_OPACITY, MAX_WIDGET_OPACITY)
+
+    fun observeWidgetOpacity(context: Context, appWidgetId: Int): Flow<Int> {
+        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+            return flowOf(DEFAULT_WIDGET_OPACITY)
+        }
+        val key = widgetOpacityKey(appWidgetId)
+        return context.appDataStore.data.map { prefs ->
+            clampWidgetOpacity(prefs[key] ?: DEFAULT_WIDGET_OPACITY)
+        }
+    }
+
+    suspend fun getWidgetOpacity(context: Context, appWidgetId: Int): Int {
+        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+            return DEFAULT_WIDGET_OPACITY
+        }
+        val key = widgetOpacityKey(appWidgetId)
+        val prefs = context.appDataStore.data.first()
+        return clampWidgetOpacity(prefs[key] ?: DEFAULT_WIDGET_OPACITY)
+    }
+
+    suspend fun saveWidgetOpacity(context: Context, appWidgetId: Int, opacityPct: Int) {
+        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) return
+        val key = widgetOpacityKey(appWidgetId)
+        context.appDataStore.edit { prefs ->
+            prefs[key] = clampWidgetOpacity(opacityPct)
+        }
+    }
+
+    suspend fun clearWidgetOpacities(context: Context, appWidgetIds: IntArray) {
+        val validIds = appWidgetIds.filter { it != AppWidgetManager.INVALID_APPWIDGET_ID }
+        if (validIds.isEmpty()) return
+        context.appDataStore.edit { prefs ->
+            validIds.forEach { prefs.remove(widgetOpacityKey(it)) }
+        }
+    }
 
     fun observeWeather(context: Context): Flow<CachedWeatherState> {
         return context.appDataStore.data.map { prefs ->

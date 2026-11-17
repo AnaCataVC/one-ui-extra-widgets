@@ -53,6 +53,8 @@ import com.anacatavc.oneuiextrawidgets.data.preferences.CachedWeatherState
 import com.anacatavc.oneuiextrawidgets.data.weather.OpenMeteoClient
 import com.anacatavc.oneuiextrawidgets.utils.LocaleHelper
 import com.anacatavc.oneuiextrawidgets.utils.WidgetCanvasRenderer
+import com.anacatavc.oneuiextrawidgets.widgets.OneUiGlanceWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.WidgetInstanceHelper
 import com.anacatavc.oneuiextrawidgets.widgets.theme.OneUiGlanceTokens
 import kotlinx.coroutines.flow.first
 import java.util.Locale
@@ -197,10 +199,13 @@ class OneUiRainWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val weatherFlow = AppPreferences.observeWeather(context)
         val initialWeather = weatherFlow.first()
+        val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
+        val initialOpacity = opacityFlow.first()
         val isDark = OneUiGlanceTokens.isNightModeActive(context)
 
         provideContent {
             val state by weatherFlow.collectAsState(initial = initialWeather)
+            val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
@@ -241,7 +246,8 @@ class OneUiRainWidget : GlanceAppWidget() {
                 detailRightLabel = if (isEs) "Ciudad" else "City",
                 detailRightValue = state.cityName,
                 isSpanish = isEs,
-                showRefreshAction = true
+                showRefreshAction = true,
+                opacityPct = opacityPct
             )
         }
     }
@@ -257,10 +263,13 @@ class OneUiAqiWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val weatherFlow = AppPreferences.observeWeather(context)
         val initialWeather = weatherFlow.first()
+        val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
+        val initialOpacity = opacityFlow.first()
         val isDark = OneUiGlanceTokens.isNightModeActive(context)
 
         provideContent {
             val state by weatherFlow.collectAsState(initial = initialWeather)
+            val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
@@ -303,7 +312,8 @@ class OneUiAqiWidget : GlanceAppWidget() {
                 detailRightLabel = "PM10",
                 detailRightValue = "${state.pm10.roundToInt()} µg/m³",
                 isSpanish = isEs,
-                showRefreshAction = true
+                showRefreshAction = true,
+                opacityPct = opacityPct
             )
         }
     }
@@ -319,10 +329,13 @@ class OneUiUvWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val weatherFlow = AppPreferences.observeWeather(context)
         val initialWeather = weatherFlow.first()
+        val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
+        val initialOpacity = opacityFlow.first()
         val isDark = OneUiGlanceTokens.isNightModeActive(context)
 
         provideContent {
             val state by weatherFlow.collectAsState(initial = initialWeather)
+            val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
@@ -372,7 +385,8 @@ class OneUiUvWidget : GlanceAppWidget() {
                 detailRightLabel = if (isEs) "Ciudad" else "City",
                 detailRightValue = state.cityName,
                 isSpanish = isEs,
-                showRefreshAction = true
+                showRefreshAction = true,
+                opacityPct = opacityPct
             )
         }
     }
@@ -388,12 +402,15 @@ class OneUiMoonPhaseWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val astroSnapshot = AstrologyEngine.computeSnapshot()
         val lunar: LunarPhaseStatus = astroSnapshot.lunarStatus
+        val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
+        val initialOpacity = opacityFlow.first()
         val moonBitmap = WidgetCanvasRenderer.renderMoonPhaseBitmap(
             phaseAngleDeg = lunar.phaseAngleDeg,
             sizePx = 160
         )
 
         provideContent {
+            val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
@@ -420,7 +437,8 @@ class OneUiMoonPhaseWidget : GlanceAppWidget() {
                 detailRightLabel = if (isEs) "Elongación" else "Elongation",
                 detailRightValue = "$elongationFormatted ($cycleTrend)",
                 isSpanish = isEs,
-                showRefreshAction = false
+                showRefreshAction = false,
+                opacityPct = opacityPct
             )
         }
     }
@@ -444,10 +462,13 @@ private fun WeatherModularCard(
     detailRightLabel: String,
     detailRightValue: String,
     isSpanish: Boolean,
-    showRefreshAction: Boolean
+    showRefreshAction: Boolean,
+    opacityPct: Int
 ) {
     val detailIntent = createWeatherDetailIntent(context)
     val refreshDescription = if (isSpanish) "Actualizar datos del clima" else "Refresh weather data"
+    val surfaceBg = OneUiGlanceTokens.surfaceBackground(opacityPct)
+    val innerBg = OneUiGlanceTokens.innerCardSurface(opacityPct)
 
     when (layout.mode) {
         WeatherCardLayoutMode.COMPACT_1X1 -> {
@@ -455,7 +476,7 @@ private fun WeatherModularCard(
                 modifier = GlanceModifier
                     .fillMaxSize()
                     .cornerRadius(OneUiGlanceTokens.CornerRadius)
-                    .background(OneUiGlanceTokens.SurfaceBackground)
+                    .background(surfaceBg)
                     .padding(layout.cardPaddingDp.dp)
                     .clickable(actionStartActivity(detailIntent)),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -484,7 +505,7 @@ private fun WeatherModularCard(
                 modifier = GlanceModifier
                     .fillMaxSize()
                     .cornerRadius(OneUiGlanceTokens.CornerRadius)
-                    .background(OneUiGlanceTokens.SurfaceBackground)
+                    .background(surfaceBg)
                     .padding(layout.cardPaddingDp.dp)
                     .clickable(actionStartActivity(detailIntent)),
                 verticalAlignment = Alignment.CenterVertically
@@ -513,7 +534,8 @@ private fun WeatherModularCard(
                         if (showRefreshAction) {
                             RefreshPillBadge(
                                 label = if (layout.showExtendedDetails) "$pillText ↻" else "↻",
-                                contentDesc = refreshDescription
+                                contentDesc = refreshDescription,
+                                background = innerBg
                             )
                         }
                     }
@@ -544,7 +566,7 @@ private fun WeatherModularCard(
                 modifier = GlanceModifier
                     .fillMaxSize()
                     .cornerRadius(OneUiGlanceTokens.CornerRadius)
-                    .background(OneUiGlanceTokens.SurfaceBackground)
+                    .background(surfaceBg)
                     .padding(layout.cardPaddingDp.dp)
                     .clickable(actionStartActivity(detailIntent)),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -566,7 +588,8 @@ private fun WeatherModularCard(
                     if (showRefreshAction) {
                         RefreshPillBadge(
                             label = "↻",
-                            contentDesc = refreshDescription
+                            contentDesc = refreshDescription,
+                            background = innerBg
                         )
                     }
                 }
@@ -599,6 +622,7 @@ private fun WeatherModularCard(
                 DetailSubPill(
                     label = detailLeftLabel,
                     value = detailLeftValue,
+                    background = innerBg,
                     modifier = GlanceModifier.fillMaxWidth()
                 )
             }
@@ -609,7 +633,7 @@ private fun WeatherModularCard(
                 modifier = GlanceModifier
                     .fillMaxSize()
                     .cornerRadius(OneUiGlanceTokens.CornerRadius)
-                    .background(OneUiGlanceTokens.SurfaceBackground)
+                    .background(surfaceBg)
                     .padding(layout.cardPaddingDp.dp)
                     .clickable(actionStartActivity(detailIntent)),
                 verticalAlignment = Alignment.CenterVertically
@@ -638,7 +662,8 @@ private fun WeatherModularCard(
                         if (showRefreshAction) {
                             RefreshPillBadge(
                                 label = "$pillText ↻",
-                                contentDesc = refreshDescription
+                                contentDesc = refreshDescription,
+                                background = innerBg
                             )
                         }
                     }
@@ -668,12 +693,14 @@ private fun WeatherModularCard(
                         DetailSubPill(
                             label = detailLeftLabel,
                             value = detailLeftValue,
+                            background = innerBg,
                             modifier = GlanceModifier.defaultWeight()
                         )
                         Spacer(modifier = GlanceModifier.width(6.dp))
                         DetailSubPill(
                             label = detailRightLabel,
                             value = detailRightValue,
+                            background = innerBg,
                             modifier = GlanceModifier.defaultWeight()
                         )
                     }
@@ -686,13 +713,14 @@ private fun WeatherModularCard(
 @Composable
 private fun RefreshPillBadge(
     label: String,
-    contentDesc: String
+    contentDesc: String,
+    background: ColorProvider
 ) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = GlanceModifier
             .cornerRadius(OneUiGlanceTokens.InnerRadius)
-            .background(OneUiGlanceTokens.InnerCardSurface)
+            .background(background)
             .padding(horizontal = 7.dp, vertical = 3.dp)
             .semantics { contentDescription = contentDesc }
             .clickable(actionRunCallback<RefreshWeatherAction>())
@@ -713,12 +741,13 @@ private fun RefreshPillBadge(
 private fun DetailSubPill(
     label: String,
     value: String,
+    background: ColorProvider,
     modifier: GlanceModifier = GlanceModifier
 ) {
     Column(
         modifier = modifier
             .cornerRadius(OneUiGlanceTokens.InnerRadius)
-            .background(OneUiGlanceTokens.InnerCardSurface)
+            .background(background)
             .padding(horizontal = 8.dp, vertical = 5.dp)
     ) {
         Text(
@@ -792,18 +821,18 @@ class WeatherRefreshWorker(
     }
 }
 
-class OneUiRainWidgetReceiver : GlanceAppWidgetReceiver() {
+class OneUiRainWidgetReceiver : OneUiGlanceWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = OneUiRainWidget()
 }
 
-class OneUiAqiWidgetReceiver : GlanceAppWidgetReceiver() {
+class OneUiAqiWidgetReceiver : OneUiGlanceWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = OneUiAqiWidget()
 }
 
-class OneUiUvWidgetReceiver : GlanceAppWidgetReceiver() {
+class OneUiUvWidgetReceiver : OneUiGlanceWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = OneUiUvWidget()
 }
 
-class OneUiMoonPhaseWidgetReceiver : GlanceAppWidgetReceiver() {
+class OneUiMoonPhaseWidgetReceiver : OneUiGlanceWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = OneUiMoonPhaseWidget()
 }

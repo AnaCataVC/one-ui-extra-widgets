@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -13,7 +15,6 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
@@ -33,14 +34,18 @@ import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import com.anacatavc.oneuiextrawidgets.MainActivity
 import com.anacatavc.oneuiextrawidgets.data.astrology.AstrologyEngine
 import com.anacatavc.oneuiextrawidgets.data.astrology.AstrologySnapshot
 import com.anacatavc.oneuiextrawidgets.data.astrology.PlanetaryMotionState
 import com.anacatavc.oneuiextrawidgets.utils.LocaleHelper
 import com.anacatavc.oneuiextrawidgets.utils.WidgetCanvasRenderer
+import com.anacatavc.oneuiextrawidgets.widgets.OneUiGlanceWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.WidgetInstanceHelper
 import com.anacatavc.oneuiextrawidgets.widgets.theme.OneUiGlanceTokens
 import io.github.cosinekitty.astronomy.Body
+import kotlinx.coroutines.flow.first
 import java.util.Locale
 
 internal enum class AstrologyLayoutMode {
@@ -106,9 +111,12 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val snapshot = AstrologyEngine.computeSnapshot()
+        val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
+        val initialOpacity = opacityFlow.first()
         val isDark = OneUiGlanceTokens.isNightModeActive(context)
 
         provideContent {
+            val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateAstrologyLayout(size.width.value, size.height.value)
@@ -117,7 +125,8 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                 snapshot = snapshot,
                 layout = layout,
                 isDarkTheme = isDark,
-                isSpanish = isEs
+                isSpanish = isEs,
+                opacityPct = opacityPct
             )
         }
     }
@@ -128,7 +137,8 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
         snapshot: AstrologySnapshot,
         layout: AstrologyLayoutSpec,
         isDarkTheme: Boolean,
-        isSpanish: Boolean
+        isSpanish: Boolean,
+        opacityPct: Int
     ) {
         val detailIntent = Intent(context, MainActivity::class.java).apply {
             putExtra(MainActivity.EXTRA_INITIAL_TAB, MainActivity.TAB_ASTROLOGY)
@@ -160,12 +170,14 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
         )
 
         val paddingDp = layout.cardPaddingDp.dp
+        val surfaceBg = OneUiGlanceTokens.surfaceBackground(opacityPct)
+        val innerBg = OneUiGlanceTokens.innerCardSurface(opacityPct)
 
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
                 .cornerRadius(OneUiGlanceTokens.CornerRadius)
-                .background(OneUiGlanceTokens.SurfaceBackground)
+                .background(surfaceBg)
         ) {
             Column(
                 modifier = GlanceModifier
@@ -259,6 +271,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                         } else {
                             null
                         },
+                        background = innerBg,
                         modifier = GlanceModifier.defaultWeight()
                     )
 
@@ -275,6 +288,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                         } else {
                             null
                         },
+                        background = innerBg,
                         modifier = GlanceModifier.defaultWeight()
                     )
                 }
@@ -286,7 +300,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                         modifier = GlanceModifier
                             .fillMaxWidth()
                             .cornerRadius(OneUiGlanceTokens.InnerRadius)
-                            .background(OneUiGlanceTokens.InnerCardSurface)
+                            .background(innerBg)
                             .padding(horizontal = 8.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -354,12 +368,13 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
         label: String,
         value: String,
         subLabel: String?,
+        background: ColorProvider,
         modifier: GlanceModifier = GlanceModifier
     ) {
         Row(
             modifier = modifier
                 .cornerRadius(OneUiGlanceTokens.InnerRadius)
-                .background(OneUiGlanceTokens.InnerCardSurface)
+                .background(background)
                 .padding(horizontal = 9.dp, vertical = 7.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -411,6 +426,6 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
     }
 }
 
-class OneUiAstrologyWidgetReceiver : GlanceAppWidgetReceiver() {
+class OneUiAstrologyWidgetReceiver : OneUiGlanceWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = OneUiAstrologyWidget()
 }

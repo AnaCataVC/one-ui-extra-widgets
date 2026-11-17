@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -15,7 +18,6 @@ import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
@@ -46,7 +48,10 @@ import com.anacatavc.oneuiextrawidgets.data.media.MediaNotificationListener
 import com.anacatavc.oneuiextrawidgets.data.media.TransportCommand
 import com.anacatavc.oneuiextrawidgets.utils.LocaleHelper
 import com.anacatavc.oneuiextrawidgets.utils.WidgetCanvasRenderer
+import com.anacatavc.oneuiextrawidgets.widgets.OneUiGlanceWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.WidgetInstanceHelper
 import com.anacatavc.oneuiextrawidgets.widgets.theme.OneUiGlanceTokens
+import kotlinx.coroutines.flow.first
 
 internal enum class IpodLayoutMode {
     COMPACT,
@@ -121,6 +126,8 @@ class IpodClassicWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val media = MediaNotificationListener.latestState
+        val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
+        val initialOpacity = opacityFlow.first()
         val isDark = OneUiGlanceTokens.isNightModeActive(context)
         val isSpanish = LocaleHelper.isSpanishActive()
         val wheelBitmap = WidgetCanvasRenderer.renderIpodClickWheelBitmap(sizePx = 360, isDarkTheme = isDark)
@@ -130,6 +137,8 @@ class IpodClassicWidget : GlanceAppWidget() {
         }
 
         provideContent {
+            val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
+            val shellBg = OneUiGlanceTokens.ipodShellSurface(opacityPct)
             val size = LocalSize.current
             val layout = calculateIpodLayout(size.width.value, size.height.value)
 
@@ -138,7 +147,7 @@ class IpodClassicWidget : GlanceAppWidget() {
                     modifier = GlanceModifier
                         .fillMaxSize()
                         .cornerRadius(OneUiGlanceTokens.CornerRadius)
-                        .background(OneUiGlanceTokens.IpodShellSurface)
+                        .background(shellBg)
                         .padding(layout.shellPaddingDp.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -169,7 +178,7 @@ class IpodClassicWidget : GlanceAppWidget() {
                     modifier = GlanceModifier
                         .fillMaxSize()
                         .cornerRadius(OneUiGlanceTokens.CornerRadius)
-                        .background(OneUiGlanceTokens.IpodShellSurface)
+                        .background(shellBg)
                         .padding(layout.shellPaddingDp.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -397,9 +406,13 @@ class RetroMp3Widget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val media = MediaNotificationListener.latestState
+        val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
+        val initialOpacity = opacityFlow.first()
         val isSpanish = LocaleHelper.isSpanishActive()
 
         provideContent {
+            val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
+            val shellBg = OneUiGlanceTokens.retroMp3ShellSurface(opacityPct)
             val size = LocalSize.current
             val layout = calculateMp3Layout(size.width.value, size.height.value)
             val playPauseA11y = if (media.isPlaying) {
@@ -413,7 +426,7 @@ class RetroMp3Widget : GlanceAppWidget() {
                     modifier = GlanceModifier
                         .fillMaxSize()
                         .cornerRadius(OneUiGlanceTokens.CornerRadius)
-                        .background(OneUiGlanceTokens.RetroMp3ShellSurface)
+                        .background(shellBg)
                         .padding(12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -463,7 +476,7 @@ class RetroMp3Widget : GlanceAppWidget() {
                     modifier = GlanceModifier
                         .fillMaxSize()
                         .cornerRadius(OneUiGlanceTokens.CornerRadius)
-                        .background(OneUiGlanceTokens.RetroMp3ShellSurface)
+                        .background(shellBg)
                         .padding(horizontal = 10.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -641,18 +654,24 @@ class DiscmanWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val media = MediaNotificationListener.latestState
+        val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
+        val initialOpacity = opacityFlow.first()
         val isDark = OneUiGlanceTokens.isNightModeActive(context)
         val isSpanish = LocaleHelper.isSpanishActive()
-        val discmanBitmap = WidgetCanvasRenderer.renderDiscmanBodyBitmap(
-            sizePx = 440,
-            isDarkTheme = isDark
-        )
         val menuIntent = Intent(context, MainActivity::class.java).apply {
             putExtra(MainActivity.EXTRA_INITIAL_TAB, MainActivity.TAB_HOME)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
 
         provideContent {
+            val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
+            val discmanBitmap = remember(isDark, opacityPct) {
+                WidgetCanvasRenderer.renderDiscmanBodyBitmap(
+                    sizePx = 440,
+                    isDarkTheme = isDark,
+                    opacityPct = opacityPct
+                )
+            }
             val size = LocalSize.current
             val layout = calculateDiscmanLayout(size.width.value, size.height.value)
             val playPauseA11y = if (media.isPlaying) {
@@ -822,14 +841,14 @@ object RetroMusicWidgetUpdater {
     }
 }
 
-class IpodClassicWidgetReceiver : GlanceAppWidgetReceiver() {
+class IpodClassicWidgetReceiver : OneUiGlanceWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = IpodClassicWidget()
 }
 
-class RetroMp3WidgetReceiver : GlanceAppWidgetReceiver() {
+class RetroMp3WidgetReceiver : OneUiGlanceWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = RetroMp3Widget()
 }
 
-class DiscmanWidgetReceiver : GlanceAppWidgetReceiver() {
+class DiscmanWidgetReceiver : OneUiGlanceWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = DiscmanWidget()
 }

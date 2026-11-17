@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.glance.color.ColorProvider
+import androidx.glance.color.ColorProvider as dayNightColorProvider
+import androidx.glance.unit.ColorProvider
+import kotlin.math.roundToInt
 
 object OneUiGlanceTokens {
     val CornerRadius = 26.dp
@@ -16,123 +18,172 @@ object OneUiGlanceTokens {
         (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
             Configuration.UI_MODE_NIGHT_YES
 
-    val SurfaceBackground = ColorProvider(
-        day = Color(0xF2F4F5F8),
-        night = Color(0xEB1C1C1E)
+    private val SurfaceDayBase = Color(0xF2F4F5F8)
+    private val SurfaceNightBase = Color(0xEB1C1C1E)
+    private val InnerCardDayBase = Color(0xFFFFFFFF)
+    private val InnerCardNightBase = Color(0xFF2C2C2E)
+    private val IpodShellDayBase = Color(0xFFEAECEF)
+    private val IpodShellNightBase = Color(0xFF1F2024)
+    private val RetroMp3ShellDayBase = Color(0xFF27359B)
+    private val RetroMp3ShellNightBase = Color(0xFF1A236B)
+
+    val SurfaceBackground: ColorProvider = dayNightColorProvider(
+        day = SurfaceDayBase,
+        night = SurfaceNightBase
     )
 
-    val InnerCardSurface = ColorProvider(
-        day = Color(0xFFFFFFFF),
-        night = Color(0xFF2C2C2E)
+    val InnerCardSurface: ColorProvider = dayNightColorProvider(
+        day = InnerCardDayBase,
+        night = InnerCardNightBase
     )
 
-    val PrimaryText = ColorProvider(
+    fun scaleColorAlpha(baseColor: Color, opacityPct: Int): Color {
+        val clamped = opacityPct.coerceIn(0, 100)
+        return baseColor.copy(alpha = baseColor.alpha * (clamped / 100f))
+    }
+
+    fun bitmapAlphaFromOpacity(opacityPct: Int): Int =
+        (opacityPct.coerceIn(0, 100) * 255f / 100f).roundToInt().coerceIn(0, 255)
+
+    fun surfaceBackground(opacityPct: Int): ColorProvider {
+        if (opacityPct >= 100) return SurfaceBackground
+        return dayNightColorProvider(
+            day = scaleColorAlpha(SurfaceDayBase, opacityPct),
+            night = scaleColorAlpha(SurfaceNightBase, opacityPct)
+        )
+    }
+
+    fun innerCardSurface(opacityPct: Int): ColorProvider {
+        if (opacityPct >= 100) return InnerCardSurface
+        return dayNightColorProvider(
+            day = scaleColorAlpha(InnerCardDayBase, opacityPct),
+            night = scaleColorAlpha(InnerCardNightBase, opacityPct)
+        )
+    }
+
+    fun ipodShellSurface(opacityPct: Int): ColorProvider {
+        if (opacityPct >= 100) return IpodShellSurface
+        return dayNightColorProvider(
+            day = scaleColorAlpha(IpodShellDayBase, opacityPct),
+            night = scaleColorAlpha(IpodShellNightBase, opacityPct)
+        )
+    }
+
+    fun retroMp3ShellSurface(opacityPct: Int): ColorProvider {
+        if (opacityPct >= 100) return RetroMp3ShellSurface
+        return dayNightColorProvider(
+            day = scaleColorAlpha(RetroMp3ShellDayBase, opacityPct),
+            night = scaleColorAlpha(RetroMp3ShellNightBase, opacityPct)
+        )
+    }
+
+    val PrimaryText = dayNightColorProvider(
         day = Color(0xFF121316),
         night = Color(0xFFF5F6F9)
     )
 
-    val SecondaryText = ColorProvider(
+    val SecondaryText = dayNightColorProvider(
         day = Color(0xFF5D6068),
         night = Color(0xFFA0A4B0)
     )
 
-    val OneUiAccentBlue = ColorProvider(
+    val OneUiAccentBlue = dayNightColorProvider(
         day = Color(0xFF0381FE),
         night = Color(0xFF3E9BFF)
     )
 
-    val RetroLcdBacklight = ColorProvider(
+    val RetroLcdBacklight = dayNightColorProvider(
         day = Color(0xFF35E8F7),
         night = Color(0xFF1FD6E8)
     )
 
-    val RetroAlertAmber = ColorProvider(
+    val RetroAlertAmber = dayNightColorProvider(
         day = Color(0xFFD97706),
         night = Color(0xFFFBBF24)
     )
 
-    val IpodShellSurface = ColorProvider(
-        day = Color(0xFFEAECEF),
-        night = Color(0xFF1F2024)
+    val IpodShellSurface: ColorProvider = dayNightColorProvider(
+        day = IpodShellDayBase,
+        night = IpodShellNightBase
     )
 
-    val IpodLcdSurface = ColorProvider(
+    val IpodLcdSurface: ColorProvider = dayNightColorProvider(
         day = Color(0xFFD6E4E8),
         night = Color(0xFF121820)
     )
 
-    val RetroMp3ShellSurface = ColorProvider(
-        day = Color(0xFF27359B),
-        night = Color(0xFF1A236B)
+    val RetroMp3ShellSurface: ColorProvider = dayNightColorProvider(
+        day = RetroMp3ShellDayBase,
+        night = RetroMp3ShellNightBase
     )
 
-    val RetroMp3CapSeam = ColorProvider(
+    val RetroMp3CapSeam = dayNightColorProvider(
         day = Color(0xFF1A2473),
         night = Color(0xFF11174A)
     )
 
-    val RetroMp3BezelSurface = ColorProvider(
+    val RetroMp3BezelSurface = dayNightColorProvider(
         day = Color(0xFF0F1117),
         night = Color(0xFF090A0E)
     )
 
-    val RetroMp3GoldLabel = ColorProvider(
+    val RetroMp3GoldLabel = dayNightColorProvider(
         day = Color(0xFFEBC94B),
         night = Color(0xFFF3D564)
     )
 
-    val RetroMp3SilverSurface = ColorProvider(
+    val RetroMp3SilverSurface = dayNightColorProvider(
         day = Color(0xFFE4E7F0),
         night = Color(0xFFD0D5E2)
     )
 
-    val RetroMp3SilverText = ColorProvider(
+    val RetroMp3SilverText = dayNightColorProvider(
         day = Color(0xFF1B1F2A),
         night = Color(0xFF141821)
     )
 
-    val RetroLcdPrimaryText = ColorProvider(
+    val RetroLcdPrimaryText = dayNightColorProvider(
         day = Color(0xFF04262E),
         night = Color(0xFF031C22)
     )
 
-    val RetroLcdSecondaryText = ColorProvider(
+    val RetroLcdSecondaryText = dayNightColorProvider(
         day = Color(0xFF0A4352),
         night = Color(0xFF073440)
     )
 
     // Semantic Weather & Environmental Tokens (Day / Night adaptive)
-    val WeatherRainCyan = ColorProvider(
+    val WeatherRainCyan = dayNightColorProvider(
         day = Color(0xFF0284C7),
         night = Color(0xFF38BDF8)
     )
 
-    val WeatherGoodGreen = ColorProvider(
+    val WeatherGoodGreen = dayNightColorProvider(
         day = Color(0xFF059669),
         night = Color(0xFF34D399)
     )
 
-    val WeatherModerateAmber = ColorProvider(
+    val WeatherModerateAmber = dayNightColorProvider(
         day = Color(0xFFD97706),
         night = Color(0xFFFBBF24)
     )
 
-    val WeatherHighOrange = ColorProvider(
+    val WeatherHighOrange = dayNightColorProvider(
         day = Color(0xFFEA580C),
         night = Color(0xFFFB923C)
     )
 
-    val WeatherDangerRed = ColorProvider(
+    val WeatherDangerRed = dayNightColorProvider(
         day = Color(0xFFDC2626),
         night = Color(0xFFF87171)
     )
 
-    val WeatherExtremePurple = ColorProvider(
+    val WeatherExtremePurple = dayNightColorProvider(
         day = Color(0xFF7C3AED),
         night = Color(0xFFA78BFA)
     )
 
-    val WeatherMoonSilver = ColorProvider(
+    val WeatherMoonSilver = dayNightColorProvider(
         day = Color(0xFF4F46E5),
         night = Color(0xFFC7D2FE)
     )
