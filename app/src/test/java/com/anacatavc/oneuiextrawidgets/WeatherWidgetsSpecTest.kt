@@ -16,6 +16,16 @@ import org.junit.Test
 class WeatherWidgetsSpecTest {
 
     @Test
+    fun `default 1x1 compact cell selects COMPACT_1X1 layout mode and fits gauge`() {
+        val spec = calculateWeatherCardLayout(widthDp = 82f, heightDp = 82f)
+
+        assertEquals(WeatherCardLayoutMode.COMPACT_1X1, spec.mode)
+        assertEquals(8f, spec.cardPaddingDp, 0.01f)
+        assertTrue(spec.gaugeSizeDp in 34f..52f)
+        assertFalse(spec.showExtendedDetails)
+    }
+
+    @Test
     fun `default 2x1 compact cell selects PILL layout mode and fits gauge`() {
         val spec = calculateWeatherCardLayout(widthDp = 155f, heightDp = 82f)
 
@@ -38,10 +48,10 @@ class WeatherWidgetsSpecTest {
         val zeroSpec = calculateWeatherCardLayout(widthDp = 0f, heightDp = 0f)
         val negSpec = calculateWeatherCardLayout(widthDp = -20f, heightDp = -10f)
 
-        assertEquals(WeatherCardLayoutMode.PILL, zeroSpec.mode)
-        assertEquals(42f, zeroSpec.gaugeSizeDp, 0.01f)
-        assertEquals(WeatherCardLayoutMode.PILL, negSpec.mode)
-        assertEquals(42f, negSpec.gaugeSizeDp, 0.01f)
+        assertEquals(WeatherCardLayoutMode.COMPACT_1X1, zeroSpec.mode)
+        assertEquals(34f, zeroSpec.gaugeSizeDp, 0.01f)
+        assertEquals(WeatherCardLayoutMode.COMPACT_1X1, negSpec.mode)
+        assertEquals(34f, negSpec.gaugeSizeDp, 0.01f)
     }
 
     @Test

@@ -59,6 +59,7 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 internal enum class WeatherCardLayoutMode {
+    COMPACT_1X1,
     PILL,
     SQUARE,
     EXPANDED
@@ -72,16 +73,28 @@ internal data class WeatherCardLayoutSpec(
 )
 
 internal fun calculateWeatherCardLayout(widthDp: Float, heightDp: Float): WeatherCardLayoutSpec {
-    val safeW = widthDp.coerceAtLeast(110f)
+    val safeW = widthDp.coerceAtLeast(70f)
     val safeH = heightDp.coerceAtLeast(64f)
 
     val mode = when {
+        safeW < 130f && safeH < 130f -> WeatherCardLayoutMode.COMPACT_1X1
         safeH < 130f -> WeatherCardLayoutMode.PILL
         safeW >= 240f -> WeatherCardLayoutMode.EXPANDED
         else -> WeatherCardLayoutMode.SQUARE
     }
 
     return when (mode) {
+        WeatherCardLayoutMode.COMPACT_1X1 -> {
+            val padding = 8f
+            val innerMin = minOf(safeW, safeH) - padding * 2f
+            val gaugeSize = (innerMin * 0.64f).coerceIn(34f, 52f)
+            WeatherCardLayoutSpec(
+                mode = mode,
+                cardPaddingDp = padding,
+                gaugeSizeDp = gaugeSize,
+                showExtendedDetails = false
+            )
+        }
         WeatherCardLayoutMode.PILL -> {
             val padding = 12f
             val innerH = (safeH - padding * 2f).coerceAtLeast(40f)
@@ -221,6 +234,8 @@ class OneUiRainWidget : GlanceAppWidget() {
                 statusBadge = statusBadge,
                 statusColor = accentColor,
                 pillText = state.cityName,
+                compactLabel = "${state.rainProbabilityPct}%",
+                compactColor = accentColor,
                 detailLeftLabel = if (isEs) "Ventana" else "Window",
                 detailLeftValue = if (isEs) "Próx. 6h" else "Next 6h",
                 detailRightLabel = if (isEs) "Ciudad" else "City",
@@ -281,6 +296,8 @@ class OneUiAqiWidget : GlanceAppWidget() {
                 statusBadge = "PM2.5 ${state.pm25.roundToInt()} µg",
                 statusColor = accentColor,
                 pillText = state.cityName,
+                compactLabel = statusBadge,
+                compactColor = accentColor,
                 detailLeftLabel = "PM2.5",
                 detailLeftValue = "${state.pm25.roundToInt()} µg/m³",
                 detailRightLabel = "PM10",
@@ -348,6 +365,8 @@ class OneUiUvWidget : GlanceAppWidget() {
                 statusBadge = statusBadge,
                 statusColor = accentColor,
                 pillText = protectionTip,
+                compactLabel = statusBadge,
+                compactColor = accentColor,
                 detailLeftLabel = if (isEs) "Protección" else "Protection",
                 detailLeftValue = protectionTip,
                 detailRightLabel = if (isEs) "Ciudad" else "City",
@@ -391,9 +410,11 @@ class OneUiMoonPhaseWidget : GlanceAppWidget() {
                 gaugeContentDescription = "$phaseName ${lunar.illuminationPercent}%",
                 headerLabel = if (isEs) "Fase Lunar • ${lunar.illuminationPercent}%" else "Moon Phase • ${lunar.illuminationPercent}%",
                 primaryValue = phaseName,
-                statusBadge = if (isEs) "Edad $ageFormatted" else "Age $ageFormatted",
+                statusBadge = if (isEs) "Edad $ageFormatted • $elongationFormatted" else "Age $ageFormatted • $elongationFormatted",
                 statusColor = OneUiGlanceTokens.WeatherMoonSilver,
                 pillText = "$cycleTrend • $elongationFormatted",
+                compactLabel = "${lunar.illuminationPercent}%",
+                compactColor = OneUiGlanceTokens.WeatherMoonSilver,
                 detailLeftLabel = if (isEs) "Edad Sinódica" else "Synodic Age",
                 detailLeftValue = "$ageFormatted / 29.5 d",
                 detailRightLabel = if (isEs) "Elongación" else "Elongation",
@@ -416,6 +437,8 @@ private fun WeatherModularCard(
     statusBadge: String,
     statusColor: ColorProvider,
     pillText: String,
+    compactLabel: String,
+    compactColor: ColorProvider,
     detailLeftLabel: String,
     detailLeftValue: String,
     detailRightLabel: String,
@@ -427,6 +450,35 @@ private fun WeatherModularCard(
     val refreshDescription = if (isSpanish) "Actualizar datos del clima" else "Refresh weather data"
 
     when (layout.mode) {
+        WeatherCardLayoutMode.COMPACT_1X1 -> {
+            Column(
+                modifier = GlanceModifier
+                    .fillMaxSize()
+                    .cornerRadius(OneUiGlanceTokens.CornerRadius)
+                    .background(OneUiGlanceTokens.SurfaceBackground)
+                    .padding(layout.cardPaddingDp.dp)
+                    .clickable(actionStartActivity(detailIntent)),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    provider = ImageProvider(gaugeBitmap),
+                    contentDescription = gaugeContentDescription,
+                    modifier = GlanceModifier.size(layout.gaugeSizeDp.dp)
+                )
+                Spacer(modifier = GlanceModifier.height(3.dp))
+                Text(
+                    text = compactLabel,
+                    style = TextStyle(
+                        color = compactColor,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    maxLines = 1
+                )
+            }
+        }
+
         WeatherCardLayoutMode.PILL -> {
             Row(
                 modifier = GlanceModifier
@@ -641,11 +693,10 @@ private fun RefreshPillBadge(
         modifier = GlanceModifier
             .cornerRadius(OneUiGlanceTokens.InnerRadius)
             .background(OneUiGlanceTokens.InnerCardSurface)
-            .padding(horizontal = 8.dp, vertical = 3.dp)
+            .padding(horizontal = 7.dp, vertical = 3.dp)
             .semantics { contentDescription = contentDesc }
             .clickable(actionRunCallback<RefreshWeatherAction>())
     ) {
-        Spacer(modifier = GlanceModifier.fillMaxSize())
         Text(
             text = label,
             style = TextStyle(
