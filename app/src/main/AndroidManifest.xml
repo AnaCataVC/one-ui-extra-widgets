@@ -47,17 +47,56 @@
             </intent-filter>
         </service>
 
-        <!-- 1. Weather Widget (Rain Probability, AQI, Moon Phase) -->
+        <!-- 1a. Weather Widget: Rain Probability -->
         <receiver
-            android:name=".widgets.weather.OneUiWeatherWidgetReceiver"
+            android:name=".widgets.weather.OneUiRainWidgetReceiver"
             android:exported="true"
-            android:label="@string/widget_weather_title">
+            android:label="@string/widget_weather_rain_title">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/widget_weather_info" />
+                android:resource="@xml/widget_weather_rain_info" />
+        </receiver>
+
+        <!-- 1b. Weather Widget: Air Quality (AQI) -->
+        <receiver
+            android:name=".widgets.weather.OneUiAqiWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_weather_aqi_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_weather_aqi_info" />
+        </receiver>
+
+        <!-- 1c. Weather Widget: Solar UV Index -->
+        <receiver
+            android:name=".widgets.weather.OneUiUvWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_weather_uv_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_weather_uv_info" />
+        </receiver>
+
+        <!-- 1d. Weather Widget: Scientific Moon Phase -->
+        <receiver
+            android:name=".widgets.weather.OneUiMoonPhaseWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_weather_moon_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_weather_moon_info" />
         </receiver>
 
         <!-- 2. Astrology Widget (Sun/Moon Sign + Mercury & Planetary Retrogrades) -->

@@ -69,4 +69,47 @@ class AstrologyEngineTest {
         assertFalse(mercury.isRetrograde)
         assertTrue(mercury.dailySpeedDeg > 0.0)
     }
+
+    @Test
+    fun `lunarPhaseStatus computes scientific synodic age and waxing or waning cycle trend`() {
+        val sampleInstant = Instant.parse("2026-11-16T12:00:00Z")
+        val lunar = AstrologyEngine.computeSnapshot(sampleInstant).lunarStatus
+
+        assertTrue(lunar.synodicAgeDays in 0.0..29.54)
+        assertTrue(lunar.normalizedPhaseAngleDeg in 0.0..360.0)
+        val expectedTrendEs = if (lunar.isWaxing) "Creciente" else "Menguante"
+        val expectedTrendEn = if (lunar.isWaxing) "Waxing" else "Waning"
+        assertEquals(expectedTrendEs, lunar.localizedCycleTrend(isSpanish = true))
+        assertEquals(expectedTrendEn, lunar.localizedCycleTrend(isSpanish = false))
+    }
+
+    @Test
+    fun `lunarPhaseStatus handles exact phase angle and illumination boundaries`() {
+        val firstQuarter = com.anacatavc.oneuiextrawidgets.data.astrology.LunarPhaseStatus(
+            phaseAngleDeg = 90.0,
+            illuminationFraction = 0.5,
+            phaseNameEs = "Cuarto Creciente",
+            phaseNameEn = "First Quarter",
+            moonSign = ZodiacSign.ARIES
+        )
+        assertEquals(90.0, firstQuarter.normalizedPhaseAngleDeg, 1e-6)
+        assertEquals(29.530588 * 0.25, firstQuarter.synodicAgeDays, 1e-4)
+        assertTrue(firstQuarter.isWaxing)
+        assertEquals("Creciente", firstQuarter.localizedCycleTrend(isSpanish = true))
+        assertEquals("Waxing", firstQuarter.localizedCycleTrend(isSpanish = false))
+        assertEquals(50, firstQuarter.illuminationPercent)
+
+        val fullMoon = firstQuarter.copy(phaseAngleDeg = 180.0, illuminationFraction = 1.2)
+        assertEquals(180.0, fullMoon.normalizedPhaseAngleDeg, 1e-6)
+        assertEquals(29.530588 * 0.5, fullMoon.synodicAgeDays, 1e-4)
+        assertFalse(fullMoon.isWaxing)
+        assertEquals("Menguante", fullMoon.localizedCycleTrend(isSpanish = true))
+        assertEquals("Waning", fullMoon.localizedCycleTrend(isSpanish = false))
+        assertEquals(100, fullMoon.illuminationPercent)
+
+        val negativeAngle = firstQuarter.copy(phaseAngleDeg = -90.0, illuminationFraction = -0.1)
+        assertEquals(270.0, negativeAngle.normalizedPhaseAngleDeg, 1e-6)
+        assertFalse(negativeAngle.isWaxing)
+        assertEquals(0, negativeAngle.illuminationPercent)
+    }
 }

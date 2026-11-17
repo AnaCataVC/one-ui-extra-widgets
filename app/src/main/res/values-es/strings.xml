@@ -23,13 +23,20 @@
     <string name="btn_grant">Permitir</string>
     <string name="status_granted">Activo</string>
 
-    <!-- Widget y Pantalla de Clima -->
-    <string name="widget_weather_title">Clima Pro One UI (Lluvia, AQI y Luna)</string>
-    <string name="widget_weather_desc">Probabilidad de lluvia, Calidad del Aire (AQI), UV y Fase Lunar vía Open-Meteo</string>
-    <string name="weather_rain_prob">Prob. Lluvia</string>
+    <!-- Widgets de Clima (4 Tarjetas Modulares One UI 7) y Pantalla -->
+    <string name="widget_weather_rain_title">Clima One UI: Probabilidad de Lluvia</string>
+    <string name="widget_weather_rain_desc">Medidor de probabilidad de precipitación (6h) y nivel de intensidad vía Open-Meteo</string>
+    <string name="widget_weather_aqi_title">Clima One UI: Calidad del Aire (AQI)</string>
+    <string name="widget_weather_aqi_desc">Medidor radial de AQI europeo con desglose de partículas PM2.5 y PM10</string>
+    <string name="widget_weather_uv_title">Clima One UI: Índice UV Solar</string>
+    <string name="widget_weather_uv_desc">Medidor en arco de radiación UV solar con nivel de riesgo OMS y guía FPS</string>
+    <string name="widget_weather_moon_title">Clima One UI: Fase Lunar</string>
+    <string name="widget_weather_moon_desc">Esfera científica de fase lunar, porcentaje de iluminación, edad sinódica y elongación</string>
+    <string name="weather_rain_prob">Prob. Lluvia (6h)</string>
+    <string name="weather_rain_low">Prob. Baja</string>
     <string name="weather_aqi_label">Calidad del Aire (AQI)</string>
-    <string name="weather_uv_label">Índice UV</string>
-    <string name="weather_feels_like">Sensación</string>
+    <string name="weather_uv_label">Índice UV Solar</string>
+    <string name="weather_uv_moderate">Moderado</string>
     <string name="weather_refresh">Actualizar Clima</string>
     <string name="aqi_good">Buena</string>
     <string name="aqi_fair">Aceptable</string>

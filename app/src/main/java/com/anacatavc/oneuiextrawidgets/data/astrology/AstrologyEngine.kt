@@ -74,7 +74,15 @@ data class LunarPhaseStatus(
     val moonSign: ZodiacSign
 ) {
     val illuminationPercent: Int get() = (illuminationFraction * 100.0).toInt().coerceIn(0, 100)
+    val normalizedPhaseAngleDeg: Double get() = ((phaseAngleDeg % 360.0) + 360.0) % 360.0
+    val synodicAgeDays: Double get() = (normalizedPhaseAngleDeg / 360.0) * 29.530588
+    val isWaxing: Boolean get() = normalizedPhaseAngleDeg < 180.0
+
     fun localizedPhaseName(isSpanish: Boolean): String = if (isSpanish) phaseNameEs else phaseNameEn
+    fun localizedCycleTrend(isSpanish: Boolean): String = when {
+        isWaxing -> if (isSpanish) "Creciente" else "Waxing"
+        else -> if (isSpanish) "Menguante" else "Waning"
+    }
 }
 
 data class AstrologySnapshot(

@@ -82,10 +82,22 @@ fun HomeScreen(
         }
 
         // Available Widgets Gallery Card
-        OneUiCard(title = if (isSpanish) "Catálogo de Widgets One UI (6 incluidos)" else "One UI Widget Catalog (6 included)") {
+        OneUiCard(title = if (isSpanish) "Catálogo de Widgets One UI (9 incluidos)" else "One UI Widget Catalog (9 included)") {
             WidgetSummaryItem(
-                title = stringResource(R.string.widget_weather_title),
-                desc = stringResource(R.string.widget_weather_desc)
+                title = stringResource(R.string.widget_weather_rain_title),
+                desc = stringResource(R.string.widget_weather_rain_desc)
+            )
+            WidgetSummaryItem(
+                title = stringResource(R.string.widget_weather_aqi_title),
+                desc = stringResource(R.string.widget_weather_aqi_desc)
+            )
+            WidgetSummaryItem(
+                title = stringResource(R.string.widget_weather_uv_title),
+                desc = stringResource(R.string.widget_weather_uv_desc)
+            )
+            WidgetSummaryItem(
+                title = stringResource(R.string.widget_weather_moon_title),
+                desc = stringResource(R.string.widget_weather_moon_desc)
             )
             WidgetSummaryItem(
                 title = stringResource(R.string.widget_astrology_title),

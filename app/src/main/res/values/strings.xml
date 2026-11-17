@@ -23,13 +23,20 @@
     <string name="btn_grant">Grant</string>
     <string name="status_granted">Active</string>
 
-    <!-- Weather Widget & Screen -->
-    <string name="widget_weather_title">One UI Weather Pro (Rain, AQI &amp; Moon)</string>
-    <string name="widget_weather_desc">Rain probability, Air Quality Index (AQI), UV &amp; Lunar Phase via Open-Meteo</string>
-    <string name="weather_rain_prob">Rain Prob.</string>
+    <!-- Weather Widgets (4 Modular One UI 7 Cards) & Screen -->
+    <string name="widget_weather_rain_title">One UI Weather: Rain Probability</string>
+    <string name="widget_weather_rain_desc">6-hour precipitation probability gauge &amp; intensity alert via Open-Meteo</string>
+    <string name="widget_weather_aqi_title">One UI Weather: Air Quality (AQI)</string>
+    <string name="widget_weather_aqi_desc">European AQI radial gauge with PM2.5 &amp; PM10 particulate breakdown</string>
+    <string name="widget_weather_uv_title">One UI Weather: Solar UV Index</string>
+    <string name="widget_weather_uv_desc">Solar UV radiation arc gauge with WHO risk category &amp; SPF guidance</string>
+    <string name="widget_weather_moon_title">One UI Weather: Lunar Phase</string>
+    <string name="widget_weather_moon_desc">Scientific lunar phase sphere, illumination percentage, synodic age &amp; elongation</string>
+    <string name="weather_rain_prob">Rain Prob. (6h)</string>
+    <string name="weather_rain_low">Low Chance</string>
     <string name="weather_aqi_label">Air Quality (AQI)</string>
-    <string name="weather_uv_label">UV Index</string>
-    <string name="weather_feels_like">Feels like</string>
+    <string name="weather_uv_label">Solar UV Index</string>
+    <string name="weather_uv_moderate">Moderate</string>
     <string name="weather_refresh">Refresh Weather</string>
     <string name="aqi_good">Good</string>
     <string name="aqi_fair">Fair</string>

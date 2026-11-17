@@ -2,17 +2,22 @@ package com.anacatavc.oneuiextrawidgets.utils
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Shader
+import com.anacatavc.oneuiextrawidgets.widgets.theme.OneUiCanvasPalette
 import kotlin.math.cos
+import kotlin.math.roundToInt
+import kotlin.math.sin
 
 /**
  * Renders custom Canvas Bitmaps for Jetpack Glance widgets:
  * - Accurate Lunar Phase sphere with waxing/waning terminator curve
+ * - One UI 7 Rain Probability ring gauge with sculpted water droplet
+ * - One UI 7 European AQI 270° radial arc gauge with indicator dot
+ * - One UI 7 Solar UV Index 270° radial arc gauge with sun rays
  * - iPod Classic Click Wheel graphic
  * - Circular portable CD Discman body with metallic rim & speaker grille
  */
@@ -23,23 +28,29 @@ object WidgetCanvasRenderer {
      * 0 = New Moon, 90 = First Quarter, 180 = Full Moon, 270 = Third Quarter.
      */
     fun renderMoonPhaseBitmap(phaseAngleDeg: Double, sizePx: Int = 160): Bitmap {
-        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val safeSize = sizePx.coerceIn(64, 360)
+        val bitmap = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        val radius = sizePx * 0.44f
-        val cx = sizePx / 2f
-        val cy = sizePx / 2f
+        val radius = safeSize * 0.44f
+        val cx = safeSize / 2f
+        val cy = safeSize / 2f
 
         val darkPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#2A2D37")
+            color = OneUiCanvasPalette.MOON_DARK_DISK
             style = Paint.Style.FILL
         }
         val litPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#F5F3CE")
+            color = OneUiCanvasPalette.MOON_LIT_DISK
             style = Paint.Style.FILL
         }
         val craterPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#22000000")
+            color = OneUiCanvasPalette.MOON_CRATER_SHADOW
             style = Paint.Style.FILL
+        }
+        val rimPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.MOON_RIM_STROKE
+            style = Paint.Style.STROKE
+            strokeWidth = (safeSize * 0.025f).coerceAtLeast(1.5f)
         }
 
         // Base unlit lunar disk
@@ -57,17 +68,13 @@ object WidgetCanvasRenderer {
         val innerOval = RectF(cx - innerWidth, cy - radius, cx + innerWidth, cy + radius)
 
         if (isWaxing) {
-            // Right limb is lit
             path.arcTo(outerOval, -90f, 180f)
             if (terminatorScale >= 0f) {
-                // Crescent: subtract inner ellipse
                 path.arcTo(innerOval, 90f, -180f)
             } else {
-                // Gibbous: add inner ellipse
                 path.arcTo(innerOval, 90f, 180f)
             }
         } else {
-            // Left limb is lit
             path.arcTo(outerOval, 90f, 180f)
             if (terminatorScale >= 0f) {
                 path.arcTo(innerOval, -90f, -180f)
@@ -78,10 +85,252 @@ object WidgetCanvasRenderer {
         path.close()
         canvas.drawPath(path, litPaint)
 
-        // Subtle craters
+        // Subtle craters & outer rim
         canvas.drawCircle(cx - radius * 0.28f, cy - radius * 0.2f, radius * 0.14f, craterPaint)
         canvas.drawCircle(cx + radius * 0.22f, cy + radius * 0.18f, radius * 0.18f, craterPaint)
         canvas.drawCircle(cx + radius * 0.1f, cy - radius * 0.35f, radius * 0.1f, craterPaint)
+        canvas.drawCircle(cx - radius * 0.12f, cy + radius * 0.32f, radius * 0.11f, craterPaint)
+        canvas.drawCircle(cx, cy, radius, rimPaint)
+
+        return bitmap
+    }
+
+    /**
+     * Renders a One UI 7 Rain Probability gauge with a circular progress arc and sculpted center droplet.
+     */
+    fun renderRainGaugeBitmap(
+        probabilityPct: Int,
+        sizePx: Int = 160,
+        isDarkTheme: Boolean = true
+    ): Bitmap {
+        val safeSize = sizePx.coerceIn(64, 360)
+        val bitmap = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val cx = safeSize / 2f
+        val cy = safeSize / 2f
+        val strokeW = safeSize * 0.105f
+        val radius = safeSize * 0.41f
+        val arcRect = RectF(cx - radius, cy - radius, cx + radius, cy + radius)
+
+        val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) OneUiCanvasPalette.GAUGE_TRACK_DARK else OneUiCanvasPalette.GAUGE_TRACK_LIGHT
+            style = Paint.Style.STROKE
+            strokeWidth = strokeW
+            strokeCap = Paint.Cap.ROUND
+        }
+        canvas.drawArc(arcRect, 135f, 270f, false, trackPaint)
+
+        val clampedPct = probabilityPct.coerceIn(0, 100)
+        val sweep = (clampedPct / 100f) * 270f
+        if (sweep > 1f) {
+            val activePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                shader = LinearGradient(
+                    cx - radius, cy - radius, cx + radius, cy + radius,
+                    OneUiCanvasPalette.RAIN_ARC_START,
+                    OneUiCanvasPalette.RAIN_ARC_END,
+                    Shader.TileMode.CLAMP
+                )
+                style = Paint.Style.STROKE
+                strokeWidth = strokeW
+                strokeCap = Paint.Cap.ROUND
+            }
+            canvas.drawArc(arcRect, 135f, sweep.coerceAtLeast(8f), false, activePaint)
+        }
+
+        // Sculpted water droplet in center
+        val dropRadius = safeSize * 0.145f
+        val dropCenterY = cy + safeSize * 0.04f
+        val dropTopY = cy - safeSize * 0.19f
+        val dropPath = Path().apply {
+            moveTo(cx, dropTopY)
+            cubicTo(
+                cx - dropRadius * 1.15f, dropCenterY - dropRadius * 0.35f,
+                cx - dropRadius, dropCenterY + dropRadius * 0.85f,
+                cx, dropCenterY + dropRadius
+            )
+            cubicTo(
+                cx + dropRadius, dropCenterY + dropRadius * 0.85f,
+                cx + dropRadius * 1.15f, dropCenterY - dropRadius * 0.35f,
+                cx, dropTopY
+            )
+            close()
+        }
+        val dropPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            shader = LinearGradient(
+                cx, dropTopY, cx, dropCenterY + dropRadius,
+                OneUiCanvasPalette.RAIN_DROP_TOP,
+                OneUiCanvasPalette.RAIN_DROP_BOTTOM,
+                Shader.TileMode.CLAMP
+            )
+            style = Paint.Style.FILL
+        }
+        canvas.drawPath(dropPath, dropPaint)
+
+        // Specular highlight inside droplet
+        val highlightPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.RAIN_DROP_HIGHLIGHT
+            style = Paint.Style.FILL
+        }
+        canvas.drawCircle(
+            cx - dropRadius * 0.28f,
+            dropCenterY + dropRadius * 0.1f,
+            dropRadius * 0.18f,
+            highlightPaint
+        )
+
+        return bitmap
+    }
+
+    /**
+     * Renders a One UI 7 European Air Quality (AQI) 270° radial gauge with color-coded arc and indicator dot.
+     */
+    fun renderAqiGaugeBitmap(
+        europeanAqi: Int,
+        sizePx: Int = 160,
+        isDarkTheme: Boolean = true
+    ): Bitmap {
+        val safeSize = sizePx.coerceIn(64, 360)
+        val bitmap = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val cx = safeSize / 2f
+        val cy = safeSize / 2f
+        val strokeW = safeSize * 0.105f
+        val radius = safeSize * 0.41f
+        val arcRect = RectF(cx - radius, cy - radius, cx + radius, cy + radius)
+
+        val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) OneUiCanvasPalette.GAUGE_TRACK_DARK else OneUiCanvasPalette.GAUGE_TRACK_LIGHT
+            style = Paint.Style.STROKE
+            strokeWidth = strokeW
+            strokeCap = Paint.Cap.ROUND
+        }
+        canvas.drawArc(arcRect, 135f, 270f, false, trackPaint)
+
+        val aqiColor = when {
+            europeanAqi <= 20 -> OneUiCanvasPalette.AQI_GOOD
+            europeanAqi <= 40 -> OneUiCanvasPalette.AQI_FAIR
+            europeanAqi <= 60 -> OneUiCanvasPalette.AQI_MODERATE
+            europeanAqi <= 80 -> OneUiCanvasPalette.AQI_POOR
+            else -> OneUiCanvasPalette.AQI_VERY_POOR
+        }
+
+        val normalized = (europeanAqi.coerceIn(0, 100) / 100f).coerceAtLeast(0.06f)
+        val sweep = normalized * 270f
+        val activePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = aqiColor
+            style = Paint.Style.STROKE
+            strokeWidth = strokeW
+            strokeCap = Paint.Cap.ROUND
+        }
+        canvas.drawArc(arcRect, 135f, sweep, false, activePaint)
+
+        // Indicator dot on the arc tip
+        val endAngleRad = Math.toRadians((135f + sweep).toDouble())
+        val dotX = cx + (radius * cos(endAngleRad)).toFloat()
+        val dotY = cy + (radius * sin(endAngleRad)).toFloat()
+        val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) OneUiCanvasPalette.INDICATOR_RING_DARK else OneUiCanvasPalette.INDICATOR_RING_LIGHT
+            style = Paint.Style.FILL
+        }
+        val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = aqiColor
+            style = Paint.Style.FILL
+        }
+        canvas.drawCircle(dotX, dotY, strokeW * 0.65f, ringPaint)
+        canvas.drawCircle(dotX, dotY, strokeW * 0.42f, dotPaint)
+
+        // Center AQI numeric readout
+        val valuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) OneUiCanvasPalette.TEXT_PRIMARY_DARK else OneUiCanvasPalette.TEXT_PRIMARY_LIGHT
+            textSize = safeSize * 0.25f
+            textAlign = Paint.Align.CENTER
+            isFakeBoldText = true
+        }
+        val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = aqiColor
+            textSize = safeSize * 0.125f
+            textAlign = Paint.Align.CENTER
+            isFakeBoldText = true
+        }
+        canvas.drawText(europeanAqi.coerceAtLeast(0).toString(), cx, cy + safeSize * 0.05f, valuePaint)
+        canvas.drawText("AQI", cx, cy + safeSize * 0.24f, labelPaint)
+
+        return bitmap
+    }
+
+    /**
+     * Renders a One UI 7 Solar UV Index 270° radial gauge with sun core, rays, and scale indicator.
+     */
+    fun renderUvGaugeBitmap(
+        uvIndex: Double,
+        sizePx: Int = 160,
+        isDarkTheme: Boolean = true
+    ): Bitmap {
+        val safeSize = sizePx.coerceIn(64, 360)
+        val bitmap = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val cx = safeSize / 2f
+        val cy = safeSize / 2f
+        val strokeW = safeSize * 0.105f
+        val radius = safeSize * 0.41f
+        val arcRect = RectF(cx - radius, cy - radius, cx + radius, cy + radius)
+
+        val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) OneUiCanvasPalette.GAUGE_TRACK_DARK else OneUiCanvasPalette.GAUGE_TRACK_LIGHT
+            style = Paint.Style.STROKE
+            strokeWidth = strokeW
+            strokeCap = Paint.Cap.ROUND
+        }
+        canvas.drawArc(arcRect, 135f, 270f, false, trackPaint)
+
+        val uvRounded = uvIndex.roundToInt().coerceAtLeast(0)
+        val uvColor = when {
+            uvRounded <= 2 -> OneUiCanvasPalette.UV_LOW
+            uvRounded <= 5 -> OneUiCanvasPalette.UV_MODERATE
+            uvRounded <= 7 -> OneUiCanvasPalette.UV_HIGH
+            uvRounded <= 10 -> OneUiCanvasPalette.UV_VERY_HIGH
+            else -> OneUiCanvasPalette.UV_EXTREME
+        }
+
+        val normalized = (uvIndex.coerceIn(0.0, 11.0) / 11.0).toFloat().coerceAtLeast(0.06f)
+        val sweep = normalized * 270f
+        val activePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = uvColor
+            style = Paint.Style.STROKE
+            strokeWidth = strokeW
+            strokeCap = Paint.Cap.ROUND
+        }
+        canvas.drawArc(arcRect, 135f, sweep, false, activePaint)
+
+        // Radiant sun core & rays in the center
+        val sunRadius = safeSize * 0.14f
+        val sunPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            shader = LinearGradient(
+                cx, cy - sunRadius, cx, cy + sunRadius,
+                OneUiCanvasPalette.UV_SUN_CORE_TOP,
+                OneUiCanvasPalette.UV_SUN_CORE_BOTTOM,
+                Shader.TileMode.CLAMP
+            )
+            style = Paint.Style.FILL
+        }
+        canvas.drawCircle(cx, cy, sunRadius, sunPaint)
+
+        val rayPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = uvColor
+            style = Paint.Style.STROKE
+            strokeWidth = (safeSize * 0.032f).coerceAtLeast(2f)
+            strokeCap = Paint.Cap.ROUND
+        }
+        val rayInner = sunRadius * 1.28f
+        val rayOuter = sunRadius * 1.68f
+        for (i in 0 until 8) {
+            val angleRad = Math.toRadians(i * 45.0)
+            val x1 = cx + (rayInner * cos(angleRad)).toFloat()
+            val y1 = cy + (rayInner * sin(angleRad)).toFloat()
+            val x2 = cx + (rayOuter * cos(angleRad)).toFloat()
+            val y2 = cy + (rayOuter * sin(angleRad)).toFloat()
+            canvas.drawLine(x1, y1, x2, y2, rayPaint)
+        }
 
         return bitmap
     }
@@ -98,25 +347,25 @@ object WidgetCanvasRenderer {
         val innerR = sizePx * 0.18f
 
         val wheelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = if (isDarkTheme) Color.parseColor("#2B2C30") else Color.parseColor("#E5E6EB")
+            color = if (isDarkTheme) OneUiCanvasPalette.IPOD_WHEEL_DARK else OneUiCanvasPalette.IPOD_WHEEL_LIGHT
             style = Paint.Style.FILL
         }
         val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = if (isDarkTheme) Color.parseColor("#44464E") else Color.parseColor("#C6C8D0")
+            color = if (isDarkTheme) OneUiCanvasPalette.IPOD_STROKE_DARK else OneUiCanvasPalette.IPOD_STROKE_LIGHT
             style = Paint.Style.STROKE
             strokeWidth = 3f
         }
         val centerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             shader = LinearGradient(
                 cx, cy - innerR, cx, cy + innerR,
-                if (isDarkTheme) Color.parseColor("#3E4047") else Color.parseColor("#FFFFFF"),
-                if (isDarkTheme) Color.parseColor("#1D1E22") else Color.parseColor("#D4D6DE"),
+                if (isDarkTheme) OneUiCanvasPalette.IPOD_CENTER_TOP_DARK else OneUiCanvasPalette.IPOD_CENTER_TOP_LIGHT,
+                if (isDarkTheme) OneUiCanvasPalette.IPOD_CENTER_BOTTOM_DARK else OneUiCanvasPalette.IPOD_CENTER_BOTTOM_LIGHT,
                 Shader.TileMode.CLAMP
             )
             style = Paint.Style.FILL
         }
         val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = if (isDarkTheme) Color.parseColor("#D8DAE2") else Color.parseColor("#5A5D66")
+            color = if (isDarkTheme) OneUiCanvasPalette.IPOD_LABEL_DARK else OneUiCanvasPalette.IPOD_LABEL_LIGHT
             textSize = sizePx * 0.085f
             textAlign = Paint.Align.CENTER
             isFakeBoldText = true
@@ -153,9 +402,9 @@ object WidgetCanvasRenderer {
             shader = LinearGradient(
                 0f, cy - outerR, 0f, cy + outerR,
                 intArrayOf(
-                    Color.parseColor("#6A6F7D"),
-                    Color.parseColor("#2A2D35"),
-                    Color.parseColor("#545966")
+                    OneUiCanvasPalette.DISCMAN_BEVEL_TOP,
+                    OneUiCanvasPalette.DISCMAN_BEVEL_MID,
+                    OneUiCanvasPalette.DISCMAN_BEVEL_BOTTOM
                 ),
                 null,
                 Shader.TileMode.CLAMP
@@ -168,8 +417,8 @@ object WidgetCanvasRenderer {
         val bodyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             shader = LinearGradient(
                 0f, cy - bodyR, 0f, cy + bodyR,
-                if (isDarkTheme) Color.parseColor("#323640") else Color.parseColor("#3C404B"),
-                if (isDarkTheme) Color.parseColor("#1B1D23") else Color.parseColor("#23262E"),
+                if (isDarkTheme) OneUiCanvasPalette.DISCMAN_BODY_TOP_DARK else OneUiCanvasPalette.DISCMAN_BODY_TOP_LIGHT,
+                if (isDarkTheme) OneUiCanvasPalette.DISCMAN_BODY_BOTTOM_DARK else OneUiCanvasPalette.DISCMAN_BODY_BOTTOM_LIGHT,
                 Shader.TileMode.CLAMP
             )
             style = Paint.Style.FILL
@@ -177,7 +426,7 @@ object WidgetCanvasRenderer {
         canvas.drawCircle(cx, cy, bodyR, bodyPaint)
 
         val bodyRimPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#44FFFFFF")
+            color = OneUiCanvasPalette.DISCMAN_RIM_HIGHLIGHT
             style = Paint.Style.STROKE
             strokeWidth = sizePx * 0.005f
         }
@@ -185,13 +434,13 @@ object WidgetCanvasRenderer {
 
         // Top branding: COMPACT DISC DIGITAL AUDIO + ESP ANTI-SHOCK
         val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#E6E8EE")
+            color = OneUiCanvasPalette.DISCMAN_TITLE_TEXT
             textSize = sizePx * 0.048f
             textAlign = Paint.Align.CENTER
             isFakeBoldText = true
         }
         val subtitlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#B5BAC7")
+            color = OneUiCanvasPalette.DISCMAN_SUBTITLE_TEXT
             textSize = sizePx * 0.026f
             textAlign = Paint.Align.CENTER
             isFakeBoldText = true
@@ -205,11 +454,11 @@ object WidgetCanvasRenderer {
         val pillRect = RectF(cx - pillW / 2f, cy - pillH / 2f, cx + pillW / 2f, cy + pillH / 2f)
         val pillRadius = pillH / 2f
         val pillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#13151A")
+            color = OneUiCanvasPalette.DISCMAN_PILL_BG
             style = Paint.Style.FILL
         }
         val pillStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#4B505C")
+            color = OneUiCanvasPalette.DISCMAN_PILL_STROKE
             style = Paint.Style.STROKE
             strokeWidth = sizePx * 0.006f
         }
@@ -218,7 +467,7 @@ object WidgetCanvasRenderer {
 
         // Bottom perforated speaker grille dots arranged in concentric arcs
         val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#101216")
+            color = OneUiCanvasPalette.DISCMAN_SPEAKER_DOT
             style = Paint.Style.FILL
         }
         val dotRadius = sizePx * 0.0085f

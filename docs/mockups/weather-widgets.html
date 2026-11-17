@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>One UI Extra Widgets — 4 Modular Weather Widgets Prototype</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            oneui: {
+              bgDark: 'var(--oneui-bg-dark)',
+              cardDark: 'var(--oneui-card-dark)',
+              innerDark: 'var(--oneui-inner-dark)',
+              blue: 'var(--oneui-blue)',
+              cyan: 'var(--oneui-cyan)',
+              green: 'var(--oneui-green)',
+              amber: 'var(--oneui-amber)',
+              moonDark: 'var(--oneui-moon-dark)',
+              moonLit: 'var(--oneui-moon-lit)',
+              moonRim: 'var(--oneui-moon-rim)'
+            }
+          },
+          borderRadius: {
+            'oneui': '26px',
+            'inner': '12px'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --oneui-bg-dark: #000000;
+      --oneui-card-dark: #1C1C1E;
+      --oneui-inner-dark: #2C2C2E;
+      --oneui-blue: #0381FE;
+      --oneui-cyan: #35E8F7;
+      --oneui-green: #10B981;
+      --oneui-amber: #F59E0B;
+      --oneui-moon-dark: #232631;
+      --oneui-moon-lit: #F5F3CE;
+      --oneui-moon-rim: #475569;
+    }
+    html.dark {
+      scrollbar-color: var(--oneui-inner-dark) var(--oneui-bg-dark);
+    }
+  </style>
+</head>
+<body class="bg-oneui-bgDark text-zinc-100 min-h-screen font-sans p-4 md:p-6">
+  <header class="max-w-4xl mx-auto mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <span class="text-xs uppercase tracking-wider text-sky-400 font-semibold">Samsung One UI 7 • Sin Temperatura • Luna 100% Científica</span>
+        <h1 class="text-2xl font-bold mt-0.5">4 Widgets Independientes de Clima (Canvas + Glance)</h1>
+        <p class="text-xs text-zinc-400 mt-1">Tamaño base 2×1 (Píldora compacta) redimensionable a 2×2 (Cuadrado) y 4×2 (Expandido).</p>
+      </div>
+      <div class="flex flex-wrap gap-2" role="group" aria-label="Selector de tamaño de widget">
+        <button onclick="setSizeMode('pill')" id="btn-pill" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 disabled:opacity-50">2×1 Compacto (Por defecto)</button>
+        <button onclick="setSizeMode('square')" id="btn-square" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 disabled:opacity-50">2×2 Cuadrado</button>
+        <button onclick="setSizeMode('expanded')" id="btn-expanded" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 disabled:opacity-50">4×2 Expandido</button>
+      </div>
+    </div>
+
+    <nav class="mt-4 flex flex-wrap items-center gap-2 bg-zinc-900/90 border border-zinc-800 px-3 py-2 rounded-2xl text-xs" aria-label="Estados UX">
+      <span class="text-zinc-400 font-medium mr-1">Estado UX:</span>
+      <button onclick="setUxState('ideal')" id="state-ideal" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-medium hover:bg-emerald-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">1. Ideal (Datos en vivo)</button>
+      <button onclick="setUxState('rainy')" id="state-rainy" class="px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300 hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">Simular Alerta Lluvia / UV Alto</button>
+      <button onclick="setUxState('loading')" id="state-loading" class="px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300 hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">3. Actualizando</button>
+      <button onclick="setUxState('offline')" id="state-offline" class="px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300 hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">5. Caché Offline</button>
+    </nav>
+  </header>
+
+  <main class="max-w-4xl mx-auto">
+    <div id="status-banner" class="hidden mb-4 px-4 py-2.5 rounded-2xl bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 flex items-center justify-between">
+      <span id="status-text">Sincronizando con Open-Meteo...</span>
+      <span class="text-sky-400 font-semibold">Santiago • Sin mostrar temperatura</span>
+    </div>
+
+    <section id="widgets-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <!-- 1. RAIN WIDGET -->
+      <article class="bg-oneui-cardDark rounded-oneui p-3.5 border border-zinc-800/80 shadow-lg flex items-center gap-3.5 transition-all" data-widget="card">
+        <div class="relative w-14 h-14 shrink-0 flex items-center justify-center">
+          <svg viewBox="0 0 64 64" class="w-full h-full">
+            <circle cx="32" cy="32" r="26" class="fill-none stroke-oneui-innerDark" stroke-width="6" />
+            <circle cx="32" cy="32" r="26" class="fill-none stroke-oneui-cyan" stroke-width="6" stroke-linecap="round" stroke-dasharray="163.3" stroke-dashoffset="138" transform="rotate(-90 32 32)" />
+            <path d="M32 17 C32 17 21 30 21 37.5 C21 43.5 25.9 48 32 48 C38.1 48 43 43.5 43 37.5 C43 30 32 17 32 17 Z" class="fill-oneui-blue opacity-90"/>
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-zinc-400 truncate">Prob. Lluvia (6h)</span>
+            <span class="text-xs text-zinc-400 bg-oneui-innerDark px-2 py-0.5 rounded-inner">Santiago ↻</span>
+          </div>
+          <div class="flex items-baseline gap-2 mt-0.5">
+            <span id="rain-val" class="text-2xl font-bold text-white">15%</span>
+            <span id="rain-badge" class="text-xs font-semibold text-cyan-400">Prob. Baja</span>
+          </div>
+          <div class="extra-detail hidden mt-2 pt-2 border-t border-zinc-800 text-xs text-zinc-400 flex justify-between">
+            <span>Ventana próx. 6h</span>
+            <span class="text-zinc-200 font-medium">Open-Meteo</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- 2. AQI WIDGET -->
+      <article class="bg-oneui-cardDark rounded-oneui p-3.5 border border-zinc-800/80 shadow-lg flex items-center gap-3.5 transition-all" data-widget="card">
+        <div class="relative w-14 h-14 shrink-0 flex items-center justify-center">
+          <svg viewBox="0 0 64 64" class="w-full h-full">
+            <path d="M 13.6 50.4 A 26 26 0 1 1 50.4 50.4" class="fill-none stroke-oneui-innerDark" stroke-width="6" stroke-linecap="round" />
+            <path d="M 13.6 50.4 A 26 26 0 0 1 28 6.5" class="fill-none stroke-oneui-green" stroke-width="6" stroke-linecap="round" />
+            <text x="32" y="36" text-anchor="middle" class="fill-zinc-100 text-xs font-bold" id="aqi-gauge-num">24</text>
+            <text x="32" y="48" text-anchor="middle" class="fill-emerald-400 text-[8px] font-bold">AQI</text>
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-zinc-400 truncate">Calidad del Aire</span>
+            <span class="text-xs text-zinc-400 bg-oneui-innerDark px-2 py-0.5 rounded-inner">PM2.5: 8 µg</span>
+          </div>
+          <div class="flex items-baseline gap-2 mt-0.5">
+            <span id="aqi-val" class="text-xl font-bold text-emerald-400">Buena</span>
+            <span id="aqi-sub" class="text-xs text-zinc-400">AQI 24</span>
+          </div>
+          <div class="extra-detail hidden mt-2 pt-2 border-t border-zinc-800 text-xs text-zinc-400 flex justify-between">
+            <span>PM2.5: 8 µg/m³</span>
+            <span>PM10: 16 µg/m³</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- 3. UV INDEX WIDGET -->
+      <article class="bg-oneui-cardDark rounded-oneui p-3.5 border border-zinc-800/80 shadow-lg flex items-center gap-3.5 transition-all" data-widget="card">
+        <div class="relative w-14 h-14 shrink-0 flex items-center justify-center">
+          <svg viewBox="0 0 64 64" class="w-full h-full">
+            <path d="M 13.6 50.4 A 26 26 0 1 1 50.4 50.4" class="fill-none stroke-oneui-innerDark" stroke-width="6" stroke-linecap="round" />
+            <path d="M 13.6 50.4 A 26 26 0 0 1 38 7" class="fill-none stroke-oneui-amber" stroke-width="6" stroke-linecap="round" />
+            <circle cx="32" cy="32" r="9" class="fill-oneui-amber" />
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-zinc-400 truncate">Índice UV Solar</span>
+            <span class="text-xs text-amber-300 bg-oneui-innerDark px-2 py-0.5 rounded-inner">Usa FPS 30+</span>
+          </div>
+          <div class="flex items-baseline gap-2 mt-0.5">
+            <span id="uv-val" class="text-2xl font-bold text-white">UV 5</span>
+            <span id="uv-badge" class="text-xs font-semibold text-amber-400">Moderado</span>
+          </div>
+          <div class="extra-detail hidden mt-2 pt-2 border-t border-zinc-800 text-xs text-zinc-400 flex justify-between">
+            <span>Escala OMS (0–11+)</span>
+            <span class="text-amber-300">Protección recomendada</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- 4. SCIENTIFIC MOON PHASE WIDGET -->
+      <article class="bg-oneui-cardDark rounded-oneui p-3.5 border border-zinc-800/80 shadow-lg flex items-center gap-3.5 transition-all" data-widget="card">
+        <div class="relative w-14 h-14 shrink-0 flex items-center justify-center">
+          <svg viewBox="0 0 64 64" class="w-full h-full">
+            <circle cx="32" cy="32" r="25" class="fill-oneui-moonDark stroke-oneui-moonRim" stroke-width="1.5" />
+            <path d="M 32 7 A 25 25 0 0 1 32 57 A 12 25 0 0 0 32 7 Z" class="fill-oneui-moonLit" />
+            <circle cx="39" cy="24" r="3.5" class="fill-zinc-900/30" />
+            <circle cx="36" cy="38" r="4.5" class="fill-zinc-900/30" />
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-zinc-400 truncate">Fase Lunar • 68%</span>
+            <span class="text-xs text-indigo-300 bg-oneui-innerDark px-2 py-0.5 rounded-inner">Creciente • 124°</span>
+          </div>
+          <div class="flex items-baseline gap-2 mt-0.5">
+            <span class="text-base font-bold text-white truncate">Gibosa Creciente</span>
+            <span class="text-xs font-semibold text-indigo-300">Edad 10.2 d</span>
+          </div>
+          <div class="extra-detail hidden mt-2 pt-2 border-t border-zinc-800 text-xs text-zinc-400 flex justify-between">
+            <span>Edad Sinódica: 10.2 d / 29.5 d</span>
+            <span class="text-indigo-300">Elongación: 124°</span>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    function setSizeMode(mode) {
+      const grid = document.getElementById('widgets-grid');
+      const cards = document.querySelectorAll('[data-widget="card"]');
+      const details = document.querySelectorAll('.extra-detail');
+      ['pill', 'square', 'expanded'].forEach(m => {
+        const b = document.getElementById('btn-' + m);
+        b.className = (m === mode)
+          ? 'px-3 py-1.5 rounded-full text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400'
+          : 'px-3 py-1.5 rounded-full text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400';
+      });
+      if (mode === 'pill') {
+        grid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-4';
+        cards.forEach(c => c.className = 'bg-oneui-cardDark rounded-oneui p-3.5 border border-zinc-800/80 shadow-lg flex items-center gap-3.5 transition-all');
+        details.forEach(d => d.classList.add('hidden'));
+      } else if (mode === 'square') {
+        grid.className = 'grid grid-cols-2 sm:grid-cols-4 gap-4';
+        cards.forEach(c => c.className = 'bg-oneui-cardDark rounded-oneui p-4 border border-zinc-800/80 shadow-lg flex flex-col items-center text-center gap-2 transition-all');
+        details.forEach(d => d.classList.remove('hidden'));
+      } else {
+        grid.className = 'grid grid-cols-1 gap-4';
+        cards.forEach(c => c.className = 'bg-oneui-cardDark rounded-oneui p-4 border border-zinc-800/80 shadow-lg flex items-center gap-5 transition-all');
+        details.forEach(d => d.classList.remove('hidden'));
+      }
+    }
+
+    function setUxState(state) {
+      const banner = document.getElementById('status-banner');
+      const statusText = document.getElementById('status-text');
+      if (state === 'ideal') {
+        banner.classList.add('hidden');
+        document.getElementById('rain-val').textContent = '15%';
+        document.getElementById('rain-badge').textContent = 'Prob. Baja';
+        document.getElementById('aqi-val').textContent = 'Buena';
+        document.getElementById('aqi-sub').textContent = 'AQI 24';
+        document.getElementById('aqi-gauge-num').textContent = '24';
+        document.getElementById('uv-val').textContent = 'UV 5';
+        document.getElementById('uv-badge').textContent = 'Moderado';
+      } else if (state === 'rainy') {
+        banner.classList.remove('hidden');
+        statusText.textContent = 'Simulación: Frente de lluvia (85%) e Índice UV Alto (8)';
+        document.getElementById('rain-val').textContent = '85%';
+        document.getElementById('rain-badge').textContent = 'Lluvia Alta';
+        document.getElementById('aqi-val').textContent = 'Moderada';
+        document.getElementById('aqi-sub').textContent = 'AQI 54';
+        document.getElementById('aqi-gauge-num').textContent = '54';
+        document.getElementById('uv-val').textContent = 'UV 8';
+        document.getElementById('uv-badge').textContent = 'Muy Alto';
+      } else if (state === 'loading') {
+        banner.classList.remove('hidden');
+        statusText.textContent = 'Actualizando pronóstico y calidad del aire en segundo plano (WorkManager)...';
+      } else if (state === 'offline') {
+        banner.classList.remove('hidden');
+        statusText.textContent = 'Modo sin conexión: Mostrando última lectura en caché DataStore + Luna científica 100% offline.';
+      }
+    }
+  </script>
+</body>
+</html>

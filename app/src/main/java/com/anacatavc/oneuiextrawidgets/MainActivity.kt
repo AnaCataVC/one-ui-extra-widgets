@@ -282,6 +282,7 @@ class MainActivity : AppCompatActivity() {
             cityName = city
         ).onSuccess { updated ->
             AppPreferences.saveWeather(this, updated)
+            com.anacatavc.oneuiextrawidgets.widgets.weather.updateAllWeatherWidgets(this)
         }.onFailure { err ->
             android.util.Log.w("MainActivity", "Failed to fetch weather and air quality", err)
         }.isSuccess

@@ -20,11 +20,16 @@
 
 ## Project Description
 
-**One UI Extra Widgets** expands the Samsung Galaxy home screen experience with six customizable, battery-efficient widgets crafted around **Samsung One UI** design tokens (`26dp` squircle-like corner radii, adaptive day/night translucent surfaces, and ergonomic one-handed viewing headers). While tuned specifically for the **Samsung Galaxy A55 5G** (`1080×2340` Super AMOLED), the suite relies on standard Android Jetpack APIs (`minSdk = 26`, `targetSdk = 35`) so it runs seamlessly on any modern Android device without root or system privileges.
+**One UI Extra Widgets** expands the Samsung Galaxy home screen experience with nine customizable, battery-efficient widgets crafted around **Samsung One UI** design tokens (`26dp` squircle-like corner radii, adaptive day/night translucent surfaces, and ergonomic one-handed viewing headers). While tuned specifically for the **Samsung Galaxy A55 5G** (`1080×2340` Super AMOLED), the suite relies on standard Android Jetpack APIs (`minSdk = 26`, `targetSdk = 35`) so it runs seamlessly on any modern Android device without root or system privileges.
 
 ### Key Features
 
-- **One UI Weather Pro Widget (`OneUiWeatherWidget`)**: Fetches hourly precipitation probability (`%`), European Air Quality Index (`AQI`), $\text{PM}_{2.5}$ / $\text{PM}_{10}$ particulate matter, UV index, and temperature from the free, zero-key **Open-Meteo** Forecast and Air Quality APIs. Includes a custom `Canvas`-rendered Lunar Phase sphere and opens the in-app Weather Detail view on tap.
+- **4 Modular One UI 7 Weather & Scientific Lunar Widgets** ([full specs](docs/weather-widgets.md)):
+  - Designed as compact `2×1` pills (`SizeMode.Exact`) that resize smoothly into `2×2` squares or `4×2` wide cards **without repeating ambient temperature** (already provided by Samsung's stock Weather widget):
+  1. *Rain Probability (`OneUiRainWidget`)*: `Canvas` radial progress arc with a sculpted droplet showing 6-hour precipitation probability (`%`) and intensity tier via **Open-Meteo**.
+  2. *Air Quality (`OneUiAqiWidget`)*: `270°` color-coded European `AQI` radial gauge with $\text{PM}_{2.5}$ and $\text{PM}_{10}$ ($\mu\text{g/m}^3$) breakdown.
+  3. *Solar UV Index (`OneUiUvWidget`)*: `270°` solar radiation gauge mapped to the WHO `0–11+` scale with risk tier and SPF protection guidance.
+  4. *Scientific Lunar Phase (`OneUiMoonPhaseWidget`)*: High-contrast `Canvas` lunar sphere with 100% scientific astronomical metrics (illumination `%`, synodic age `0.0–29.5 d`, solar elongation angle, and waxing/waning trend—zero astrological signs).
 - **100% Offline Astrology & Ephemeris Widget (`OneUiAstrologyWidget`)**: Powered locally by `Astronomy Engine` (`io.github.cosinekitty:astronomy`) with zero network calls. Computes apparent geocentric ecliptic longitudes ($\lambda$) and daily angular velocities ($d\lambda/dt$) to display the current **Sun Sign**, daily **Moon Zodiac Transit**, **Lunar Illumination**, and whether **Mercury, Venus, Mars, Jupiter, or Saturn** are **Direct**, **Retrograde** ($d\lambda/dt < 0$), or in **Pre/Post-Retrograde Shadow**.
 - **Retro Music Players — iPod Classic, 2000s USB MP3 & Circular CD Discman** ([full specs](docs/retro-music-widgets.md)):
   1. *iPod Classic (`IpodClassicWidget`)*: Responsive `SizeMode.Exact` layout with a 5-zone `Canvas` Click Wheel (`MENU`, previous, play/pause, next) and dynamic device model fallback.
@@ -43,9 +48,9 @@ One UI Extra Widgets enforces a clear separation between Jetpack Glance widget s
 ```mermaid
 flowchart TD
     subgraph UI ["Presentation Layer (Jetpack Glance & Compose)"]
-        GlanceWidgets["Jetpack Glance Widgets<br/>(Weather, Astrology, iPod, MP3, Discman, 5G/Wi-Fi)"]
+        GlanceWidgets["Jetpack Glance Widgets<br/>(4 Weather/Moon, Astrology, iPod, MP3, Discman, 5G/Wi-Fi)"]
         ComposeApp["One UI Detail Screens<br/>(HomeScreen, WeatherDetailScreen, AstrologyDetailScreen, NetworkDetailScreen)"]
-        CanvasRenderer["WidgetCanvasRenderer<br/>(Moon Sphere, iPod Click Wheel & Discman CD Mask)"]
+        CanvasRenderer["WidgetCanvasRenderer<br/>(Rain/AQI/UV Gauges, Moon Sphere, iPod Wheel & Discman)"]
     end
 
     subgraph Data ["Data & Platform Services"]
@@ -71,7 +76,7 @@ flowchart TD
 
 | Component / Package | Responsibility |
 | :--- | :--- |
-| **`widgets/`** | 100% Jetpack Glance widget implementations (`OneUiWeatherWidget`, `WeatherRefreshWorker`, `OneUiAstrologyWidget`, `IpodClassicWidget`, `RetroMp3Widget`, `DiscmanWidget`, `OneUiNetworkWidget`) and `OneUiGlanceTokens` (`26dp` corner radius, day/night adaptive surfaces). |
+| **`widgets/`** | 100% Jetpack Glance widget implementations (`OneUiRainWidget`, `OneUiAqiWidget`, `OneUiUvWidget`, `OneUiMoonPhaseWidget`, `WeatherRefreshWorker`, `OneUiAstrologyWidget`, `IpodClassicWidget`, `RetroMp3Widget`, `DiscmanWidget`, `OneUiNetworkWidget`) and `OneUiGlanceTokens` (`26dp` corner radius, day/night adaptive surfaces). |
 | **`ui/`** | Jetpack Compose Material 3 companion application styled after Samsung One UI, providing widget catalog overview, permission onboarding, language selector, and deep-linked detail screens. |
 | **`data/astrology/`** | Pure-computation `AstrologyEngine` calculating tropical zodiac positions, lunar phase angles, and planetary retrograde/shadow states offline. |
 | **`data/weather/`** | `OpenMeteoClient` HTTP client fetching real-time forecast, precipitation probability, UV index, and European AQI metrics. |
