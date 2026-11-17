@@ -121,8 +121,7 @@ class IpodClassicWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val media = MediaNotificationListener.latestState
-        val isDark = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-            Configuration.UI_MODE_NIGHT_YES
+        val isDark = OneUiGlanceTokens.isNightModeActive(context)
         val isSpanish = LocaleHelper.isSpanishActive()
         val wheelBitmap = WidgetCanvasRenderer.renderIpodClickWheelBitmap(sizePx = 360, isDarkTheme = isDark)
         val menuIntent = Intent(context, MainActivity::class.java).apply {
@@ -642,8 +641,7 @@ class DiscmanWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val media = MediaNotificationListener.latestState
-        val isDark = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-            Configuration.UI_MODE_NIGHT_YES
+        val isDark = OneUiGlanceTokens.isNightModeActive(context)
         val isSpanish = LocaleHelper.isSpanishActive()
         val discmanBitmap = WidgetCanvasRenderer.renderDiscmanBodyBitmap(
             sizePx = 440,

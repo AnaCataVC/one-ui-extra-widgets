@@ -25,7 +25,7 @@ import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
-import androidx.glance.color.ColorProvider
+import androidx.glance.unit.ColorProvider
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -242,7 +242,7 @@ class OneUiAqiWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val weatherFlow = AppPreferences.observeWeather(context)
         val initialWeather = weatherFlow.first()
-        val isDark = isNightModeActive(context)
+        val isDark = OneUiGlanceTokens.isNightModeActive(context)
 
         provideContent {
             val state by weatherFlow.collectAsState(initial = initialWeather)
@@ -302,7 +302,7 @@ class OneUiUvWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val weatherFlow = AppPreferences.observeWeather(context)
         val initialWeather = weatherFlow.first()
-        val isDark = isNightModeActive(context)
+        val isDark = OneUiGlanceTokens.isNightModeActive(context)
 
         provideContent {
             val state by weatherFlow.collectAsState(initial = initialWeather)
