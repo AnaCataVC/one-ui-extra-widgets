@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Shader
+import com.anacatavc.oneuiextrawidgets.data.astrology.ZodiacSign
 import com.anacatavc.oneuiextrawidgets.widgets.theme.OneUiCanvasPalette
 import kotlin.math.cos
 import kotlin.math.roundToInt
