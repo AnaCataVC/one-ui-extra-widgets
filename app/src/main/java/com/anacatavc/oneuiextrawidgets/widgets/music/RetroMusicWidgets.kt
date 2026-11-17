@@ -201,7 +201,7 @@ class IpodClassicWidget : GlanceAppWidget() {
 
 @Composable
 private fun IpodLcdScreen(
-    media: MediaPlaybackState,
+    media: ActiveMediaState,
     isSpanish: Boolean,
     isExpanded: Boolean,
     modifier: GlanceModifier
@@ -523,7 +523,7 @@ class RetroMp3Widget : GlanceAppWidget() {
 
 @Composable
 private fun Mp3BezelDisplay(
-    media: MediaPlaybackState,
+    media: ActiveMediaState,
     isStacked: Boolean,
     modifier: GlanceModifier
 ) {
