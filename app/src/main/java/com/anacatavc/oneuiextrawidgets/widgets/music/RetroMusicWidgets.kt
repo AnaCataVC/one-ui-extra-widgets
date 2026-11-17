@@ -4,14 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.provider.Settings
-import android.util.TypedValue
-import android.widget.RemoteViews
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.glance.ColorFilter
@@ -22,7 +19,6 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalSize
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
-import androidx.glance.appwidget.AndroidRemoteViews
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.SizeMode
@@ -50,7 +46,6 @@ import androidx.glance.semantics.semantics
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
 import com.anacatavc.oneuiextrawidgets.MainActivity
 import com.anacatavc.oneuiextrawidgets.R
 import com.anacatavc.oneuiextrawidgets.data.media.ActiveMediaState
@@ -544,7 +539,6 @@ class RetroMp3Widget : GlanceAppWidget() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Mp3BezelDisplay(
-                        context = context,
                         media = media,
                         isStacked = true,
                         sp = sp,
@@ -622,7 +616,6 @@ class RetroMp3Widget : GlanceAppWidget() {
                     Spacer(modifier = GlanceModifier.width(10.dp))
 
                     Mp3BezelDisplay(
-                        context = context,
                         media = media,
                         isStacked = false,
                         sp = sp,
@@ -639,7 +632,6 @@ class RetroMp3Widget : GlanceAppWidget() {
 
 @Composable
 private fun Mp3BezelDisplay(
-    context: Context,
     media: ActiveMediaState,
     isStacked: Boolean,
     sp: (Float) -> TextUnit,
@@ -680,7 +672,7 @@ private fun Mp3BezelDisplay(
 
         Spacer(modifier = GlanceModifier.height(if (isStacked) 6.dp else 3.dp))
 
-        // Cyan Backlit LCD Screen with marquee scrolling
+        // Cyan Backlit LCD Screen
         Column(
             modifier = GlanceModifier
                 .fillMaxWidth()
@@ -689,20 +681,23 @@ private fun Mp3BezelDisplay(
                 .padding(horizontal = 8.dp, vertical = if (isStacked) 8.dp else 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            MarqueeLcdText(
-                context = context,
+            Text(
                 text = if (isStacked) media.title else "${media.title} — ${media.artist}",
-                colorProvider = OneUiGlanceTokens.RetroLcdPrimaryText,
-                fontSizeSp = sp(if (isStacked) 13f else 11f).value,
-                isBold = true
+                maxLines = 1,
+                style = TextStyle(
+                    color = OneUiGlanceTokens.RetroLcdPrimaryText,
+                    fontSize = sp(if (isStacked) 13f else 11f),
+                    fontWeight = FontWeight.Bold
+                )
             )
             if (isStacked) {
-                MarqueeLcdText(
-                    context = context,
+                Text(
                     text = media.artist,
-                    colorProvider = OneUiGlanceTokens.RetroLcdSecondaryText,
-                    fontSizeSp = sp(11f).value,
-                    isBold = false
+                    maxLines = 1,
+                    style = TextStyle(
+                        color = OneUiGlanceTokens.RetroLcdSecondaryText,
+                        fontSize = sp(11f)
+                    )
                 )
             }
         }
@@ -824,7 +819,7 @@ class DiscmanWidget : GlanceAppWidget() {
                         }
                         Spacer(modifier = GlanceModifier.width(4.dp))
 
-                        // Cyan Backlit LCD Display with marquee scrolling
+                        // Cyan Backlit LCD Display
                         Column(
                             modifier = GlanceModifier
                                 .defaultWeight()
@@ -844,20 +839,23 @@ class DiscmanWidget : GlanceAppWidget() {
                                     fontWeight = FontWeight.Bold
                                 )
                             )
-                            MarqueeLcdText(
-                                context = context,
+                            Text(
                                 text = media.title,
-                                colorProvider = OneUiGlanceTokens.RetroLcdPrimaryText,
-                                fontSizeSp = sp(if (compactMode) 9f else 11f).value,
-                                isBold = true
+                                maxLines = 1,
+                                style = TextStyle(
+                                    color = OneUiGlanceTokens.RetroLcdPrimaryText,
+                                    fontSize = sp(if (compactMode) 9f else 11f),
+                                    fontWeight = FontWeight.Bold
+                                )
                             )
                             if (!compactMode) {
-                                MarqueeLcdText(
-                                    context = context,
+                                Text(
                                     text = media.artist,
-                                    colorProvider = OneUiGlanceTokens.RetroLcdSecondaryText,
-                                    fontSizeSp = sp(9f).value,
-                                    isBold = false
+                                    maxLines = 1,
+                                    style = TextStyle(
+                                        color = OneUiGlanceTokens.RetroLcdSecondaryText,
+                                        fontSize = sp(9f)
+                                    )
                                 )
                             }
                         }
@@ -881,28 +879,6 @@ class DiscmanWidget : GlanceAppWidget() {
             }
         }
     }
-}
-
-@Composable
-private fun MarqueeLcdText(
-    context: Context,
-    text: String,
-    colorProvider: ColorProvider,
-    fontSizeSp: Float,
-    isBold: Boolean
-) {
-    val layoutId = if (isBold) R.layout.widget_marquee_text_bold else R.layout.widget_marquee_text
-    val colorInt = colorProvider.getColor(context).toArgb()
-    val rv = RemoteViews(context.packageName, layoutId).apply {
-        setTextViewText(R.id.marquee_text, text)
-        setTextColor(R.id.marquee_text, colorInt)
-        setTextViewTextSize(R.id.marquee_text, TypedValue.COMPLEX_UNIT_SP, fontSizeSp)
-        setBoolean(R.id.marquee_text, "setSelected", true)
-    }
-    AndroidRemoteViews(
-        remoteViews = rv,
-        modifier = GlanceModifier.fillMaxWidth()
-    )
 }
 
 @Composable
