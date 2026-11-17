@@ -17,27 +17,56 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="iPod  •  One UI"
+            android:text="iPod  •  Now Playing"
             android:textColor="@color/oneui_preview_rain_blue"
-            android:textSize="10sp"
+            android:textSize="9sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:text="One UI Retro Player"
-            android:textColor="@color/oneui_preview_ipod_text_primary"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:text="Samsung Galaxy"
-            android:textColor="@color/oneui_preview_ipod_text_secondary"
-            android:textSize="10sp" />
+            <FrameLayout
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@drawable/bg_preview_ipod_shell"
+                android:padding="6dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/widget_music_ipod_title"
+                    android:src="@drawable/ic_music_note" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:text="Midnight City"
+                    android:textColor="@color/oneui_preview_ipod_text_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:text="Retro Player"
+                    android:textColor="@color/oneui_preview_ipod_text_secondary"
+                    android:textSize="9sp" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <FrameLayout

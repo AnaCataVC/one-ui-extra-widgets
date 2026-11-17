@@ -121,6 +121,10 @@ class MainActivity : AppCompatActivity() {
                         if (event == Lifecycle.Event.ON_RESUME) {
                             hasNotifAccess = PermissionHelper.hasNotificationListenerAccess(this@MainActivity)
                             networkSnapshot = NetworkQualityMonitor.readSnapshot(this@MainActivity)
+                            if (hasNotifAccess) {
+                                com.anacatavc.oneuiextrawidgets.data.media.MediaNotificationListener
+                                    .refreshActiveMediaSession(this@MainActivity)
+                            }
                         }
                     }
                     lifecycleOwner.lifecycle.addObserver(observer)

@@ -338,54 +338,13 @@ object WidgetCanvasRenderer {
     }
 
     /**
-     * Renders the iPod Classic Click Wheel ring with MENU, |<<, >>|, >|| labels and center select button.
+     * Renders the iPod Classic Click Wheel ring with MENU text, geometric media icons, and center button.
      */
-    fun renderIpodClickWheelBitmap(sizePx: Int = 220, isDarkTheme: Boolean = true): Bitmap {
-        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        val cx = sizePx / 2f
-        val cy = sizePx / 2f
-        val outerR = sizePx * 0.46f
-        val innerR = sizePx * 0.18f
-
-        val wheelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = if (isDarkTheme) OneUiCanvasPalette.IPOD_WHEEL_DARK else OneUiCanvasPalette.IPOD_WHEEL_LIGHT
-            style = Paint.Style.FILL
-        }
-        val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = if (isDarkTheme) OneUiCanvasPalette.IPOD_STROKE_DARK else OneUiCanvasPalette.IPOD_STROKE_LIGHT
-            style = Paint.Style.STROKE
-            strokeWidth = 3f
-        }
-        val centerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            shader = LinearGradient(
-                cx, cy - innerR, cx, cy + innerR,
-                if (isDarkTheme) OneUiCanvasPalette.IPOD_CENTER_TOP_DARK else OneUiCanvasPalette.IPOD_CENTER_TOP_LIGHT,
-                if (isDarkTheme) OneUiCanvasPalette.IPOD_CENTER_BOTTOM_DARK else OneUiCanvasPalette.IPOD_CENTER_BOTTOM_LIGHT,
-                Shader.TileMode.CLAMP
-            )
-            style = Paint.Style.FILL
-        }
-        val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = if (isDarkTheme) OneUiCanvasPalette.IPOD_LABEL_DARK else OneUiCanvasPalette.IPOD_LABEL_LIGHT
-            textSize = sizePx * 0.085f
-            textAlign = Paint.Align.CENTER
-            isFakeBoldText = true
-        }
-
-        canvas.drawCircle(cx, cy, outerR, wheelPaint)
-        canvas.drawCircle(cx, cy, outerR, strokePaint)
-        canvas.drawCircle(cx, cy, innerR, centerPaint)
-        canvas.drawCircle(cx, cy, innerR, strokePaint)
-
-        // Wheel labels
-        canvas.drawText("MENU", cx, cy - outerR * 0.65f, labelPaint)
-        canvas.drawText("▶‖", cx, cy + outerR * 0.75f, labelPaint)
-        canvas.drawText("⏮", cx - outerR * 0.68f, cy + sizePx * 0.03f, labelPaint)
-        canvas.drawText("⏭", cx + outerR * 0.68f, cy + sizePx * 0.03f, labelPaint)
-
-        return bitmap
-    }
+    fun renderIpodClickWheelBitmap(sizePx: Int = 220, isDarkTheme: Boolean = true): Bitmap =
+        MusicCanvasRenderer.renderIpodClickWheelBitmap(
+            sizePx = sizePx,
+            isDarkTheme = isDarkTheme
+        )
 
     /**
      * Renders a circular portable CD player (Discman) shell with metallic bevel rim,
@@ -395,120 +354,11 @@ object WidgetCanvasRenderer {
         sizePx: Int = 420,
         isDarkTheme: Boolean = true,
         opacityPct: Int = 100
-    ): Bitmap {
-        val alphaInt = OneUiGlanceTokens.bitmapAlphaFromOpacity(opacityPct)
-        if (alphaInt == 0) {
-            return Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
-        }
-        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        val cx = sizePx / 2f
-        val cy = sizePx / 2f
-        val outerR = sizePx * 0.485f
-        val bodyR = sizePx * 0.46f
-
-        // Outer metallic bevel rim
-        val bevelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            shader = LinearGradient(
-                0f, cy - outerR, 0f, cy + outerR,
-                intArrayOf(
-                    OneUiCanvasPalette.DISCMAN_BEVEL_TOP,
-                    OneUiCanvasPalette.DISCMAN_BEVEL_MID,
-                    OneUiCanvasPalette.DISCMAN_BEVEL_BOTTOM
-                ),
-                null,
-                Shader.TileMode.CLAMP
-            )
-            style = Paint.Style.FILL
-        }
-        canvas.drawCircle(cx, cy, outerR, bevelPaint)
-
-        // Matte dark graphite Discman body
-        val bodyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            shader = LinearGradient(
-                0f, cy - bodyR, 0f, cy + bodyR,
-                if (isDarkTheme) OneUiCanvasPalette.DISCMAN_BODY_TOP_DARK else OneUiCanvasPalette.DISCMAN_BODY_TOP_LIGHT,
-                if (isDarkTheme) OneUiCanvasPalette.DISCMAN_BODY_BOTTOM_DARK else OneUiCanvasPalette.DISCMAN_BODY_BOTTOM_LIGHT,
-                Shader.TileMode.CLAMP
-            )
-            style = Paint.Style.FILL
-        }
-        canvas.drawCircle(cx, cy, bodyR, bodyPaint)
-
-        val bodyRimPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = OneUiCanvasPalette.DISCMAN_RIM_HIGHLIGHT
-            style = Paint.Style.STROKE
-            strokeWidth = sizePx * 0.005f
-        }
-        canvas.drawCircle(cx, cy, bodyR, bodyRimPaint)
-
-        // Top branding: COMPACT DISC DIGITAL AUDIO + ESP ANTI-SHOCK
-        val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = OneUiCanvasPalette.DISCMAN_TITLE_TEXT
-            textSize = sizePx * 0.048f
-            textAlign = Paint.Align.CENTER
-            isFakeBoldText = true
-        }
-        val subtitlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = OneUiCanvasPalette.DISCMAN_SUBTITLE_TEXT
-            textSize = sizePx * 0.026f
-            textAlign = Paint.Align.CENTER
-            isFakeBoldText = true
-        }
-        canvas.drawText("COMPACT DISC", cx, cy - bodyR * 0.56f, titlePaint)
-        canvas.drawText("DIGITAL AUDIO  •  ESP ANTI-SHOCK", cx, cy - bodyR * 0.42f, subtitlePaint)
-
-        // Center pill-shaped control module recess
-        val pillW = bodyR * 1.66f
-        val pillH = bodyR * 0.48f
-        val pillRect = RectF(cx - pillW / 2f, cy - pillH / 2f, cx + pillW / 2f, cy + pillH / 2f)
-        val pillRadius = pillH / 2f
-        val pillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = OneUiCanvasPalette.DISCMAN_PILL_BG
-            style = Paint.Style.FILL
-        }
-        val pillStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = OneUiCanvasPalette.DISCMAN_PILL_STROKE
-            style = Paint.Style.STROKE
-            strokeWidth = sizePx * 0.006f
-        }
-        canvas.drawRoundRect(pillRect, pillRadius, pillRadius, pillPaint)
-        canvas.drawRoundRect(pillRect, pillRadius, pillRadius, pillStrokePaint)
-
-        // Bottom perforated speaker grille dots arranged in concentric arcs
-        val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = OneUiCanvasPalette.DISCMAN_SPEAKER_DOT
-            style = Paint.Style.FILL
-        }
-        val dotRadius = sizePx * 0.0085f
-        val arcRadii = floatArrayOf(bodyR * 0.56f, bodyR * 0.67f, bodyR * 0.78f)
-        val dotCounts = intArrayOf(11, 13, 15)
-        for (row in arcRadii.indices) {
-            val r = arcRadii[row]
-            val count = dotCounts[row]
-            val startAngle = 42.0
-            val endAngle = 138.0
-            for (i in 0 until count) {
-                val t = if (count == 1) 0.5 else i.toDouble() / (count - 1)
-                val angleRad = Math.toRadians(startAngle + t * (endAngle - startAngle))
-                val dx = cx + (r * cos(angleRad)).toFloat()
-                val dy = cy + (r * kotlin.math.sin(angleRad)).toFloat()
-                canvas.drawCircle(dx, dy, dotRadius, dotPaint)
-            }
-        }
-
-        return if (alphaInt >= 255) {
-            bitmap
-        } else {
-            // Composite the opaque body as a single layer to avoid alpha-stacking seams
-            val fadedBitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
-            val fadedCanvas = Canvas(fadedBitmap)
-            val layerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { alpha = alphaInt }
-            fadedCanvas.drawBitmap(bitmap, 0f, 0f, layerPaint)
-            bitmap.recycle()
-            fadedBitmap
-        }
-    }
+    ): Bitmap = MusicCanvasRenderer.renderDiscmanBodyBitmap(
+        sizePx = sizePx,
+        isDarkTheme = isDarkTheme,
+        opacityPct = opacityPct
+    )
 
     /**
      * Renders a crisp One UI celestial orbital emblem with a vector Mercury glyph (☿)

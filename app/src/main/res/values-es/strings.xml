@@ -62,7 +62,7 @@
     <string name="planet_post_shadow">Sombra Post-Retrógrada</string>
 
     <!-- Widgets de Música Retro -->
-    <string name="media_listener_service_name">Puente de Música Retro One UI</string>
+    <string name="media_listener_service_name">Puente de Música Retro</string>
     <string name="widget_music_ipod_title">Música Retro: iPod Classic</string>
     <string name="widget_music_ipod_desc">Reproductor con rueda clic sincronizado con Spotify, YouTube Music y Samsung Music</string>
     <string name="widget_music_mp3_title">Música Retro: MP3 LCD 2000s</string>

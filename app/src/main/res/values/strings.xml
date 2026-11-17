@@ -62,7 +62,7 @@
     <string name="planet_post_shadow">Post-Retrograde Shadow</string>
 
     <!-- Retro Music Widgets -->
-    <string name="media_listener_service_name">One UI Retro Music Bridge</string>
+    <string name="media_listener_service_name">Retro Music Bridge</string>
     <string name="widget_music_ipod_title">Retro Music: iPod Classic</string>
     <string name="widget_music_ipod_desc">Classic click-wheel player synced with Spotify, YouTube Music &amp; Samsung Music</string>
     <string name="widget_music_mp3_title">Retro Music: 2000s MP3 LCD</string>
