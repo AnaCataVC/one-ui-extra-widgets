@@ -53,9 +53,22 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="@string/astro_preview_summary"
-                android:textColor="@color/oneui_preview_text_secondary"
+                android:textColor="@color/oneui_preview_uv_amber"
                 android:textSize="11sp" />
         </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_preview_oneui_pill"
+            android:maxLines="1"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            android:text="@string/planet_direct"
+            android:textColor="@color/oneui_preview_rain_blue"
+            android:textSize="10sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <!-- Middle Row: Sun Sign & Moon Transit Cards with Vector Zodiac Badges -->

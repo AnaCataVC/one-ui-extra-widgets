@@ -159,7 +159,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                 mercury.motionState == PlanetaryMotionState.POST_SHADOW)
 
         val emblemBitmap = WidgetCanvasRenderer.renderAstrologyEmblemBitmap(
-            isRetrogradeActive = mercury.isRetrograde || isAnyRetrograde,
+            isRetrogradeActive = mercury.isRetrograde,
             isShadowActive = isMercuryShadow,
             sizePx = 96,
             isDarkTheme = isDarkTheme
@@ -214,7 +214,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
 
                     Column(modifier = GlanceModifier.defaultWeight()) {
                         Text(
-                            text = if (isSpanish) "ASTROLOGÍA • ONE UI" else "ASTROLOGY • ONE UI",
+                            text = if (isSpanish) "TRÁNSITOS DE HOY" else "TODAY'S TRANSITS",
                             maxLines = 1,
                             style = TextStyle(
                                 color = OneUiGlanceTokens.SecondaryText,
@@ -223,33 +223,29 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                             )
                         )
 
-                        val mercuryHeadline = if (mercury.isRetrograde) {
-                            if (isSpanish) "Mercurio Retrógrado" else "Mercury Retrograde"
-                        } else {
-                            "${mercury.localizedName(isSpanish)}: ${mercury.motionState.localizedBadge(isSpanish)}"
-                        }
+                        val mercurySignText = mercury.zodiacSign.localizedName(isSpanish)
+                        val mercuryHeadline = "${mercury.localizedName(isSpanish)} • $mercurySignText"
                         Text(
                             text = mercuryHeadline,
                             maxLines = 1,
                             style = TextStyle(
-                                color = if (mercury.isRetrograde) {
-                                    OneUiGlanceTokens.RetroAlertAmber
-                                } else {
-                                    OneUiGlanceTokens.PrimaryText
-                                },
+                                color = OneUiGlanceTokens.PrimaryText,
                                 fontSize = sp(14f),
                                 fontWeight = FontWeight.Bold
                             )
                         )
 
-                        val mercurySignText = mercury.zodiacSign.localizedName(isSpanish)
                         val retroSummary = if (retrogradePlanets.isEmpty()) {
-                            val allDirect = if (isSpanish) "Todos directos" else "All planets direct"
-                            "$mercurySignText • $allDirect"
+                            if (isMercuryShadow) {
+                                val noRetro = if (isSpanish) "Sin retrógrados" else "No retrogrades"
+                                "${mercury.motionState.localizedBadge(isSpanish)} • $noRetro"
+                            } else {
+                                if (isSpanish) "Todos los planetas directos" else "All planets direct"
+                            }
                         } else {
                             val names = retrogradePlanets.joinToString(", ") { it.localizedName(isSpanish) }
                             val label = if (isSpanish) "Retrógrados" else "Retrograde"
-                            "$mercurySignText • $label: $names"
+                            "$label: $names"
                         }
                         Text(
                             text = retroSummary,
@@ -264,9 +260,40 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                             )
                         )
                     }
+
+                    if (layout.mode != AstrologyLayoutMode.COMPACT) {
+                        Spacer(modifier = GlanceModifier.width(8.dp))
+                        val (chipBg, chipTextColor) = when {
+                            mercury.isRetrograde ->
+                                OneUiGlanceTokens.AstroRetroChipBg to OneUiGlanceTokens.RetroAlertAmber
+                            isMercuryShadow ->
+                                OneUiGlanceTokens.AstroShadowChipBg to OneUiGlanceTokens.AstroShadowPurple
+                            else ->
+                                OneUiGlanceTokens.AstroDirectChipBg to OneUiGlanceTokens.OneUiAccentBlue
+                        }
+                        Box(
+                            modifier = GlanceModifier
+                                .cornerRadius(10.dp)
+                                .background(chipBg)
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = shortMotionBadge(mercury.motionState, isSpanish),
+                                maxLines = 1,
+                                style = TextStyle(
+                                    color = chipTextColor,
+                                    fontSize = sp(10f),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                        }
+                    }
                 }
 
-                Spacer(modifier = GlanceModifier.height(8.dp))
+                Spacer(modifier = GlanceModifier.height(6.dp))
+                if (layout.mode != AstrologyLayoutMode.COMPACT) {
+                    Spacer(modifier = GlanceModifier.defaultWeight())
+                }
 
                 // 2. Middle Row: Sun Sign & Daily Moon Zodiac Transit with Canvas Zodiac Art
                 Row(modifier = GlanceModifier.fillMaxWidth()) {
@@ -282,7 +309,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                         label = if (isSpanish) "Signo Solar" else "Sun Sign",
                         value = sunValue,
                         subLabel = if (layout.mode == AstrologyLayoutMode.EXPANDED) {
-                            if (isSpanish) "Tránsito actual" else "Current transit"
+                            if (isSpanish) "Tránsito solar" else "Solar transit"
                         } else {
                             null
                         },
@@ -293,14 +320,19 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
 
                     Spacer(modifier = GlanceModifier.width(8.dp))
 
-                    val moonValue = snapshot.lunarStatus.moonSign.localizedName(isSpanish)
+                    val moonSignName = snapshot.lunarStatus.moonSign.localizedName(isSpanish)
+                    val moonValue = if (layout.showDegrees) {
+                        "$moonSignName • ${snapshot.lunarStatus.illuminationPercent}%"
+                    } else {
+                        moonSignName
+                    }
                     AstroSignCard(
                         badgeBitmap = moonBadgeBitmap,
                         badgeSizeDp = layout.signBadgeSizeDp,
-                        label = if (isSpanish) "Luna Hoy" else "Moon Transit",
+                        label = if (isSpanish) "Luna Hoy" else "Moon Today",
                         value = moonValue,
                         subLabel = if (layout.mode == AstrologyLayoutMode.EXPANDED) {
-                            if (isSpanish) "Signo zodiacal" else "Zodiac sign"
+                            snapshot.lunarStatus.localizedPhaseName(isSpanish)
                         } else {
                             null
                         },
@@ -312,7 +344,10 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
 
                 // 3. Bottom Strip: 5 Tracked Planets with Canvas Zodiac Icons (Emoji-free)
                 if (layout.showPlanetStrip) {
-                    Spacer(modifier = GlanceModifier.height(8.dp))
+                    Spacer(modifier = GlanceModifier.height(6.dp))
+                    if (layout.mode != AstrologyLayoutMode.COMPACT) {
+                        Spacer(modifier = GlanceModifier.defaultWeight())
+                    }
                     Row(
                         modifier = GlanceModifier
                             .fillMaxWidth()
@@ -331,7 +366,7 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
                             val statusColor = when (planet.motionState) {
                                 PlanetaryMotionState.RETROGRADE -> OneUiGlanceTokens.RetroAlertAmber
                                 PlanetaryMotionState.PRE_SHADOW,
-                                PlanetaryMotionState.POST_SHADOW -> OneUiGlanceTokens.OneUiAccentBlue
+                                PlanetaryMotionState.POST_SHADOW -> OneUiGlanceTokens.AstroShadowPurple
                                 PlanetaryMotionState.DIRECT -> OneUiGlanceTokens.SecondaryText
                             }
                             val motionTag = when {
@@ -441,6 +476,13 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
         Body.Jupiter -> if (isSpanish) "Júp" else "Jup"
         Body.Saturn -> "Sat"
         else -> body.name.take(3)
+    }
+
+    private fun shortMotionBadge(state: PlanetaryMotionState, isSpanish: Boolean): String = when (state) {
+        PlanetaryMotionState.DIRECT -> if (isSpanish) "Directo" else "Direct"
+        PlanetaryMotionState.RETROGRADE -> if (isSpanish) "Retrógrado" else "Retrograde"
+        PlanetaryMotionState.PRE_SHADOW -> if (isSpanish) "Pre-Sombra" else "Pre-Shadow"
+        PlanetaryMotionState.POST_SHADOW -> if (isSpanish) "Post-Sombra" else "Post-Shadow"
     }
 }
 

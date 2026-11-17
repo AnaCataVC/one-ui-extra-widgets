@@ -227,6 +227,27 @@ object OneUiGlanceTokens {
         day = Color(0xFF4F46E5),
         night = Color(0xFFC7D2FE)
     )
+
+    // Semantic Astrology Tokens (Day / Night adaptive)
+    val AstroShadowPurple = dayNightColorProvider(
+        day = Color(0xFF7C3AED),
+        night = Color(0xFFA78BFA)
+    )
+
+    val AstroDirectChipBg = dayNightColorProvider(
+        day = Color(0x1A0381FE),
+        night = Color(0x283E9BFF)
+    )
+
+    val AstroShadowChipBg = dayNightColorProvider(
+        day = Color(0x1A7C3AED),
+        night = Color(0x28A78BFA)
+    )
+
+    val AstroRetroChipBg = dayNightColorProvider(
+        day = Color(0x1FD97706),
+        night = Color(0x2AFBBF24)
+    )
 }
 
 /**

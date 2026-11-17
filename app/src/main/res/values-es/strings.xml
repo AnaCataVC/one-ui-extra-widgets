@@ -51,11 +51,11 @@
     <string name="astro_moon_transit">Luna Hoy</string>
     <string name="astro_moon_phase">Fase Lunar</string>
     <string name="astro_retrograde_status">Movimiento Planetario</string>
-    <string name="astro_preview_eyebrow">ASTROLOGÍA • ONE UI</string>
-    <string name="astro_preview_mercury">Mercurio: Directo</string>
-    <string name="astro_preview_summary">Sagitario • Retrógrados: Júpiter</string>
+    <string name="astro_preview_eyebrow">TRÁNSITOS DE HOY</string>
+    <string name="astro_preview_mercury">Mercurio • Sagitario</string>
+    <string name="astro_preview_summary">Retrógrados: Júpiter</string>
     <string name="astro_preview_sun_value">Escorpio • 25°</string>
-    <string name="astro_preview_moon_value">Leo</string>
+    <string name="astro_preview_moon_value">Leo • 68%</string>
     <string name="planet_direct">Directo</string>
     <string name="planet_retrograde">Retrógrado</string>
     <string name="planet_pre_shadow">Sombra Pre-Retrógrada</string>
