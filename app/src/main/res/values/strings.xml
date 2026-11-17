@@ -80,4 +80,14 @@
     <string name="network_disconnected">Disconnected</string>
     <string name="network_preview_header">Signal • 5G &amp; Wi-Fi</string>
     <string name="network_preview_quality_excellent">Excellent</string>
+
+    <!-- Per-Instance Widget Transparency Configuration -->
+    <string name="widget_config_title">Widget Transparency</string>
+    <string name="widget_config_subtitle">Adjust the background opacity for this widget instance.</string>
+    <string name="widget_config_opacity_label">Background opacity</string>
+    <string name="widget_config_preview_title">Preview</string>
+    <string name="widget_config_preview_sample">One UI Extra Widgets</string>
+    <string name="widget_config_low_contrast_hint">Low opacity may reduce text readability on bright or busy wallpapers.</string>
+    <string name="widget_config_save">Save</string>
+    <string name="widget_config_cancel">Cancel</string>
 </resources>
