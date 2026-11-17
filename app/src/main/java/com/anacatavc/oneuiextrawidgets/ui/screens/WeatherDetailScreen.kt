@@ -222,7 +222,7 @@ fun WeatherDetailScreen(
                     contentDescription = lunarStatus.localizedPhaseName(isSpanish),
                     modifier = Modifier.size(64.dp)
                 )
-                Column {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
                         text = lunarStatus.localizedPhaseName(isSpanish),
                         style = MaterialTheme.typography.titleMedium,
@@ -230,11 +230,18 @@ fun WeatherDetailScreen(
                     )
                     Text(
                         text = if (isSpanish) {
-                            "Iluminación: ${lunarStatus.illuminationPercent}% • " +
-                                "Luna en ${lunarStatus.moonSign.symbol} ${lunarStatus.moonSign.nameEs}"
+                            "Iluminación: ${lunarStatus.illuminationPercent}% • $cycleTrend"
                         } else {
-                            "Illumination: ${lunarStatus.illuminationPercent}% • " +
-                                "Moon in ${lunarStatus.moonSign.symbol} ${lunarStatus.moonSign.nameEn}"
+                            "Illumination: ${lunarStatus.illuminationPercent}% • $cycleTrend"
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = if (isSpanish) {
+                            "Edad sinódica: $ageDays • Elongación: $elongationDeg"
+                        } else {
+                            "Synodic age: $ageDays • Elongation: $elongationDeg"
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
