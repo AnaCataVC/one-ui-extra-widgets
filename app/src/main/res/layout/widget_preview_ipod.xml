@@ -40,7 +40,7 @@
             android:textSize="10sp" />
     </LinearLayout>
 
-    <Space
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
@@ -51,7 +51,7 @@
         android:contentDescription="@string/widget_music_ipod_title"
         android:src="@drawable/ic_preview_ipod_wheel" />
 
-    <Space
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />

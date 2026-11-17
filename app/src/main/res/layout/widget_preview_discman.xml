@@ -59,13 +59,10 @@
                 android:textSize="9sp"
                 android:textStyle="bold" />
 
-            <Space
-                android:layout_width="4dp"
-                android:layout_height="1dp" />
-
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="28dp"
+                android:layout_marginStart="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_preview_lcd_cyan"
                 android:gravity="center_vertical"
@@ -92,13 +89,10 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <Space
-                android:layout_width="4dp"
-                android:layout_height="1dp" />
-
             <TextView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
+                android:layout_marginStart="4dp"
                 android:background="@drawable/bg_preview_discman_btn"
                 android:gravity="center"
                 android:text="▶"
@@ -106,13 +100,10 @@
                 android:textSize="9sp"
                 android:textStyle="bold" />
 
-            <Space
-                android:layout_width="3dp"
-                android:layout_height="1dp" />
-
             <TextView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
+                android:layout_marginStart="3dp"
                 android:background="@drawable/bg_preview_discman_btn"
                 android:gravity="center"
                 android:text="⏭"

@@ -27,13 +27,10 @@
             android:textSize="10sp"
             android:textStyle="bold" />
 
-        <Space
-            android:layout_width="4dp"
-            android:layout_height="1dp" />
-
         <TextView
             android:layout_width="34dp"
             android:layout_height="34dp"
+            android:layout_marginStart="4dp"
             android:background="@drawable/bg_preview_silver_circle"
             android:gravity="center"
             android:text="▶"
@@ -41,13 +38,10 @@
             android:textSize="13sp"
             android:textStyle="bold" />
 
-        <Space
-            android:layout_width="4dp"
-            android:layout_height="1dp" />
-
         <TextView
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:layout_marginStart="4dp"
             android:background="@drawable/bg_preview_silver_circle"
             android:gravity="center"
             android:text="⏭"
@@ -56,14 +50,11 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <Space
-        android:layout_width="8dp"
-        android:layout_height="1dp" />
-
     <!-- Glossy Black Bezel with Cyan LCD -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
         android:layout_weight="1"
         android:background="@drawable/bg_preview_mp3_bezel"
         android:gravity="center"
@@ -111,7 +102,7 @@
                 android:textSize="7sp"
                 android:textStyle="bold" />
 
-            <Space
+            <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1" />
@@ -126,16 +117,10 @@
         </LinearLayout>
     </LinearLayout>
 
-    <Space
-        android:layout_width="8dp"
-        android:layout_height="1dp" />
-
     <TextView
         android:layout_width="2dp"
         android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         android:background="@color/oneui_preview_mp3_seam" />
-
-    <Space
-        android:layout_width="8dp"
-        android:layout_height="1dp" />
 </LinearLayout>

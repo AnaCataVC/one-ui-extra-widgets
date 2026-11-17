@@ -20,13 +20,10 @@
             android:contentDescription="@string/widget_astrology_title"
             android:src="@drawable/ic_preview_astrology" />
 
-        <Space
-            android:layout_width="10dp"
-            android:layout_height="1dp" />
-
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -61,14 +58,11 @@
         </LinearLayout>
     </LinearLayout>
 
-    <Space
-        android:layout_width="1dp"
-        android:layout_height="8dp" />
-
     <!-- Middle Row: Sun Sign & Moon Transit Cards with Vector Zodiac Badges -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal">
 
         <LinearLayout
@@ -87,13 +81,10 @@
                 android:contentDescription="@string/astro_sun_sign"
                 android:src="@drawable/ic_preview_zodiac_scorpio" />
 
-            <Space
-                android:layout_width="8dp"
-                android:layout_height="1dp" />
-
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -118,13 +109,10 @@
             </LinearLayout>
         </LinearLayout>
 
-        <Space
-            android:layout_width="8dp"
-            android:layout_height="1dp" />
-
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:background="@drawable/bg_preview_oneui_pill"
             android:gravity="center_vertical"
@@ -138,13 +126,10 @@
                 android:contentDescription="@string/astro_moon_transit"
                 android:src="@drawable/ic_preview_zodiac_leo" />
 
-            <Space
-                android:layout_width="8dp"
-                android:layout_height="1dp" />
-
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -170,14 +155,11 @@
         </LinearLayout>
     </LinearLayout>
 
-    <Space
-        android:layout_width="1dp"
-        android:layout_height="8dp" />
-
     <!-- Bottom Planetary Strip (5 Tracked Planets with Vector Zodiac Icons) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:background="@drawable/bg_preview_oneui_pill"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -197,13 +179,10 @@
                 android:contentDescription="Mercury"
                 android:src="@drawable/ic_preview_zodiac_sagittarius" />
 
-            <Space
-                android:layout_width="3dp"
-                android:layout_height="1dp" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="3dp"
                 android:text="Mer"
                 android:textColor="@color/oneui_preview_text_secondary"
                 android:textSize="10sp"
@@ -223,13 +202,10 @@
                 android:contentDescription="Venus"
                 android:src="@drawable/ic_preview_zodiac_capricorn" />
 
-            <Space
-                android:layout_width="3dp"
-                android:layout_height="1dp" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="3dp"
                 android:text="Ven"
                 android:textColor="@color/oneui_preview_text_secondary"
                 android:textSize="10sp"
@@ -249,13 +225,10 @@
                 android:contentDescription="Mars"
                 android:src="@drawable/ic_preview_zodiac_leo" />
 
-            <Space
-                android:layout_width="3dp"
-                android:layout_height="1dp" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="3dp"
                 android:text="Mar"
                 android:textColor="@color/oneui_preview_text_secondary"
                 android:textSize="10sp"
@@ -275,13 +248,10 @@
                 android:contentDescription="Jupiter"
                 android:src="@drawable/ic_preview_zodiac_gemini" />
 
-            <Space
-                android:layout_width="3dp"
-                android:layout_height="1dp" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="3dp"
                 android:text="Jup"
                 android:textColor="@color/oneui_preview_uv_amber"
                 android:textSize="10sp"
@@ -301,13 +271,10 @@
                 android:contentDescription="Saturn"
                 android:src="@drawable/ic_preview_zodiac_pisces" />
 
-            <Space
-                android:layout_width="3dp"
-                android:layout_height="1dp" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="3dp"
                 android:text="Sat"
                 android:textColor="@color/oneui_preview_text_secondary"
                 android:textSize="10sp"
