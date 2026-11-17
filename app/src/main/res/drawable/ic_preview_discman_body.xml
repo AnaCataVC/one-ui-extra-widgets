@@ -6,22 +6,22 @@
     android:viewportHeight="180">
     <!-- Outer metallic bevel -->
     <path
-        android:fillColor="#4E5360"
+        android:fillColor="@color/oneui_preview_discman_bevel"
         android:pathData="M90,3 A87,87 0 1,1 89.99,3 Z" />
     <!-- Matte dark graphite body -->
     <path
-        android:fillColor="#2D313A"
-        android:strokeColor="#55FFFFFF"
+        android:fillColor="@color/oneui_preview_discman_body"
+        android:strokeColor="@color/oneui_preview_discman_rim_stroke"
         android:strokeWidth="1"
         android:pathData="M90,8 A82,82 0 1,1 89.99,8 Z" />
     <!-- Center pill module recess -->
     <path
-        android:fillColor="#13151A"
-        android:strokeColor="#4B505C"
+        android:fillColor="@color/oneui_preview_discman_pill_bg"
+        android:strokeColor="@color/oneui_preview_discman_pill_stroke"
         android:strokeWidth="1.2"
         android:pathData="M42,70 H138 A20,20 0 0,1 138,110 H42 A20,20 0 0,1 42,70 Z" />
     <!-- Speaker grille dots -->
     <path
-        android:fillColor="#101216"
+        android:fillColor="@color/oneui_preview_discman_speaker_dot"
         android:pathData="M56,134 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M68,139 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M80,142 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M92,142 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M104,139 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M116,134 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M48,144 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M62,150 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M76,154 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M90,155 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M104,154 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M118,150 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M130,144 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
 </vector>

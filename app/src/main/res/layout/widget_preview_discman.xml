@@ -26,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="COMPACT DISC"
-                android:textColor="#E6E8EE"
+                android:textColor="@color/oneui_preview_discman_title"
                 android:textSize="8sp"
                 android:textStyle="bold" />
 
@@ -34,7 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ESP ANTI-SHOCK"
-                android:textColor="#B5BAC7"
+                android:textColor="@color/oneui_preview_discman_subtitle"
                 android:textSize="6sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -55,7 +55,7 @@
                 android:background="@drawable/bg_preview_discman_btn"
                 android:gravity="center"
                 android:text="⏮"
-                android:textColor="#121316"
+                android:textColor="@color/oneui_preview_discman_btn_text"
                 android:textSize="9sp"
                 android:textStyle="bold" />
 
@@ -77,7 +77,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="CD • PLAY"
-                    android:textColor="#0A4352"
+                    android:textColor="@color/oneui_preview_lcd_text_secondary"
                     android:textSize="6sp"
                     android:textStyle="bold" />
 
@@ -87,7 +87,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="Retro Player"
-                    android:textColor="#04262E"
+                    android:textColor="@color/oneui_preview_lcd_text_primary"
                     android:textSize="8sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -102,7 +102,7 @@
                 android:background="@drawable/bg_preview_discman_btn"
                 android:gravity="center"
                 android:text="▶"
-                android:textColor="#121316"
+                android:textColor="@color/oneui_preview_discman_btn_text"
                 android:textSize="9sp"
                 android:textStyle="bold" />
 
@@ -116,7 +116,7 @@
                 android:background="@drawable/bg_preview_discman_btn"
                 android:gravity="center"
                 android:text="⏭"
-                android:textColor="#121316"
+                android:textColor="@color/oneui_preview_discman_btn_text"
                 android:textSize="9sp"
                 android:textStyle="bold" />
         </LinearLayout>

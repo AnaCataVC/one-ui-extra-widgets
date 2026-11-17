@@ -2,7 +2,6 @@ package com.anacatavc.oneuiextrawidgets.widgets.music
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp

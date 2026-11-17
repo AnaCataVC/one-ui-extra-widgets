@@ -139,7 +139,8 @@ object OneUiGlanceTokens {
 }
 
 /**
- * Centralized ARGB integer color tokens for deterministic Android Canvas rendering in [com.anacatavc.oneuiextrawidgets.utils.WidgetCanvasRenderer].
+ * Centralized ARGB integer color tokens for deterministic Android Canvas rendering
+ * in [com.anacatavc.oneuiextrawidgets.utils.WidgetCanvasRenderer].
  */
 object OneUiCanvasPalette {
     const val GAUGE_TRACK_DARK: Int = 0xFF2C2E36.toInt()

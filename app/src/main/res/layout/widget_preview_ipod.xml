@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="iPod  •  One UI"
-            android:textColor="#0381FE"
+            android:textColor="@color/oneui_preview_rain_blue"
             android:textSize="10sp"
             android:textStyle="bold" />
 
@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:text="One UI Retro Player"
-            android:textColor="#121316"
+            android:textColor="@color/oneui_preview_ipod_text_primary"
             android:textSize="12sp"
             android:textStyle="bold" />
 
@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:text="Samsung Galaxy"
-            android:textColor="#5D6068"
+            android:textColor="@color/oneui_preview_ipod_text_secondary"
             android:textSize="10sp" />
     </LinearLayout>
 
