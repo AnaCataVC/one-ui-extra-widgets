@@ -4,24 +4,40 @@ import android.app.Notification
 import android.content.ComponentName
 import android.content.Context
 import android.graphics.Bitmap
+import android.media.AudioManager
 import android.media.MediaMetadata
 import android.media.session.MediaController
 import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
+import android.os.Build
+import android.os.SystemClock
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import android.view.KeyEvent
 import com.anacatavc.oneuiextrawidgets.utils.LocaleHelper
 import com.anacatavc.oneuiextrawidgets.widgets.music.RetroMusicWidgetUpdater
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+private fun deviceModelLabel(): String {
+    val model = Build.MODEL?.trim().orEmpty()
+    val manufacturer = Build.MANUFACTURER?.trim().orEmpty()
+    return when {
+        model.isEmpty() -> "One UI"
+        manufacturer.isNotEmpty() && !model.startsWith(manufacturer, ignoreCase = true) ->
+            "${manufacturer.replaceFirstChar { it.uppercase() }} $model"
+        else -> model
+    }
+}
 
 data class ActiveMediaState(
     val title: String = "One UI Retro Player",
-    val artist: String = "Samsung Galaxy A55",
+    val artist: String = deviceModelLabel(),
     val album: String = "Extra Widgets",
     val isPlaying: Boolean = false,
     val packageName: String = "",
@@ -109,21 +125,39 @@ class MediaNotificationListener : NotificationListenerService() {
             return latestState
         }
 
-        fun sendTransportCommand(context: Context, command: TransportCommand) {
-            val controller = getActiveController(context) ?: return
-            when (command) {
-                TransportCommand.PLAY_PAUSE -> {
-                    val state = controller.playbackState?.state
-                    if (state == PlaybackState.STATE_PLAYING) {
-                        controller.transportControls.pause()
-                    } else {
-                        controller.transportControls.play()
+        suspend fun sendTransportCommand(context: Context, command: TransportCommand) {
+            val controller = getActiveController(context)
+            if (controller != null) {
+                when (command) {
+                    TransportCommand.PLAY_PAUSE -> {
+                        val state = controller.playbackState?.state
+                        if (state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_BUFFERING) {
+                            controller.transportControls.pause()
+                        } else {
+                            controller.transportControls.play()
+                        }
                     }
+                    TransportCommand.NEXT -> controller.transportControls.skipToNext()
+                    TransportCommand.PREVIOUS -> controller.transportControls.skipToPrevious()
                 }
-                TransportCommand.NEXT -> controller.transportControls.skipToNext()
-                TransportCommand.PREVIOUS -> controller.transportControls.skipToPrevious()
+            } else {
+                dispatchMediaKeyFallback(context, command)
             }
             refreshActiveMediaSession(context)
+            delay(250L)
+            refreshActiveMediaSession(context)
+        }
+
+        private fun dispatchMediaKeyFallback(context: Context, command: TransportCommand) {
+            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return
+            val keyCode = when (command) {
+                TransportCommand.PLAY_PAUSE -> KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+                TransportCommand.NEXT -> KeyEvent.KEYCODE_MEDIA_NEXT
+                TransportCommand.PREVIOUS -> KeyEvent.KEYCODE_MEDIA_PREVIOUS
+            }
+            val eventTime = SystemClock.uptimeMillis()
+            audioManager.dispatchMediaKeyEvent(KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN, keyCode, 0))
+            audioManager.dispatchMediaKeyEvent(KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP, keyCode, 0))
         }
 
         private fun getActiveController(context: Context): MediaController? {
