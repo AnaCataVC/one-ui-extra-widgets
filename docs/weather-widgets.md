@@ -35,3 +35,10 @@ All four widgets default to a compact **`2×1` pill** (`targetCellWidth="2"`, `t
 - **Provider:** `app/src/main/res/xml/widget_weather_moon_info.xml` (`previewLayout="@layout/widget_preview_weather_moon"`)
 - **Canvas Graphic (`renderMoonPhaseBitmap`):** High-contrast lunar sphere with accurate waxing/waning terminator geometry, crater shading, and outer rim highlight.
 - **100% Scientific Astronomical Metrics (Zero Astrology):** Displays the localized astronomical lunar phase name, illuminated fraction (`0%–100%`), synodic lunar age in days (`0.0 d – 29.5 d`), solar elongation angle (`0°–360°`), and cycle direction (`Waxing` / `Waning`). Zodiac transit signs remain exclusively in `OneUiAstrologyWidget`.
+
+---
+
+## 3. Companion App Weather Tab (`WeatherDetailScreen`)
+`WeatherDetailScreen` (`app/src/main/java/com/anacatavc/oneuiextrawidgets/ui/screens/WeatherDetailScreen.kt`) mirrors the four widgets in `OneUiCard` sections with a `64.dp` `Canvas` gauge alongside metric readouts:
+- **2-Metric Cards (Rain, UV):** Use `Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.SpaceBetween)`.
+- **3-Metric Card (European AQI, PM2.5, PM10):** Uses `FlowRow(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp))` so `PM10` wraps cleanly to a second line on narrow viewports or large font scales instead of squishing into a vertical column.
