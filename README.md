@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="icon.png" alt="one-ui-extra-widgets Logo" width="120" />
+</p>
+
 # One UI Extra Widgets
 
 > **Samsung One UI-styled home screen widget suite for Android 8.0 to 15, engineered primarily for the Samsung Galaxy A55 5G (`One UI 6.1 / 7+`) with full cross-device compatibility.**

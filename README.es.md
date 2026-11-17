@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="icon.png" alt="one-ui-extra-widgets Logo" width="120" />
+</p>
+
 # One UI Extra Widgets
 
 > **Suite de widgets de pantalla de inicio con diseño Samsung One UI para Android 8.0 a 15, creada con foco principal en el Samsung Galaxy A55 5G (`One UI 6.1 / 7+`) y compatibilidad multi-dispositivo.**
