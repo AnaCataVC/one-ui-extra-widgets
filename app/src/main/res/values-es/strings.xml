@@ -78,4 +78,6 @@
     <string name="network_mobile_label">Red Móvil</string>
     <string name="network_wifi_label">Red Wi-Fi</string>
     <string name="network_disconnected">Desconectado</string>
+    <string name="network_preview_header">Señal • 5G y Wi-Fi</string>
+    <string name="network_preview_quality_excellent">Excelente</string>
 </resources>

@@ -522,6 +522,188 @@ object WidgetCanvasRenderer {
         isDarkTheme = isDarkTheme,
         isRetrogradeTint = isRetrogradeTint
     )
+
+    private fun resolveSignalAccentArgb(
+        bars: Int,
+        isConnected: Boolean,
+        isDarkTheme: Boolean
+    ): Int {
+        if (!isConnected || bars <= 0) {
+            return if (isDarkTheme) {
+                OneUiCanvasPalette.SIGNAL_MUTED_DARK
+            } else {
+                OneUiCanvasPalette.SIGNAL_MUTED_LIGHT
+            }
+        }
+        return when (bars.coerceIn(0, 4)) {
+            4 -> if (isDarkTheme) {
+                OneUiCanvasPalette.SIGNAL_EXCELLENT_DARK
+            } else {
+                OneUiCanvasPalette.SIGNAL_EXCELLENT_LIGHT
+            }
+            3 -> if (isDarkTheme) {
+                OneUiCanvasPalette.SIGNAL_GOOD_DARK
+            } else {
+                OneUiCanvasPalette.SIGNAL_GOOD_LIGHT
+            }
+            2 -> if (isDarkTheme) {
+                OneUiCanvasPalette.SIGNAL_FAIR_DARK
+            } else {
+                OneUiCanvasPalette.SIGNAL_FAIR_LIGHT
+            }
+            else -> if (isDarkTheme) {
+                OneUiCanvasPalette.SIGNAL_WEAK_DARK
+            } else {
+                OneUiCanvasPalette.SIGNAL_WEAK_LIGHT
+            }
+        }
+    }
+
+    /**
+     * Renders a One UI circular badge with 4 stepped cellular signal bars
+     * color-coded by signal quality (0..4 bars).
+     */
+    fun renderCellularSignalBitmap(
+        bars: Int,
+        isConnected: Boolean = true,
+        sizePx: Int = 120,
+        isDarkTheme: Boolean = true
+    ): Bitmap {
+        val safeSize = sizePx.coerceIn(48, 240)
+        val bitmap = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val cx = safeSize / 2f
+        val cy = safeSize / 2f
+        val activeBars = if (isConnected) bars.coerceIn(0, 4) else 0
+        val accent = resolveSignalAccentArgb(bars, isConnected, isDarkTheme)
+        val emptyColor = if (isDarkTheme) {
+            OneUiCanvasPalette.SIGNAL_BAR_EMPTY_DARK
+        } else {
+            OneUiCanvasPalette.SIGNAL_BAR_EMPTY_LIGHT
+        }
+
+        // Soft tinted One UI circular backdrop + subtle ring
+        val badgeRadius = safeSize * 0.46f
+        val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = (accent and 0x00FFFFFF) or 0x24000000
+            style = Paint.Style.FILL
+        }
+        canvas.drawCircle(cx, cy, badgeRadius, bgPaint)
+
+        val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = (accent and 0x00FFFFFF) or 0x44000000
+            style = Paint.Style.STROKE
+            strokeWidth = (safeSize * 0.025f).coerceAtLeast(1.5f)
+        }
+        canvas.drawCircle(cx, cy, badgeRadius - ringPaint.strokeWidth * 0.5f, ringPaint)
+
+        // 4 stepped rounded bars
+        val barWidth = safeSize * 0.095f
+        val barGap = safeSize * 0.048f
+        val totalW = barWidth * 4f + barGap * 3f
+        val startX = cx - totalW / 2f
+        val baselineY = cy + safeSize * 0.21f
+        val heights = floatArrayOf(0.14f, 0.23f, 0.32f, 0.42f)
+        val corner = barWidth * 0.45f
+
+        val barPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+        for (i in 0 until 4) {
+            val left = startX + i * (barWidth + barGap)
+            val barH = safeSize * heights[i]
+            val rect = RectF(left, baselineY - barH, left + barWidth, baselineY)
+            barPaint.color = if (i < activeBars) accent else emptyColor
+            canvas.drawRoundRect(rect, corner, corner, barPaint)
+        }
+
+        if (!isConnected) {
+            val slashPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = accent
+                style = Paint.Style.STROKE
+                strokeWidth = (safeSize * 0.045f).coerceAtLeast(2f)
+                strokeCap = Paint.Cap.ROUND
+            }
+            val off = safeSize * 0.20f
+            canvas.drawLine(cx - off, cy + off, cx + off, cy - off, slashPaint)
+        }
+
+        return bitmap
+    }
+
+    /**
+     * Renders a One UI circular badge with concentric Wi-Fi signal arcs
+     * color-coded by RSSI bar strength (0..4 bars).
+     */
+    fun renderWifiSignalBitmap(
+        bars: Int,
+        isConnected: Boolean = true,
+        sizePx: Int = 120,
+        isDarkTheme: Boolean = true
+    ): Bitmap {
+        val safeSize = sizePx.coerceIn(48, 240)
+        val bitmap = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val cx = safeSize / 2f
+        val cy = safeSize / 2f
+        val activeBars = if (isConnected) bars.coerceIn(0, 4) else 0
+        val accent = resolveSignalAccentArgb(bars, isConnected, isDarkTheme)
+        val emptyColor = if (isDarkTheme) {
+            OneUiCanvasPalette.SIGNAL_BAR_EMPTY_DARK
+        } else {
+            OneUiCanvasPalette.SIGNAL_BAR_EMPTY_LIGHT
+        }
+
+        val badgeRadius = safeSize * 0.46f
+        val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = (accent and 0x00FFFFFF) or 0x24000000
+            style = Paint.Style.FILL
+        }
+        canvas.drawCircle(cx, cy, badgeRadius, bgPaint)
+
+        val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = (accent and 0x00FFFFFF) or 0x44000000
+            style = Paint.Style.STROKE
+            strokeWidth = (safeSize * 0.025f).coerceAtLeast(1.5f)
+        }
+        canvas.drawCircle(cx, cy, badgeRadius - ringPaint.strokeWidth * 0.5f, ringPaint)
+
+        val originY = cy + safeSize * 0.20f
+        val strokeW = (safeSize * 0.068f).coerceAtLeast(2.2f)
+        val arcPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeWidth = strokeW
+            strokeCap = Paint.Cap.ROUND
+        }
+
+        // 3 concentric arcs radiating upward (-135 deg to -45 deg)
+        val arcRadii = floatArrayOf(safeSize * 0.17f, safeSize * 0.28f, safeSize * 0.39f)
+        for (i in arcRadii.indices) {
+            val r = arcRadii[i]
+            val rect = RectF(cx - r, originY - r, cx + r, originY + r)
+            val isLit = activeBars >= i + 2
+            arcPaint.color = if (isLit) accent else emptyColor
+            canvas.drawArc(rect, -135f, 90f, false, arcPaint)
+        }
+
+        // Base dot
+        val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.FILL
+            color = if (activeBars >= 1) accent else emptyColor
+        }
+        canvas.drawCircle(cx, originY, safeSize * 0.052f, dotPaint)
+
+        if (!isConnected) {
+            val slashPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = accent
+                style = Paint.Style.STROKE
+                strokeWidth = (safeSize * 0.045f).coerceAtLeast(2f)
+                strokeCap = Paint.Cap.ROUND
+            }
+            val off = safeSize * 0.20f
+            canvas.drawLine(cx - off, cy + off, cx + off, cy - off, slashPaint)
+        }
+
+        return bitmap
+    }
 }
 
 

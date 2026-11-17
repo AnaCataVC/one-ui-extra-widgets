@@ -78,4 +78,6 @@
     <string name="network_mobile_label">Mobile Network</string>
     <string name="network_wifi_label">Wi-Fi Network</string>
     <string name="network_disconnected">Disconnected</string>
+    <string name="network_preview_header">Signal • 5G &amp; Wi-Fi</string>
+    <string name="network_preview_quality_excellent">Excellent</string>
 </resources>

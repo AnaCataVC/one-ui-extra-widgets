@@ -223,6 +223,21 @@ object OneUiCanvasPalette {
     const val ZODIAC_WATER_LIGHT: Int = 0xFF4F46E5.toInt()
     const val ZODIAC_WATER_DARK: Int = 0xFFA5B4FC.toInt()
     const val ZODIAC_WATER_GLOW: Int = 0x244F46E5
+
+    const val SIGNAL_EXCELLENT_LIGHT: Int = 0xFF059669.toInt()
+    const val SIGNAL_EXCELLENT_DARK: Int = 0xFF34D399.toInt()
+    const val SIGNAL_GOOD_LIGHT: Int = 0xFF0381FE.toInt()
+    const val SIGNAL_GOOD_DARK: Int = 0xFF3E9BFF.toInt()
+    const val SIGNAL_FAIR_LIGHT: Int = 0xFFD97706.toInt()
+    const val SIGNAL_FAIR_DARK: Int = 0xFFFBBF24.toInt()
+    const val SIGNAL_WEAK_LIGHT: Int = 0xFFDC2626.toInt()
+    const val SIGNAL_WEAK_DARK: Int = 0xFFF87171.toInt()
+    const val SIGNAL_MUTED_LIGHT: Int = 0xFF94A3B8.toInt()
+    const val SIGNAL_MUTED_DARK: Int = 0xFF64748B.toInt()
+    const val SIGNAL_BAR_EMPTY_LIGHT: Int = 0xFFE2E5EE.toInt()
+    const val SIGNAL_BAR_EMPTY_DARK: Int = 0xFF3A3D47.toInt()
+    const val SIGNAL_BADGE_BG_LIGHT: Int = 0x1A0381FE
+    const val SIGNAL_BADGE_BG_DARK: Int = 0x243E9BFF
 }
 
 
