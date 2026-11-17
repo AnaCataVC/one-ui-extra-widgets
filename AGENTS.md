@@ -1,7 +1,7 @@
 # AGENTS.md — AI Coding Guidelines for One UI Extra Widgets
 
 ## Project Overview
-**One UI Extra Widgets** is an Android home-screen widget suite styled after **Samsung One UI**, optimized for the **Samsung Galaxy A55 5G** (`One UI 6.1 / 7+`, Android 14/15) while remaining compatible with any Android 8.0+ (`minSdk = 26`, `targetSdk = 35`) device.
+**One UI Extra Widgets** is an Android home-screen widget suite styled after **Samsung One UI**, optimized for the **Samsung Galaxy A55 5G** (`One UI 8.5`, Android 16 QPR2; compatible with One UI 6.1–8.5) while remaining compatible with any Android 8.0+ (`minSdk = 26`, `targetSdk = 36`) device.
 
 ---
 

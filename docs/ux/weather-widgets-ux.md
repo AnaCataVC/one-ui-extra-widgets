@@ -8,7 +8,7 @@
 
 ## 1. User Intent & Mental Model
 - **Primary User Goal:** Glance at specific environmental and astronomical metrics (**Rain Probability**, **Air Quality / AQI**, **Solar UV Index**, and **Scientific Moon Phase**) via independent, visually rich `2×1` compact pills on the Samsung One UI home screen—without redundant current temperature readouts (already covered by the native Samsung Weather widget) and without mixing astrological signs into the scientific Moon widget.
-- **Mental Model (Jakob's Law):** Samsung One UI 6.1 / 7 modular health & weather tiles (`26dp` squircle corners, high-contrast `270°` radial arc gauges, adaptive Day/Night translucent surfaces, and effortless resizing from `2×1` compact pills to `2×2` squares or `4×2` wide cards).
+- **Mental Model (Jakob's Law):** Samsung One UI 6.1 – 8.5 modular health & weather tiles (`26dp` squircle corners, high-contrast `270°` radial arc gauges, adaptive Day/Night translucent surfaces, and effortless resizing from `2×1` compact pills to `2×2` squares or `4×2` wide cards).
 - **Progressive Disclosure Strategy:**
   - **`2×1` Compact Pill (`PILL` mode, default):** Left-hand `Canvas` gauge/sphere + primary numerical value + short localized status label (`Buena`, `Moderado`, `Sin lluvia`, `Edad 10.2 d`) + tap-to-refresh hit-zone.
   - **`2×2` Square Card (`SQUARE` mode):** Larger centered `Canvas` graphic + primary readout + secondary metric pill ($\text{PM}_{2.5}$, UV protection tip, synodic lunar age `10.2 d / 29.5 d`, or 6h rain window).

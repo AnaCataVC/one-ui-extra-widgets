@@ -64,7 +64,7 @@ Samsung One UI 6 / 7 / 8 widgets follow distinct visual tokens compared to stock
   3. **Portable CD Player (Discman):** Circular/square window showing the CD (either metallic reflective disc or the current song's Album Art masked as a CD disc with a center spindle hole), "ESP Anti-Shock" badge, track number (`TRK 01`), and physical-style transport buttons.
 
 ### 3.4 5G & Wi-Fi Network Quality Widgets
-- **Android 14 / 15 APIs (`TelephonyManager`, `WifiManager`, `ConnectivityManager`):**
+- **Android 14–16 APIs (`TelephonyManager`, `WifiManager`, `ConnectivityManager`):**
   - **Wi-Fi Quality:**
     - `ConnectivityManager.getNetworkCapabilities()` + `WifiInfo` (via `NetworkCapabilities.transportInfo` on Android 12+):
     - Signal level (`0–4` bars), RSSI in `dBm` (e.g., `-52 dBm` = Excelente), Link Speed in `Mbps` (e.g., `866 Mbps`), Wi-Fi Standard (Wi-Fi 6 `802.11ax` on Galaxy A55, Wi-Fi 5, etc.), Frequency band (`5 GHz` / `2.4 GHz`), and SSID (if `ACCESS_FINE_LOCATION` is granted).

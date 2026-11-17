@@ -4,12 +4,12 @@
 
 # One UI Extra Widgets
 
-> **Suite de widgets de pantalla de inicio con diseño Samsung One UI para Android 8.0 a 15, creada con foco principal en el Samsung Galaxy A55 5G (`One UI 6.1 / 7+`) y compatibilidad multi-dispositivo.**
+> **Suite de widgets de pantalla de inicio con diseño Samsung One UI para Android 8.0 a 16, creada con foco principal en el Samsung Galaxy A55 5G (`One UI 8.5`) y compatibilidad multi-dispositivo.**
 
 [English](README.md) | [Español](README.es.md)
 
-[![Android](https://img.shields.io/badge/Plataforma-Android%208.0%20a%2015-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
-[![One UI](https://img.shields.io/badge/Samsung-One%20UI%20Listo-1428A0?logo=samsung&logoColor=white)](https://developer.samsung.com/one-ui)
+[![Android](https://img.shields.io/badge/Plataforma-Android%208.0%20a%2016-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
+[![One UI](https://img.shields.io/badge/Samsung-One%20UI%208.5%20Listo-1428A0?logo=samsung&logoColor=white)](https://developer.samsung.com/one-ui)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-BOM%202024.11-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![Jetpack Glance](https://img.shields.io/badge/Jetpack%20Glance-1.1.1-3DDC84?logo=android&logoColor=white)](https://developer.android.com/develop/ui/compose/glance)
@@ -20,11 +20,11 @@
 
 ## Descripción del Proyecto
 
-**One UI Extra Widgets** amplía la pantalla de inicio de teléfonos Samsung Galaxy con nueve widgets eficientes en batería y diseñados bajo los lineamientos visuales de **Samsung One UI** (esquinas redondeadas de `26dp`, superficies translúcidas adaptativas día/noche y cabeceras ergonómicas pensadas para el uso con una sola mano). Aunque su foco principal es el **Samsung Galaxy A55 5G** (pantalla Super AMOLED `1080×2340`), utiliza APIs estándar de Android Jetpack (`minSdk = 26`, `targetSdk = 35`) para garantizar compatibilidad total con cualquier teléfono Android moderno sin requerir root ni permisos de firma del sistema.
+**One UI Extra Widgets** amplía la pantalla de inicio de teléfonos Samsung Galaxy con nueve widgets eficientes en batería y diseñados bajo los lineamientos visuales de **Samsung One UI** (esquinas redondeadas de `26dp`, superficies translúcidas adaptativas día/noche y cabeceras ergonómicas pensadas para el uso con una sola mano). Aunque su foco principal es el **Samsung Galaxy A55 5G** (pantalla Super AMOLED `1080×2340`, **One UI 8.5 / Android 16**), utiliza APIs estándar de Android Jetpack (`minSdk = 26`, `targetSdk = 36`) para garantizar compatibilidad total con cualquier teléfono Android moderno sin requerir root ni permisos de firma del sistema.
 
 ### Características Principales
 
-- **4 Widgets Modulares de Clima y Fase Lunar Científica One UI 7** ([especificaciones](docs/weather-widgets.md)):
+- **4 Widgets Modulares de Clima y Fase Lunar Científica One UI** ([especificaciones](docs/weather-widgets.md)):
   - Diseñados como píldoras compactas `2×1` por defecto (`SizeMode.Exact`) redimensionables a tarjetas `2×2` o `4×2` **sin repetir la temperatura actual** (ya cubierta por el widget nativo de Samsung):
   1. *Probabilidad de Lluvia (`OneUiRainWidget`)*: Arco de progreso radial en `Canvas` con gota central esculpida que muestra la probabilidad máxima de precipitación en 6 horas (`%`) y su nivel de intensidad vía **Open-Meteo**.
   2. *Calidad del Aire (`OneUiAqiWidget`)*: Medidor radial de `270°` con código de color europeo (`AQI`) y desglose de material particulado $\text{PM}_{2.5}$ y $\text{PM}_{10}$ ($\mu\text{g/m}^3$).
@@ -94,7 +94,7 @@ Para consultar la investigación técnica detallada y las especificaciones de AP
 
 - **Lenguaje y Entorno de Ejecución**: Kotlin 2.0.21, JVM Target 17
 - **Sistema de Compilación**: Android Gradle Plugin 8.7.2, Catálogo de Versiones (`gradle/libs.versions.toml`)
-- **Compatibilidad Android**: `minSdk = 26` (Android 8.0 Oreo), `targetSdk = 35` / `compileSdk = 35` (Android 15 / One UI 6.1 y 7+)
+- **Compatibilidad Android**: `minSdk = 26` (Android 8.0 Oreo), `targetSdk = 36` / `compileSdk = 36` (Android 16 / One UI 8.5, compatible con One UI 6.1–8.0)
 - **Framework de Widgets**: Jetpack Glance (`androidx.glance:glance-appwidget:1.1.1`, `glance-material3:1.1.1`) + gráficos personalizados en Android `Canvas`
 - **Interfaz de Usuario**: Jetpack Compose BOM 2024.11.00, Material 3, AppCompat 1.7.0 (soporte de idiomas por app)
 - **Efemérides Astronómicas Offline**: `io.github.cosinekitty:astronomy:2.1.19`
@@ -108,7 +108,7 @@ Para consultar la investigación técnica detallada y las especificaciones de AP
 ### Requisitos Previos
 
 - [JDK 17+](https://adoptium.net/) (o el JBR incluido en Android Studio)
-- [Android SDK (API 35)](https://developer.android.com/studio)
+- [Android SDK (API 36)](https://developer.android.com/studio)
 
 ### Configuración Local y Compilación
 

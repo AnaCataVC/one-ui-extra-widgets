@@ -1,6 +1,6 @@
-# Modular One UI 7 Weather & Lunar Widgets — Architecture & Visual Specs
+# Modular One UI Weather & Lunar Widgets — Architecture & Visual Specs
 
-The Weather & Scientific Lunar suite provides four independent, `SizeMode.Exact` home-screen widgets built with **Jetpack Glance**, deterministic **One UI 7 Canvas** gauges (`WidgetCanvasRenderer`), **Open-Meteo** Forecast/Air Quality APIs, and offline **`Astronomy Engine`** calculations.
+The Weather & Scientific Lunar suite provides four independent, `SizeMode.Exact` home-screen widgets built with **Jetpack Glance**, deterministic **One UI Canvas** gauges (`WidgetCanvasRenderer`), **Open-Meteo** Forecast/Air Quality APIs, and offline **`Astronomy Engine`** calculations (targeting **Samsung One UI 8.5 / Android 16**, compatible with One UI 6.1–8.5).
 
 By design, none of the four widgets display the current ambient temperature (`temperatureC`), avoiding visual redundancy with the pre-installed Samsung Weather widget and dedicating 100% of the card area to specialized environmental and astronomical gauges.
 

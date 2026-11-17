@@ -4,12 +4,12 @@
 
 # One UI Extra Widgets
 
-> **Samsung One UI-styled home screen widget suite for Android 8.0 to 15, engineered primarily for the Samsung Galaxy A55 5G (`One UI 6.1 / 7+`) with full cross-device compatibility.**
+> **Samsung One UI-styled home screen widget suite for Android 8.0 to 16, engineered primarily for the Samsung Galaxy A55 5G (`One UI 8.5`) with full cross-device compatibility.**
 
 [English](README.md) | [Español](README.es.md)
 
-[![Android](https://img.shields.io/badge/Platform-Android%208.0%20to%2015-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
-[![One UI](https://img.shields.io/badge/Samsung-One%20UI%20Ready-1428A0?logo=samsung&logoColor=white)](https://developer.samsung.com/one-ui)
+[![Android](https://img.shields.io/badge/Platform-Android%208.0%20to%2016-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
+[![One UI](https://img.shields.io/badge/Samsung-One%20UI%208.5%20Ready-1428A0?logo=samsung&logoColor=white)](https://developer.samsung.com/one-ui)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-BOM%202024.11-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![Jetpack Glance](https://img.shields.io/badge/Jetpack%20Glance-1.1.1-3DDC84?logo=android&logoColor=white)](https://developer.android.com/develop/ui/compose/glance)
@@ -20,11 +20,11 @@
 
 ## Project Description
 
-**One UI Extra Widgets** expands the Samsung Galaxy home screen experience with nine customizable, battery-efficient widgets crafted around **Samsung One UI** design tokens (`26dp` squircle-like corner radii, adaptive day/night translucent surfaces, and ergonomic one-handed viewing headers). While tuned specifically for the **Samsung Galaxy A55 5G** (`1080×2340` Super AMOLED), the suite relies on standard Android Jetpack APIs (`minSdk = 26`, `targetSdk = 35`) so it runs seamlessly on any modern Android device without root or system privileges.
+**One UI Extra Widgets** expands the Samsung Galaxy home screen experience with nine customizable, battery-efficient widgets crafted around **Samsung One UI** design tokens (`26dp` squircle-like corner radii, adaptive day/night translucent surfaces, and ergonomic one-handed viewing headers). While tuned specifically for the **Samsung Galaxy A55 5G** (`1080×2340` Super AMOLED, **One UI 8.5 / Android 16**), the suite relies on standard Android Jetpack APIs (`minSdk = 26`, `targetSdk = 36`) so it runs seamlessly on any modern Android device without root or system privileges.
 
 ### Key Features
 
-- **4 Modular One UI 7 Weather & Scientific Lunar Widgets** ([full specs](docs/weather-widgets.md)):
+- **4 Modular One UI Weather & Scientific Lunar Widgets** ([full specs](docs/weather-widgets.md)):
   - Designed as compact `2×1` pills (`SizeMode.Exact`) that resize smoothly into `2×2` squares or `4×2` wide cards **without repeating ambient temperature** (already provided by Samsung's stock Weather widget):
   1. *Rain Probability (`OneUiRainWidget`)*: `Canvas` radial progress arc with a sculpted droplet showing 6-hour precipitation probability (`%`) and intensity tier via **Open-Meteo**.
   2. *Air Quality (`OneUiAqiWidget`)*: `270°` color-coded European `AQI` radial gauge with $\text{PM}_{2.5}$ and $\text{PM}_{10}$ ($\mu\text{g/m}^3$) breakdown.
@@ -94,7 +94,7 @@ For detailed technical research and API specifications, see:
 
 - **Language & Runtime**: Kotlin 2.0.21, JVM Target 17
 - **Build System**: Android Gradle Plugin 8.7.2, Version Catalog (`gradle/libs.versions.toml`)
-- **Android Targets**: `minSdk = 26` (Android 8.0 Oreo), `targetSdk = 35` / `compileSdk = 35` (Android 15 / One UI 6.1 & 7+)
+- **Android Targets**: `minSdk = 26` (Android 8.0 Oreo), `targetSdk = 36` / `compileSdk = 36` (Android 16 / One UI 8.5, backward-compatible with One UI 6.1–8.0)
 - **Widget Framework**: Jetpack Glance (`androidx.glance:glance-appwidget:1.1.1`, `glance-material3:1.1.1`) + custom Android `Canvas` bitmaps
 - **UI Toolkit**: Jetpack Compose BOM 2024.11.00, Material 3, AppCompat 1.7.0 (for per-app locales)
 - **Offline Ephemeris**: `io.github.cosinekitty:astronomy:2.1.19`
@@ -108,7 +108,7 @@ For detailed technical research and API specifications, see:
 ### Prerequisites
 
 - [JDK 17+](https://adoptium.net/) (or Android Studio bundled JBR)
-- [Android SDK (API 35)](https://developer.android.com/studio)
+- [Android SDK (API 36)](https://developer.android.com/studio)
 
 ### Local Setup & Compilation
 

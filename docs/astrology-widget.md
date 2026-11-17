@@ -1,6 +1,6 @@
 # One UI Astrology: Transits & Retrogrades (`OneUiAstrologyWidget`)
 
-The **One UI Astrology: Transits & Retrogrades** widget (`OneUiAstrologyWidget`) is a 100% offline Jetpack Glance home-screen widget designed for **Samsung One UI 6.1 / 7+**. It computes real-time tropical zodiac positions and planetary retrograde states locally via `Astronomy Engine` (`io.github.cosinekitty:astronomy`).
+The **One UI Astrology: Transits & Retrogrades** widget (`OneUiAstrologyWidget`) is a 100% offline Jetpack Glance home-screen widget designed for **Samsung One UI 6.1 – 8.5**. It computes real-time tropical zodiac positions and planetary retrograde states locally via `Astronomy Engine` (`io.github.cosinekitty:astronomy`).
 
 > **Separation of Concerns:** Lunar phase illumination, synodic age, and elongation live exclusively in the scientific `OneUiMoonPhaseWidget` ([Weather & Lunar Widgets](weather-widgets.md)). `OneUiAstrologyWidget` focuses strictly on astrological transits and planetary motion.
 
