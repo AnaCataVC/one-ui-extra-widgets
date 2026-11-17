@@ -1,7 +1,6 @@
 package com.anacatavc.oneuiextrawidgets.utils
 
 import android.graphics.Bitmap
-import android.graphics.BitmapShader
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
@@ -15,8 +14,7 @@ import kotlin.math.cos
  * Renders custom Canvas Bitmaps for Jetpack Glance widgets:
  * - Accurate Lunar Phase sphere with waxing/waning terminator curve
  * - iPod Classic Click Wheel graphic
- * - Portable CD Discman disc with album art mask & iridescent inner ring
- * - Signal quality bar/arc gauges for 5G & Wi-Fi
+ * - Circular portable CD Discman body with metallic rim & speaker grille
  */
 object WidgetCanvasRenderer {
 
@@ -134,66 +132,6 @@ object WidgetCanvasRenderer {
         canvas.drawText("▶‖", cx, cy + outerR * 0.75f, labelPaint)
         canvas.drawText("⏮", cx - outerR * 0.68f, cy + sizePx * 0.03f, labelPaint)
         canvas.drawText("⏭", cx + outerR * 0.68f, cy + sizePx * 0.03f, labelPaint)
-
-        return bitmap
-    }
-
-    /**
-     * Renders a Compact Disc (Discman) bitmap, masking the provided albumArt (or iridescent metallic surface)
-     * with a transparent/hub center hole.
-     */
-    fun renderDiscmanCdBitmap(albumArt: Bitmap?, sizePx: Int = 200): Bitmap {
-        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        val cx = sizePx / 2f
-        val cy = sizePx / 2f
-        val outerR = sizePx * 0.46f
-        val hubR = sizePx * 0.15f
-        val holeR = sizePx * 0.06f
-
-        if (albumArt != null) {
-            val scaled = Bitmap.createScaledBitmap(albumArt, sizePx, sizePx, true)
-            val artPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                shader = BitmapShader(scaled, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
-            }
-            canvas.drawCircle(cx, cy, outerR, artPaint)
-        } else {
-            val cdPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                shader = LinearGradient(
-                    0f, 0f, sizePx.toFloat(), sizePx.toFloat(),
-                    intArrayOf(
-                        Color.parseColor("#B8C6DB"),
-                        Color.parseColor("#F5F7FA"),
-                        Color.parseColor("#8EC5FC"),
-                        Color.parseColor("#E0C3FC"),
-                        Color.parseColor("#B8C6DB")
-                    ),
-                    null,
-                    Shader.TileMode.CLAMP
-                )
-            }
-            canvas.drawCircle(cx, cy, outerR, cdPaint)
-        }
-
-        // Outer metallic rim & inner polycarbonate hub
-        val rimPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#AAFFFFFF")
-            style = Paint.Style.STROKE
-            strokeWidth = 3f
-        }
-        val hubPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#CC22252A")
-            style = Paint.Style.FILL
-        }
-        val spindlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#141518")
-            style = Paint.Style.FILL
-        }
-
-        canvas.drawCircle(cx, cy, outerR, rimPaint)
-        canvas.drawCircle(cx, cy, hubR, hubPaint)
-        canvas.drawCircle(cx, cy, hubR, rimPaint)
-        canvas.drawCircle(cx, cy, holeR, spindlePaint)
 
         return bitmap
     }

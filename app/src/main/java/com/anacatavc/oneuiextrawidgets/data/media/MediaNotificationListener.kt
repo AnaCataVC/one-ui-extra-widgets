@@ -3,7 +3,6 @@ package com.anacatavc.oneuiextrawidgets.data.media
 import android.app.Notification
 import android.content.ComponentName
 import android.content.Context
-import android.graphics.Bitmap
 import android.media.AudioManager
 import android.media.MediaMetadata
 import android.media.session.MediaController
@@ -40,8 +39,7 @@ data class ActiveMediaState(
     val artist: String = deviceModelLabel(),
     val album: String = "Extra Widgets",
     val isPlaying: Boolean = false,
-    val packageName: String = "",
-    val albumArt: Bitmap? = null
+    val packageName: String = ""
 )
 
 /**
@@ -99,9 +97,6 @@ class MediaNotificationListener : NotificationListenerService() {
                 val isPlaying = playback?.state == PlaybackState.STATE_PLAYING ||
                     playback?.state == PlaybackState.STATE_BUFFERING
 
-                val art = meta?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
-                    ?: meta?.getBitmap(MediaMetadata.METADATA_KEY_ART)
-
                 val isSpanish = LocaleHelper.isSpanishActive()
                 val fallbackTitle = if (isSpanish) "Sin título" else "Untitled"
                 val fallbackArtist = if (isSpanish) "Artista desconocido" else "Unknown Artist"
@@ -113,8 +108,7 @@ class MediaNotificationListener : NotificationListenerService() {
                         ?.takeIf { it.isNotBlank() } ?: fallbackArtist,
                     album = meta?.getString(MediaMetadata.METADATA_KEY_ALBUM) ?: "",
                     isPlaying = isPlaying,
-                    packageName = controller.packageName ?: "",
-                    albumArt = art
+                    packageName = controller.packageName ?: ""
                 )
             }
             if (latestState != previousState) {
