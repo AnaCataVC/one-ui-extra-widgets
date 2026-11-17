@@ -81,12 +81,16 @@ jobs:
 
           APK_DEST="OneUiExtraWidgets-${TAG_NAME}.apk"
           cp "$APK_SRC" "$APK_DEST"
+          sha256sum "$APK_DEST" > "${APK_DEST}.sha256"
           echo "ASSET_APK=$APK_DEST" >> $GITHUB_ENV
+          echo "ASSET_SHA=${APK_DEST}.sha256" >> $GITHUB_ENV
 
       - name: Upload Release Asset to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.ASSET_APK }}
+          files: |
+            ${{ env.ASSET_APK }}
+            ${{ env.ASSET_SHA }}
           draft: false
           prerelease: false
           generate_release_notes: true
