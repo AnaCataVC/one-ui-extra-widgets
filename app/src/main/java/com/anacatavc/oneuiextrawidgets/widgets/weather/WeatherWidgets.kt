@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
@@ -215,11 +216,13 @@ class OneUiRainWidget : GlanceAppWidget() {
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
-            val bitmap = WidgetCanvasRenderer.renderRainGaugeBitmap(
-                probabilityPct = state.rainProbabilityPct,
-                sizePx = 160,
-                isDarkTheme = isDark
-            )
+            val bitmap = remember(state.rainProbabilityPct, isDark) {
+                WidgetCanvasRenderer.renderRainGaugeBitmap(
+                    probabilityPct = state.rainProbabilityPct,
+                    sizePx = 160,
+                    isDarkTheme = isDark
+                )
+            }
 
             val rainLevel = classifyRainLevel(state.rainProbabilityPct)
             val statusBadge = when (rainLevel) {
@@ -283,11 +286,13 @@ class OneUiAqiWidget : GlanceAppWidget() {
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
-            val bitmap = WidgetCanvasRenderer.renderAqiGaugeBitmap(
-                europeanAqi = state.europeanAqi,
-                sizePx = 160,
-                isDarkTheme = isDark
-            )
+            val bitmap = remember(state.europeanAqi, isDark) {
+                WidgetCanvasRenderer.renderAqiGaugeBitmap(
+                    europeanAqi = state.europeanAqi,
+                    sizePx = 160,
+                    isDarkTheme = isDark
+                )
+            }
 
             val level = classifyAqiLevel(state.europeanAqi)
             val statusBadge = when (level) {
@@ -353,11 +358,13 @@ class OneUiUvWidget : GlanceAppWidget() {
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
-            val bitmap = WidgetCanvasRenderer.renderUvGaugeBitmap(
-                uvIndex = state.uvIndex,
-                sizePx = 160,
-                isDarkTheme = isDark
-            )
+            val bitmap = remember(state.uvIndex, isDark) {
+                WidgetCanvasRenderer.renderUvGaugeBitmap(
+                    uvIndex = state.uvIndex,
+                    sizePx = 160,
+                    isDarkTheme = isDark
+                )
+            }
 
             val level = classifyUvLevel(state.uvIndex)
             val statusBadge = when (level) {
@@ -490,13 +497,17 @@ class OneUiSunArcWidget : GlanceAppWidget() {
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
-            val solar = AstrologyEngine.computeSolarArcSnapshot(state.latitude, state.longitude)
-            val bitmap = WidgetCanvasRenderer.renderSunArcGaugeBitmap(
-                sunAltitudeDeg = solar.sunAltitudeDeg,
-                dayProgressFraction = solar.dayProgressFraction,
-                sizePx = 160,
-                isDarkTheme = isDark
-            )
+            val solar = remember(state.latitude, state.longitude, state.lastUpdatedMillis) {
+                AstrologyEngine.computeSolarArcSnapshot(state.latitude, state.longitude)
+            }
+            val bitmap = remember(solar.sunAltitudeDeg, solar.dayProgressFraction, isDark) {
+                WidgetCanvasRenderer.renderSunArcGaugeBitmap(
+                    sunAltitudeDeg = solar.sunAltitudeDeg,
+                    dayProgressFraction = solar.dayProgressFraction,
+                    sizePx = 160,
+                    isDarkTheme = isDark
+                )
+            }
 
             val accentColor = when (solar.lightPhase) {
                 SolarLightPhase.GOLDEN_HOUR -> OneUiGlanceTokens.SunGoldenAmber
@@ -561,16 +572,25 @@ class OneUiStargazingWidget : GlanceAppWidget() {
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
-            val star = AstrologyEngine.computeStargazingSnapshot(
-                cloudCoverPct = state.cloudCoverPct,
-                latitude = state.latitude,
-                longitude = state.longitude
-            )
-            val bitmap = WidgetCanvasRenderer.renderStargazingGaugeBitmap(
-                stargazingIndexPct = star.scorePct,
-                sizePx = 160,
-                isDarkTheme = isDark
-            )
+            val star = remember(
+                state.cloudCoverPct,
+                state.latitude,
+                state.longitude,
+                state.lastUpdatedMillis
+            ) {
+                AstrologyEngine.computeStargazingSnapshot(
+                    cloudCoverPct = state.cloudCoverPct,
+                    latitude = state.latitude,
+                    longitude = state.longitude
+                )
+            }
+            val bitmap = remember(star.scorePct, isDark) {
+                WidgetCanvasRenderer.renderStargazingGaugeBitmap(
+                    stargazingIndexPct = star.scorePct,
+                    sizePx = 160,
+                    isDarkTheme = isDark
+                )
+            }
 
             val (tierLabel, accentColor) = when {
                 star.scorePct >= 75 -> {
@@ -964,17 +984,25 @@ internal fun DetailSubPill(
     }
 }
 
+private fun weatherWidgets() = listOf(
+    OneUiRainWidget(),
+    OneUiAqiWidget(),
+    OneUiUvWidget(),
+    OneUiMoonPhaseWidget(),
+    OneUiSunArcWidget(),
+    OneUiStargazingWidget()
+)
+
+suspend fun hasAnyWeatherWidgets(context: Context): Boolean {
+    val manager = GlanceAppWidgetManager(context)
+    return weatherWidgets().any { widget ->
+        manager.getGlanceIds(widget.javaClass).isNotEmpty()
+    }
+}
+
 suspend fun updateAllWeatherWidgets(context: Context) {
     val manager = GlanceAppWidgetManager(context)
-    val widgets = listOf(
-        OneUiRainWidget(),
-        OneUiAqiWidget(),
-        OneUiUvWidget(),
-        OneUiMoonPhaseWidget(),
-        OneUiSunArcWidget(),
-        OneUiStargazingWidget()
-    )
-    for (widget in widgets) {
+    for (widget in weatherWidgets()) {
         val ids = manager.getGlanceIds(widget.javaClass)
         ids.forEach { widget.update(context, it) }
     }
@@ -1003,6 +1031,9 @@ class WeatherRefreshWorker(
     params: WorkerParameters
 ) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result {
+        if (!hasAnyWeatherWidgets(appContext)) {
+            return Result.success()
+        }
         val current = AppPreferences.observeWeather(appContext).first()
         val fetched = OpenMeteoClient.fetchWeatherAndAirQuality(
             latitude = current.latitude,

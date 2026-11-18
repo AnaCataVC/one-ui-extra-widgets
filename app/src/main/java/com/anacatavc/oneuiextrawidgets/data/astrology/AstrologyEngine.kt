@@ -353,13 +353,15 @@ object AstrologyEngine {
         zoneId: ZoneId = ZoneId.systemDefault()
     ): StargazingSnapshot {
         val safeCloudCover = cloudCoverPct.coerceIn(0, 100)
-        val moonPct = computeSnapshot(instant).lunarStatus.illuminationPercent
+        val nowTime = Time.fromMillisecondsSince1970(instant.toEpochMilli())
+        val moonPct = (illumination(Body.Moon, nowTime).phaseFraction * 100.0)
+            .toInt()
+            .coerceIn(0, 100)
         val score = computeStargazingScore(safeCloudCover, moonPct)
 
         val safeLat = if (latitude.isNaN()) -33.4489 else latitude.coerceIn(-89.9, 89.9)
         val safeLon = if (longitude.isNaN()) -70.6693 else longitude.coerceIn(-180.0, 180.0)
         val observer = Observer(safeLat, safeLon, 0.0)
-        val nowTime = Time.fromMillisecondsSince1970(instant.toEpochMilli())
         val currentSunAlt = bodyAltitudeDegrees(Body.Sun, nowTime, observer)
         val obsTime = if (currentSunAlt < -6.0) {
             nowTime

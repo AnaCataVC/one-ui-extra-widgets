@@ -53,8 +53,19 @@ import com.anacatavc.oneuiextrawidgets.widgets.OneUiGlanceWidgetReceiver
 import com.anacatavc.oneuiextrawidgets.widgets.WidgetInstanceHelper
 import com.anacatavc.oneuiextrawidgets.widgets.theme.OneUiGlanceTokens
 import kotlinx.coroutines.flow.first
+import kotlin.math.roundToInt
 
 private const val CASSETTE_ASPECT_RATIO = 7f / 12f
+private const val PROGRESS_CANVAS_QUANTIZE_STEPS = 20
+
+internal fun quantizeProgressForCanvas(
+    progressFraction: Float,
+    steps: Int = PROGRESS_CANVAS_QUANTIZE_STEPS
+): Float {
+    val safeSteps = steps.coerceAtLeast(1)
+    val clamped = progressFraction.coerceIn(0f, 1f)
+    return (clamped * safeSteps).roundToInt() / safeSteps.toFloat()
+}
 
 internal enum class CassetteLayoutMode {
     COMPACT,
@@ -280,7 +291,7 @@ class CassetteWalkmanWidget : GlanceAppWidget() {
             val media by MediaNotificationListener.mediaState.collectAsState()
             val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
             val fontScaleMode by fontScaleFlow.collectAsState(initial = initialFontScale)
-            val progressFraction = mediaProgressFraction(media)
+            val progressFraction = quantizeProgressForCanvas(mediaProgressFraction(media))
             val deckBitmap = remember(isDark, media.isPlaying, opacityPct, progressFraction) {
                 WidgetCanvasRenderer.renderCassetteDeckBitmap(
                     progressFraction = progressFraction,
@@ -492,7 +503,7 @@ class VinylTurntableWidget : GlanceAppWidget() {
             val media by MediaNotificationListener.mediaState.collectAsState()
             val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
             val fontScaleMode by fontScaleFlow.collectAsState(initial = initialFontScale)
-            val progressFraction = mediaProgressFraction(media)
+            val progressFraction = quantizeProgressForCanvas(mediaProgressFraction(media))
             val turntableBitmap = remember(media.albumArt, isDark, media.isPlaying, progressFraction) {
                 WidgetCanvasRenderer.renderVinylTurntableBitmap(
                     albumArt = media.albumArt,

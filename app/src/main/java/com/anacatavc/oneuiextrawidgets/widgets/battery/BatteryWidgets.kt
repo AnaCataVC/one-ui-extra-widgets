@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.glance.GlanceId
 import androidx.glance.LocalSize
 import androidx.glance.action.ActionParameters
@@ -47,11 +48,13 @@ class OneUiBatteryThermalWidget : GlanceAppWidget() {
             val isEs = LocaleHelper.isSpanishActive()
             val size = LocalSize.current
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
-            val bitmap = WidgetCanvasRenderer.renderBatteryThermalGaugeBitmap(
-                temperatureC = snapshot.temperatureC,
-                sizePx = 160,
-                isDarkTheme = isDark
-            )
+            val bitmap = remember(snapshot.temperatureC, isDark) {
+                WidgetCanvasRenderer.renderBatteryThermalGaugeBitmap(
+                    temperatureC = snapshot.temperatureC,
+                    sizePx = 160,
+                    isDarkTheme = isDark
+                )
+            }
 
             val accentColor = when (snapshot.thermalLevel) {
                 BatteryThermalLevel.COOL -> OneUiGlanceTokens.BatteryThermalCool

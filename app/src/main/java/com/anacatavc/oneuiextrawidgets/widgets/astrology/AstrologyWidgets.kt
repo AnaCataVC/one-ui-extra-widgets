@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
@@ -158,22 +159,28 @@ class OneUiAstrologyWidget : GlanceAppWidget() {
             (mercury.motionState == PlanetaryMotionState.PRE_SHADOW ||
                 mercury.motionState == PlanetaryMotionState.POST_SHADOW)
 
-        val emblemBitmap = WidgetCanvasRenderer.renderAstrologyEmblemBitmap(
-            isRetrogradeActive = mercury.isRetrograde,
-            isShadowActive = isMercuryShadow,
-            sizePx = 96,
-            isDarkTheme = isDarkTheme
-        )
-        val sunBadgeBitmap = WidgetCanvasRenderer.renderZodiacSignBitmap(
-            sign = snapshot.sunSign,
-            sizePx = 64,
-            isDarkTheme = isDarkTheme
-        )
-        val moonBadgeBitmap = WidgetCanvasRenderer.renderZodiacSignBitmap(
-            sign = snapshot.lunarStatus.moonSign,
-            sizePx = 64,
-            isDarkTheme = isDarkTheme
-        )
+        val emblemBitmap = remember(mercury.isRetrograde, isMercuryShadow, isDarkTheme) {
+            WidgetCanvasRenderer.renderAstrologyEmblemBitmap(
+                isRetrogradeActive = mercury.isRetrograde,
+                isShadowActive = isMercuryShadow,
+                sizePx = 96,
+                isDarkTheme = isDarkTheme
+            )
+        }
+        val sunBadgeBitmap = remember(snapshot.sunSign, isDarkTheme) {
+            WidgetCanvasRenderer.renderZodiacSignBitmap(
+                sign = snapshot.sunSign,
+                sizePx = 64,
+                isDarkTheme = isDarkTheme
+            )
+        }
+        val moonBadgeBitmap = remember(snapshot.lunarStatus.moonSign, isDarkTheme) {
+            WidgetCanvasRenderer.renderZodiacSignBitmap(
+                sign = snapshot.lunarStatus.moonSign,
+                sizePx = 64,
+                isDarkTheme = isDarkTheme
+            )
+        }
 
         val paddingDp = layout.cardPaddingDp.dp
         val surfaceBg = OneUiGlanceTokens.surfaceBackground(opacityPct)

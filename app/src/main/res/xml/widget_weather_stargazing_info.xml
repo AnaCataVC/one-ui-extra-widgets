@@ -11,7 +11,7 @@
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="2"
     android:targetCellHeight="1"
-    android:updatePeriodMillis="1800000"
+    android:updatePeriodMillis="0"
     android:configure="com.anacatavc.oneuiextrawidgets.ui.config.WidgetConfigActivity"
     android:widgetCategory="home_screen"
     android:widgetFeatures="reconfigurable|configuration_optional"

@@ -1,6 +1,7 @@
 package com.anacatavc.oneuiextrawidgets
 
 import com.anacatavc.oneuiextrawidgets.widgets.music.computeEqualizerBarHeights
+import com.anacatavc.oneuiextrawidgets.widgets.music.quantizeProgressForCanvas
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -60,5 +61,14 @@ class MusicProgressSpecTest {
         assertTrue(t2.all { it in 4f..17f })
         assertNotEquals(t0, t1)
         assertNotEquals(t1, t2)
+    }
+
+    @Test
+    fun `quantizeProgressForCanvas buckets nearby values and clamps bounds`() {
+        assertEquals(0f, quantizeProgressForCanvas(-0.2f), 0.0001f)
+        assertEquals(1f, quantizeProgressForCanvas(1.4f), 0.0001f)
+        assertEquals(0.25f, quantizeProgressForCanvas(0.24f), 0.0001f)
+        assertEquals(0.25f, quantizeProgressForCanvas(0.26f), 0.0001f)
+        assertEquals(0.50f, quantizeProgressForCanvas(0.49f), 0.0001f)
     }
 }

@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -150,18 +151,22 @@ class OneUiNetworkWidget : GlanceAppWidget() {
             val size = LocalSize.current
             val layout = calculateNetworkLayout(size.width.value, size.height.value)
 
-            val mobileBitmap = WidgetCanvasRenderer.renderCellularSignalBitmap(
-                bars = snapshot.mobileLevelBars,
-                isConnected = snapshot.isMobileConnected,
-                sizePx = 128,
-                isDarkTheme = isDark
-            )
-            val wifiBitmap = WidgetCanvasRenderer.renderWifiSignalBitmap(
-                bars = snapshot.wifiLevelBars,
-                isConnected = snapshot.isWifiConnected,
-                sizePx = 128,
-                isDarkTheme = isDark
-            )
+            val mobileBitmap = remember(snapshot.mobileLevelBars, snapshot.isMobileConnected, isDark) {
+                WidgetCanvasRenderer.renderCellularSignalBitmap(
+                    bars = snapshot.mobileLevelBars,
+                    isConnected = snapshot.isMobileConnected,
+                    sizePx = 128,
+                    isDarkTheme = isDark
+                )
+            }
+            val wifiBitmap = remember(snapshot.wifiLevelBars, snapshot.isWifiConnected, isDark) {
+                WidgetCanvasRenderer.renderWifiSignalBitmap(
+                    bars = snapshot.wifiLevelBars,
+                    isConnected = snapshot.isWifiConnected,
+                    sizePx = 128,
+                    isDarkTheme = isDark
+                )
+            }
 
             NetworkWidgetContent(
                 context = context,

@@ -2,6 +2,8 @@ package com.anacatavc.oneuiextrawidgets.data.weather
 
 import com.anacatavc.oneuiextrawidgets.data.preferences.CachedWeatherState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.IOException
@@ -30,9 +32,15 @@ object OpenMeteoClient {
                 "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=$latitude&longitude=$longitude" +
                     "&current=european_aqi,pm10,pm2_5&timezone=auto"
 
+            val (forecastRaw, aqiRaw) = coroutineScope {
+                val forecastDeferred = async { httpGet(forecastUrl) }
+                val aqiDeferred = async { httpGet(aqiUrl) }
+                forecastDeferred.await() to aqiDeferred.await()
+            }
+
             parseForecastAndAqi(
-                forecastRaw = httpGet(forecastUrl),
-                aqiRaw = httpGet(aqiUrl),
+                forecastRaw = forecastRaw,
+                aqiRaw = aqiRaw,
                 latitude = latitude,
                 longitude = longitude,
                 cityName = cityName

@@ -1,8 +1,11 @@
 package com.anacatavc.oneuiextrawidgets.data.media
 
 import android.app.Notification
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.media.AudioManager
 import android.media.MediaMetadata
@@ -10,6 +13,7 @@ import android.media.session.MediaController
 import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
 import android.os.Build
+import android.os.PowerManager
 import android.os.SystemClock
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -247,19 +251,32 @@ class MediaNotificationListener : NotificationListenerService() {
             syncProgressTicker(context.applicationContext, controller, newState.isPlaying, scope)
         }
 
+        private fun isScreenInteractive(context: Context): Boolean {
+            val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+            return pm?.isInteractive ?: true
+        }
+
+        private fun stopProgressTicker() {
+            progressTickerJob?.cancel()
+            progressTickerJob = null
+        }
+
         private fun syncProgressTicker(
             appContext: Context,
             controller: MediaController?,
             isPlaying: Boolean,
             scope: CoroutineScope
         ) {
-            if (!isPlaying || controller == null) {
-                progressTickerJob?.cancel()
-                progressTickerJob = null
+            if (!isPlaying || controller == null || !isScreenInteractive(appContext)) {
+                stopProgressTicker()
                 return
             }
             if (progressTickerJob?.isActive == true) return
             progressTickerJob = scope.launch {
+                if (!RetroMusicWidgetUpdater.hasAnyMusicWidgets(appContext)) {
+                    stopProgressTicker()
+                    return@launch
+                }
                 var keepTicking = true
                 while (isActive && keepTicking) {
                     delay(PROGRESS_TICK_MS)
@@ -267,7 +284,7 @@ class MediaNotificationListener : NotificationListenerService() {
                     val playback = active?.playbackState
                     val playingNow = playback?.state == PlaybackState.STATE_PLAYING ||
                         playback?.state == PlaybackState.STATE_BUFFERING
-                    if (active == null || !playingNow) {
+                    if (active == null || !playingNow || !isScreenInteractive(appContext)) {
                         keepTicking = false
                     } else {
                         val current = _mediaState.value
@@ -397,10 +414,8 @@ class MediaNotificationListener : NotificationListenerService() {
                 dispatchMediaKeyFallback(context, command)
             }
             refreshActiveMediaSession(context)
-            RetroMusicWidgetUpdater.updateAllMusicWidgets(context)
-            delay(300L)
+            delay(250L)
             refreshActiveMediaSession(context)
-            RetroMusicWidgetUpdater.updateAllMusicWidgets(context)
         }
 
         private fun dispatchMediaKeyFallback(context: Context, command: TransportCommand) {

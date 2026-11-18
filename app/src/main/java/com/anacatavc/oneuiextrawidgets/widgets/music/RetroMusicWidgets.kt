@@ -1196,16 +1196,25 @@ class PrevTrackAction : ActionCallback {
 }
 
 object RetroMusicWidgetUpdater {
+    private fun musicWidgets() = listOf(
+        IpodClassicWidget(),
+        RetroMp3Widget(),
+        DiscmanWidget(),
+        CassetteWalkmanWidget(),
+        VinylTurntableWidget(),
+        MiniDiscWidget()
+    )
+
+    suspend fun hasAnyMusicWidgets(context: Context): Boolean {
+        val manager = GlanceAppWidgetManager(context)
+        return musicWidgets().any { widget ->
+            manager.getGlanceIds(widget.javaClass).isNotEmpty()
+        }
+    }
+
     suspend fun updateAllMusicWidgets(context: Context) {
         val manager = GlanceAppWidgetManager(context)
-        listOf(
-            IpodClassicWidget(),
-            RetroMp3Widget(),
-            DiscmanWidget(),
-            CassetteWalkmanWidget(),
-            VinylTurntableWidget(),
-            MiniDiscWidget()
-        ).forEach { widget ->
+        musicWidgets().forEach { widget ->
             manager.getGlanceIds(widget.javaClass).forEach { glanceId ->
                 widget.update(context, glanceId)
             }
