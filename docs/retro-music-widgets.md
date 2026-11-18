@@ -1,6 +1,6 @@
 # Retro Music Widgets — Architecture & Visual Specs
 
-The Retro Music suite provides three home-screen players built with **Jetpack Glance** (`SizeMode.Exact`), custom `Canvas` bitmaps (`WidgetCanvasRenderer`), and a shared `MediaSessionManager` + `AudioManager` bridge (`MediaNotificationListener`).
+The Retro Music suite provides six home-screen players built with **Jetpack Glance** (`SizeMode.Exact`), custom `Canvas` bitmaps (`MusicCanvasRenderer` via `WidgetCanvasRenderer`), and a shared `MediaSessionManager` + `AudioManager` bridge (`MediaNotificationListener`).
 
 ---
 
@@ -25,6 +25,21 @@ The Retro Music suite provides three home-screen players built with **Jetpack Gl
 - **Visual Design:** 1:1 circular matte-graphite Discman body (`WidgetCanvasRenderer.renderDiscmanBodyBitmap`, `440px`) with metallic bevel rim, top-right lavender lid-release latch accent, `COMPACT DISC / DIGITAL AUDIO • ESP ANTI-SHOCK` branding, bottom perforated speaker grille arc, and transparent outer corners.
 - **LCD & Ergonomic Controls (`calculateDiscmanLayout`):** Scales `discSizeDp = min(width, height)` to preserve a 1:1 circle at any grid size, with an upper-middle **cyan** backlit LCD (`CD • PLAY`/`PAUSE`, battery indicator, track title, `00:00` timestamp, and subtitle without album art) above a 4-button row (`⏮`, larger primary `▶`/`⏸`, `⏭`, and `≡` menu).
 
-## 4. Media Transport & Widget Picker Previews
-- **Transport Fallback (`MediaNotificationListener.sendTransportCommand`):** Uses `MediaController.transportControls` when an active `MediaSession` is available (pausing on both `STATE_PLAYING` and `STATE_BUFFERING`) and falls back to `AudioManager.dispatchMediaKeyEvent` when no controller is active. Refreshes widget state immediately and after `250 ms`.
-- **One UI Widget Picker Previews:** Each provider declares `android:previewLayout` (`res/layout/widget_preview_*.xml` + `res/drawable/*preview*.xml`) using `RemoteViews`-compatible views so the One UI Home widget picker renders an accurate preview instead of the app icon.
+## 4. 80s/90s Cassette Walkman (`CassetteWalkmanWidget`)
+- **Provider:** `app/src/main/res/xml/widget_music_cassette_info.xml` (`2×2` default, `resizeMode="horizontal|vertical"`, `previewLayout="@layout/widget_preview_cassette"`)
+- **Responsive Modes (`calculateCassetteLayout`):** Adapts across `COMPACT`, `TALL`, and `WIDE` (`12:7` cassette aspect ratio).
+- **Canvas Deck (`renderCassetteDeckBitmap`):** Gunmetal Walkman shell (`26.dp` One UI corners) housing a smoky acrylic cassette window, Type II CrO2 label header, corner micro-screws, 3-digit tape counter (`000`–`360`), and dual 6-tooth tape reels whose wound magnetic tape radii interpolate smoothly with track progress (`positionMs / durationMs`) above 4 beveled physical transport keys (`⏮`, `▶`/`⏸`, `⏭`, `≡`).
+
+## 5. Minimalist Vinyl Turntable (`VinylTurntableWidget`)
+- **Provider:** `app/src/main/res/xml/widget_music_vinyl_info.xml` (`2×2` default, `resizeMode="horizontal|vertical"`, `previewLayout="@layout/widget_preview_vinyl"`)
+- **Responsive Modes (`calculateVinylLayout`):** Adapts across `COMPACT`, `TALL`, and `WIDE` (`COMPACT` / `TALL` stack platter, readout, and controls; `WIDE` places platter left and readout + controls right).
+- **Canvas Platter & Tonearm (`renderVinylTurntableBitmap`):** Dieter Rams / Braun-inspired satin plinth (`26.dp` corners) with brushed aluminum platter, stroboscopic speed dots, micro-grooved black LP with anisotropic light sheen, circular-clipped album artwork label (or classic orange/cream studio label), and an articulated S-shaped tonearm tracking playback progress above `33⅓ RPM • HI-FI` readout and 4 circular controls.
+
+## 6. 2000s Hi-MD MiniDisc Player (`MiniDiscWidget`)
+- **Provider:** `app/src/main/res/xml/widget_music_minidisc_info.xml` (`4×1` default, `resizeMode="horizontal|vertical"`, `previewLayout="@layout/widget_preview_minidisc"`)
+- **Responsive Modes (`calculateMiniDiscLayout`):** Horizontal `PILL` stick (`4×1`) and vertical `STACKED` layout when stretched vertically (`heightDp >= 120dp && widthDp < heightDp * 2.2`).
+- **Canvas Cartridge & EL Display (`renderMiniDiscBadgeBitmap`):** Slate-blue metallic Hi-MD body with translucent cartridge badge revealing an iridescent magneto-optical disc & silver shutter, paired with a dark electroluminescent bezel (`HI-MD • ATRAC DSP`, cyan-lime track title, progress bar, spectrum bars) and ergonomic silver jog-dial transport buttons.
+
+## 7. Media Transport & Widget Picker Previews
+- **Transport Fallback (`MediaNotificationListener.sendTransportCommand`):** Uses `MediaController.transportControls` when an active `MediaSession` is available (pausing on both `STATE_PLAYING` and `STATE_BUFFERING`) and falls back to `AudioManager.dispatchMediaKeyEvent` when no controller is active. Refreshes widget state immediately and after `300 ms`.
+- **One UI Widget Picker Previews:** Each provider declares `android:previewLayout` (`res/layout/widget_preview_*.xml` + `res/drawable/*preview*.xml`) using `@RemoteView`-compatible views (`LinearLayout`, `FrameLayout`, `ImageView`, `TextView`) so the One UI Home widget picker renders an accurate Day/Night preview instead of the app icon.

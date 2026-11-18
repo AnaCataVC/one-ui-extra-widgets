@@ -20,23 +20,30 @@
 
 ## Project Description
 
-**One UI Extra Widgets** expands the Samsung Galaxy home screen experience with nine customizable, battery-efficient widgets crafted around **Samsung One UI** design tokens (`26dp` squircle-like corner radii, adaptive day/night translucent surfaces, and ergonomic one-handed viewing headers). While tuned specifically for the **Samsung Galaxy A55 5G** (`1080×2340` Super AMOLED, **One UI 8.5 / Android 16**), the suite relies on standard Android Jetpack APIs (`minSdk = 26`, `targetSdk = 36`) so it runs seamlessly on any modern Android device without root or system privileges.
+**One UI Extra Widgets** expands the Samsung Galaxy home screen experience with fifteen customizable, battery-efficient widgets crafted around **Samsung One UI** design tokens (`26dp` squircle-like corner radii, adaptive day/night translucent surfaces, and ergonomic one-handed viewing headers). While tuned specifically for the **Samsung Galaxy A55 5G** (`1080×2340` Super AMOLED, **One UI 8.5 / Android 16**), the suite relies on standard Android Jetpack APIs (`minSdk = 26`, `targetSdk = 36`) so it runs seamlessly on any modern Android device without root or system privileges.
 
 ### Key Features
 
-- **4 Modular One UI Weather & Scientific Lunar Widgets** ([full specs](docs/weather-widgets.md)):
-  - Designed as compact `2×1` pills (`SizeMode.Exact`) that resize smoothly into `2×2` squares or `4×2` wide cards **without repeating ambient temperature** (already provided by Samsung's stock Weather widget):
+- **6 Modular One UI Weather, Solar & Astronomical Widgets** ([full specs](docs/weather-widgets.md)):
+  - Designed as compact pills (`SizeMode.Exact`) that resize smoothly across `1×1`, `2×1`, `2×2`, and `4×2` cards **without repeating ambient temperature** (already provided by Samsung's stock Weather widget):
   1. *Rain Probability (`OneUiRainWidget`)*: `Canvas` radial progress arc with a sculpted droplet showing 6-hour precipitation probability (`%`) and intensity tier via **Open-Meteo**.
   2. *Air Quality (`OneUiAqiWidget`)*: `270°` color-coded European `AQI` radial gauge with $\text{PM}_{2.5}$ and $\text{PM}_{10}$ ($\mu\text{g/m}^3$) breakdown.
   3. *Solar UV Index (`OneUiUvWidget`)*: `270°` solar radiation gauge mapped to the WHO `0–11+` scale with risk tier and SPF protection guidance.
   4. *Scientific Lunar Phase (`OneUiMoonPhaseWidget`)*: High-contrast `Canvas` lunar sphere with 100% scientific astronomical metrics (illumination `%`, synodic age `0.0–29.5 d`, solar elongation angle, and waxing/waning trend—zero astrological signs).
+  5. *Solar Arc & Golden Hour (`OneUiSunArcWidget`)*: 100% offline `Canvas` solar elevation curve powered by `Astronomy Engine`, showing the active light phase (**Solar Day / Golden Hour / Blue Hour / Twilight / Night**), next Golden Hour transition, daylight duration, and exact sunrise/sunset times.
+  6. *Night Sky & Stargazing Index (`OneUiStargazingWidget`)*: Crosses Open-Meteo `cloud_cover` with offline lunar darkness to score night-sky clarity (`0–100%`) and highlight naked-eye planets above the local horizon.
 - **100% Offline Astrology: Transits & Retrogrades Widget (`OneUiAstrologyWidget`)** ([full specs](docs/astrology-widget.md) · [ephemeris engine](docs/astrology-engine.md)): Powered locally by `Astronomy Engine` (`io.github.cosinekitty:astronomy`) with zero network calls. Computes apparent geocentric ecliptic longitudes ($\lambda$) and daily angular velocities ($d\lambda/dt$) to display a `Canvas` orbital Mercury emblem, the current **Sun Sign**, daily **Moon Zodiac Transit**, and a 5-planet strip showing whether **Mercury, Venus, Mars, Jupiter, or Saturn** are **Direct**, **Retrograde** ($d\lambda/dt < 0$), or in **Pre/Post-Retrograde Shadow** (without duplicating lunar phase illumination, which lives in `OneUiMoonPhaseWidget`).
-- **Retro Music Players — iPod Classic, 2000s USB MP3 & Circular CD Discman** ([full specs](docs/retro-music-widgets.md)):
+- **6 Retro Music Players — iPod Classic, 2000s USB MP3, Circular CD Discman, Cassette Walkman, Vinyl Turntable & MiniDisc** ([full specs](docs/retro-music-widgets.md)):
   1. *iPod Classic (`IpodClassicWidget`)*: Responsive `SizeMode.Exact` layout with album art, One UI progress bar with timestamps (`0:00`), a 5-zone `Canvas` Click Wheel with a dynamic Play/Pause center button, and device model fallback.
   2. *2000s USB MP3 Stick (`RetroMp3Widget`)*: Indigo-cobalt `4×1` One UI stick with right-side USB cap and lanyard slot, ergonomic circular controls, high-contrast dark display with gold labels, cyan track hierarchy, 5-bar equalizer, and progress bar that stacks cleanly when resized vertically.
   3. *Circular CD Discman (`DiscmanWidget`)*: 1:1 circular matte-graphite Discman with metallic rim, top-right latch accent, bottom speaker grille, **cyan** backlit LCD (track + `00:00` timestamp + battery indicator without album art), and an ergonomic 4-button control row.
-  - All three widgets include One UI `previewLayout` XML previews and synchronize with **Spotify, YouTube Music, Apple Music, Samsung Music, Tidal**, and any active Android `MediaSession` (with `AudioManager` media-key fallback).
-- **5G NR & Wi-Fi 6 Network Quality Widget (`OneUiNetworkWidget`)** ([full specs](docs/network-widget.md)): Defaults to a `2×2` One UI card (`SizeMode.Exact`) that adapts seamlessly across `2×1`/`4×1` pills and `4×2` wide dashboards. Inspects `TelephonyManager`, `CellSignalStrengthNr`, `ConnectivityManager`, and `WifiInfo` to render semantic color-coded `Canvas` signal badges alongside real-time cellular generation (`5G NR` / `4G LTE`), carrier name, RSRP in `dBm`, Wi-Fi link speed in `Mbps`, frequency band (`6 GHz` / `5 GHz` / `2.4 GHz`), `RSSI` in `dBm`, and `SSID`.
+  4. *80s/90s Cassette Walkman (`CassetteWalkmanWidget`)*: Gunmetal Walkman shell with a `Canvas` smoky cassette window whose dual tape spool radii track playback progress (`0%–100%`), Type II CrO2 label readout, 3-digit counter, and 4 tactile transport keys.
+  5. *Minimalist Vinyl Turntable (`VinylTurntableWidget`)*: Braun/Dieter Rams-inspired satin turntable with stroboscopic platter, micro-grooved black LP, circular album label art, and an articulated tonearm tracking playback progress.
+  6. *2000s MiniDisc Hi-MD (`MiniDiscWidget`)*: Brushed slate-blue Hi-MD stick (`4×1` / `STACKED`) with an iridescent `Canvas` MiniDisc cartridge window, electroluminescent `HI-MD • ATRAC DSP` bezel, spectrum bars, and silver jog controls.
+  - All six widgets include One UI `previewLayout` XML previews and synchronize with **Spotify, YouTube Music, Apple Music, Samsung Music, Tidal**, and any active Android `MediaSession` (with `AudioManager` media-key fallback).
+- **5G NR, Wi-Fi 6 & Battery Thermal Hardware Diagnostics (`OneUiNetworkWidget` & `OneUiBatteryThermalWidget`)** ([full specs](docs/network-widget.md)):
+  1. *5G NR & Wi-Fi 6 Network Quality (`OneUiNetworkWidget`)*: Defaults to a `2×2` One UI card (`SizeMode.Exact`) adapting across `2×1`/`4×1` pills and `4×2` dashboards, rendering semantic color-coded `Canvas` signal badges for `5G NR` / `4G LTE` (`dBm`, carrier) and Wi-Fi (`Mbps`, band, `RSSI`, `SSID`).
+  2. *Battery Thermal & Electrical Health (`OneUiBatteryThermalWidget`)*: 100% offline `BatteryManager` monitor requiring zero extra permissions, featuring a `270°` color-coded thermal gauge (`°C`) alongside live voltage (`mV`), current (`mA`), estimated power (`W`), and charging source (`USB PD / AC / USB / Wireless`).
 - **Automatic & Manual Bilingual Localization (ES / EN)**: Automatically follows the device's system locale (Spanish by default) and provides an instant in-app switcher (**System / Español / English**) powered by `AppCompatDelegate.setApplicationLocales` and Android 14+ `LocaleConfig`.
 
 ---
@@ -48,16 +55,16 @@ One UI Extra Widgets enforces a clear separation between Jetpack Glance widget s
 ```mermaid
 flowchart TD
     subgraph UI ["Presentation Layer (Jetpack Glance & Compose)"]
-        GlanceWidgets["Jetpack Glance Widgets<br/>(4 Weather/Moon, Astrology, iPod, MP3, Discman, 5G/Wi-Fi)"]
+        GlanceWidgets["Jetpack Glance Widgets<br/>(6 Weather/Astronomy, Astrology, 6 Retro Music, 5G/Wi-Fi, Battery)"]
         ComposeApp["One UI Detail Screens<br/>(HomeScreen, WeatherDetailScreen, AstrologyDetailScreen, NetworkDetailScreen)"]
-        CanvasRenderer["WidgetCanvasRenderer<br/>(Rain/AQI/UV Gauges, Moon Sphere, iPod Wheel & Discman)"]
+        CanvasRenderer["WidgetCanvasRenderer & MusicCanvasRenderer<br/>(Gauges, Sun Arc, Stargazing, Moon, iPod, Cassette, Vinyl, MiniDisc, Discman)"]
     end
 
     subgraph Data ["Data & Platform Services"]
-        WeatherClient["OpenMeteoClient + WeatherRefreshWorker<br/>(Forecast, Rain Prob, AQI, PM2.5/PM10 & DataStore)"]
-        AstroEngine["AstrologyEngine<br/>(Offline VSOP87/NOVAS Ephemeris & Retrograde Detector)"]
+        WeatherClient["OpenMeteoClient + WeatherRefreshWorker<br/>(Forecast, Rain Prob, Cloud Cover, AQI, PM2.5/PM10 & DataStore)"]
+        AstroEngine["AstrologyEngine<br/>(Offline VSOP87/NOVAS Ephemeris, Solar Arc & Stargazing)"]
         MediaBridge["MediaNotificationListener<br/>(NotificationListenerService + MediaSessionManager)"]
-        NetMonitor["NetworkQualityMonitor<br/>(TelephonyManager 5G NR & WifiManager Wi-Fi 6)"]
+        NetMonitor["NetworkQualityMonitor & BatteryThermalMonitor<br/>(5G NR / Wi-Fi 6 & Battery Thermal/Power)"]
     end
 
     subgraph Utils ["Shared Utilities"]
@@ -76,14 +83,15 @@ flowchart TD
 
 | Component / Package | Responsibility |
 | :--- | :--- |
-| **`widgets/`** | 100% Jetpack Glance widget implementations (`OneUiRainWidget`, `OneUiAqiWidget`, `OneUiUvWidget`, `OneUiMoonPhaseWidget`, `WeatherRefreshWorker`, `OneUiAstrologyWidget`, `IpodClassicWidget`, `RetroMp3Widget`, `DiscmanWidget`, `OneUiNetworkWidget`) and `OneUiGlanceTokens` (`26dp` corner radius, day/night adaptive surfaces). |
+| **`widgets/`** | 100% Jetpack Glance widget implementations (`OneUiRainWidget`, `OneUiAqiWidget`, `OneUiUvWidget`, `OneUiMoonPhaseWidget`, `OneUiSunArcWidget`, `OneUiStargazingWidget`, `WeatherRefreshWorker`, `OneUiAstrologyWidget`, `IpodClassicWidget`, `RetroMp3Widget`, `DiscmanWidget`, `CassetteWalkmanWidget`, `VinylTurntableWidget`, `MiniDiscWidget`, `OneUiNetworkWidget`, `OneUiBatteryThermalWidget`) and `OneUiGlanceTokens` (`26dp` corner radius, day/night adaptive surfaces). |
 | **`ui/`** | Jetpack Compose Material 3 companion application styled after Samsung One UI, providing widget catalog overview, permission onboarding, language selector, and deep-linked detail screens. |
-| **`data/astrology/`** | Pure-computation `AstrologyEngine` calculating tropical zodiac positions, lunar phase angles, and planetary retrograde/shadow states offline. |
-| **`data/weather/`** | `OpenMeteoClient` HTTP client fetching real-time forecast, precipitation probability, UV index, and European AQI metrics. |
+| **`data/astrology/`** | Pure-computation `AstrologyEngine` calculating tropical zodiac positions, lunar phase angles, planetary retrograde/shadow states, solar arc / Golden Hour times, and stargazing clarity offline. |
+| **`data/weather/`** | `OpenMeteoClient` HTTP client fetching real-time forecast, precipitation probability, cloud cover, UV index, and European AQI metrics. |
 | **`data/preferences/`** | `AppPreferences` `DataStore` cache persisting weather, location, and widget configuration state. |
 | **`data/media/`** | `MediaNotificationListener` bridging active system `MediaController` sessions and dispatching transport controls (`play`, `pause`, `skipToNext`, `skipToPrevious`). |
 | **`data/network/`** | `NetworkQualityMonitor` extracting 5G NR / LTE `dBm` and Wi-Fi 6 `Mbps`, frequency band, and `RSSI` metrics. |
-| **`utils/`** | Centralized `WidgetCanvasRenderer`, `LocaleHelper`, and `PermissionHelper` shared across widgets and activities with zero code duplication. |
+| **`data/battery/`** | `BatteryThermalMonitor` reading live battery temperature (`°C`), voltage (`mV`), current (`mA`), power (`W`), and charging source offline without extra permissions. |
+| **`utils/`** | Centralized `WidgetCanvasRenderer`, `MusicCanvasRenderer`, `AstrologyCanvasRenderer`, `LocaleHelper`, and `PermissionHelper` shared across widgets and activities with zero code duplication. |
 
 For detailed technical research and API specifications, see:
 - [docs/external-references/android-oneui-widgets-architecture.md](docs/external-references/android-oneui-widgets-architecture.md)
@@ -95,7 +103,7 @@ For detailed technical research and API specifications, see:
 - **Language & Runtime**: Kotlin 2.0.21, JVM Target 17
 - **Build System**: Android Gradle Plugin 8.7.2, Version Catalog (`gradle/libs.versions.toml`)
 - **Android Targets**: `minSdk = 26` (Android 8.0 Oreo), `targetSdk = 36` / `compileSdk = 36` (Android 16 / One UI 8.5, backward-compatible with One UI 6.1–8.0)
-- **Widget Framework**: Jetpack Glance (`androidx.glance:glance-appwidget:1.1.1`, `glance-material3:1.1.1`) + custom Android `Canvas` bitmaps
+- **Widget Framework**: Jetpack Glance (`androidx.glance:glance-appwidget:1.1.1`) + custom Android `Canvas` bitmaps
 - **UI Toolkit**: Jetpack Compose BOM 2024.11.00, Material 3, AppCompat 1.7.0 (for per-app locales)
 - **Offline Ephemeris**: `io.github.cosinekitty:astronomy:2.1.19`
 - **Background Sync & Persistence**: `WorkManager` 2.10.0, `DataStore Preferences` 1.1.1
@@ -133,7 +141,7 @@ The resulting debug APK will be generated at:
 
 ## Automated Testing
 
-`one-ui-extra-widgets` includes unit tests verifying tropical zodiac boundary mapping, lunar illumination bounds, and offline planetary retrograde ephemeris snapshots:
+`one-ui-extra-widgets` includes unit tests verifying tropical zodiac boundary mapping, lunar illumination bounds, offline planetary retrograde ephemeris snapshots, solar elevation & stargazing calculations, battery thermal thresholds, widget layout calculators, and `@RemoteView` preview layout compliance:
 
 ```bash
 ./gradlew testDebugUnitTest

@@ -37,7 +37,7 @@ Instead of plain Unicode bar characters, `WidgetCanvasRenderer` renders determin
 ## 3. One UI Widget Picker Preview (`previewLayout`)
 
 - **Provider XML:** `app/src/main/res/xml/widget_network_info.xml` (`android:previewLayout="@layout/widget_preview_network"`)
-- **Preview Layout:** `app/src/main/res/layout/widget_preview_network.xml` mirrors the default `2×2` stacked layout using `RemoteViews`-compatible `LinearLayout`, `ImageView`, `TextView`, and `Space` views.
+- **Preview Layout:** `app/src/main/res/layout/widget_preview_network.xml` mirrors the default `2×2` stacked layout using `@RemoteView`-compatible `LinearLayout`, `FrameLayout`, `ImageView`, and `TextView` views.
 - **Vector Icons:** `ic_preview_signal_5g.xml` and `ic_preview_signal_wifi.xml` reference adaptive `@color/oneui_preview_*` tokens in `res/values/colors.xml` and `res/values-night/colors.xml`.
 
 ---
@@ -46,3 +46,20 @@ Instead of plain Unicode bar characters, `WidgetCanvasRenderer` renders determin
 
 - **Monitor:** `NetworkQualityMonitor.readSnapshot(context)` reads `TelephonyManager`, `CellSignalStrengthNr`, `CellSignalStrengthLte`, `ConnectivityManager`, and `WifiManager`.
 - **Permissions:** Uses `ACCESS_NETWORK_STATE`, `ACCESS_WIFI_STATE`, `READ_PHONE_STATE` (for `dataNetworkType` 5G NR / LTE detection), and `ACCESS_FINE_LOCATION` / `NEARBY_WIFI_DEVICES` (for Wi-Fi SSID). Gracefully falls back when optional permissions are not granted.
+
+---
+
+# One UI Battery Thermal & Electrical Health Widget (`OneUiBatteryThermalWidget`)
+
+`OneUiBatteryThermalWidget` complements `OneUiNetworkWidget` in the companion app's **5G & Wi-Fi / Hardware** diagnostics tab (`NetworkDetailScreen`) by exposing real-time battery thermal and electrical metrics omitted by the stock Samsung battery widget.
+
+## 1. Layout & Canvas Gauge
+- **Provider:** `app/src/main/res/xml/widget_battery_thermal_info.xml` (`2×1` default pill, `resizeMode="horizontal|vertical"`, `previewLayout="@layout/widget_preview_battery_thermal"`).
+- **Responsive Layout (`calculateWeatherCardLayout` + `WeatherModularCard`):** Reuses the One UI `COMPACT_1X1`, `PILL`, `SQUARE`, and `EXPANDED` card architecture with a `26.dp` root radius, `12.dp` inner detail pills, and an `↻` refresh button (`RefreshBatteryAction`).
+- **Canvas Graphic (`WidgetCanvasRenderer.renderBatteryThermalGaugeBitmap`):** `270°` radial thermal gauge mapped across `15°C–50°C` with semantic tier colors:
+  - **Optimal (`< 35.0°C`):** Emerald green (`#059669` day / `#34D399` night)
+  - **Warm (`35.0°C–40.0°C`):** Amber (`#D97706` day / `#FBBF24` night)
+  - **Hot (`> 40.0°C`):** Coral red (`#DC2626` day / `#F87171` night)
+
+## 2. Offline Data Source (`BatteryThermalMonitor`)
+- **Zero Permissions & Zero Polling:** `BatteryThermalMonitor.readSnapshot(context)` reads the system `Intent.ACTION_BATTERY_CHANGED` sticky broadcast (`EXTRA_LEVEL`, `EXTRA_SCALE`, `EXTRA_TEMPERATURE`, `EXTRA_VOLTAGE`, `EXTRA_STATUS`, `EXTRA_PLUGGED`) and `BatteryManager.BATTERY_PROPERTY_CURRENT_NOW`, normalizing microampere vs. milliampere readings across devices to report live temperature (`°C`), voltage (`mV`), current (`mA`), power (`W`), and charging source (`USB PD / Fast`, `AC Charger`, `USB Port`, `Wireless`, `On Battery`).
