@@ -93,7 +93,8 @@ flowchart TD
 | **`data/battery/`** | `BatteryThermalMonitor` reading live battery temperature (`°C`), voltage (`mV`), current (`mA`), power (`W`), and charging source offline without extra permissions. |
 | **`utils/`** | Centralized `WidgetCanvasRenderer`, `MusicCanvasRenderer`, `AstrologyCanvasRenderer`, `LocaleHelper`, and `PermissionHelper` shared across widgets and activities with zero code duplication. |
 
-For detailed technical research and API specifications, see:
+For detailed technical research, performance optimizations, and API specifications, see:
+- [docs/performance-and-battery.md](docs/performance-and-battery.md)
 - [docs/external-references/android-oneui-widgets-architecture.md](docs/external-references/android-oneui-widgets-architecture.md)
 
 ---
