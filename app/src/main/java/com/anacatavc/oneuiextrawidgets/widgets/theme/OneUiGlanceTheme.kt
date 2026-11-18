@@ -488,6 +488,7 @@ object OneUiCanvasPalette {
     const val UV_EXTREME: Int = 0xFFA855F7.toInt()
     const val UV_SUN_CORE_TOP: Int = 0xFFFDE047.toInt()
     const val UV_SUN_CORE_BOTTOM: Int = 0xFFF59E0B.toInt()
+    const val UV_SUN_RAYS: Int = 0xFFF59E0B.toInt()
 
     const val MOON_DARK_DISK: Int = 0xFF232631.toInt()
     const val MOON_LIT_DISK: Int = 0xFFF5F3CE.toInt()

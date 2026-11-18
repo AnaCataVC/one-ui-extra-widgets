@@ -283,7 +283,7 @@ object WidgetCanvasRenderer {
         canvas.drawCircle(cx, cy, sunRadius, sunPaint)
 
         val rayPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = uvColor
+            color = OneUiCanvasPalette.UV_SUN_RAYS
             style = Paint.Style.STROKE
             strokeWidth = (safeSize * 0.032f).coerceAtLeast(2f)
             strokeCap = Paint.Cap.ROUND

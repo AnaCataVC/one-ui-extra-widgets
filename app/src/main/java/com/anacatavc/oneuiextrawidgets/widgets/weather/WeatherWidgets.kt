@@ -240,7 +240,7 @@ class OneUiRainWidget : GlanceAppWidget() {
                 layout = layout,
                 gaugeBitmap = bitmap,
                 gaugeContentDescription = statusBadge,
-                headerLabel = if (isEs) "Prob. Lluvia (6h)" else "Rain Prob. (6h)",
+                headerLabel = if (isEs) "Prob. Lluvia" else "Rain Prob.",
                 primaryValue = "${state.rainProbabilityPct}%",
                 statusBadge = statusBadge,
                 statusColor = accentColor,
@@ -249,8 +249,8 @@ class OneUiRainWidget : GlanceAppWidget() {
                 compactColor = accentColor,
                 detailLeftLabel = if (isEs) "Ventana" else "Window",
                 detailLeftValue = if (isEs) "Próx. 6h" else "Next 6h",
-                detailRightLabel = if (isEs) "Ciudad" else "City",
-                detailRightValue = state.cityName,
+                detailRightLabel = if (isEs) "Nubosidad" else "Cloud Cover",
+                detailRightValue = "${state.cloudCoverPct}%",
                 isSpanish = isEs,
                 showRefreshAction = true,
                 opacityPct = opacityPct,
@@ -312,7 +312,7 @@ class OneUiAqiWidget : GlanceAppWidget() {
                 gaugeContentDescription = "AQI ${state.europeanAqi} $statusBadge",
                 headerLabel = if (isEs) "Calidad del Aire" else "Air Quality",
                 primaryValue = statusBadge,
-                statusBadge = "PM2.5 ${state.pm25.roundToInt()} µg",
+                statusBadge = if (isEs) "Índice Europeo" else "European Index",
                 statusColor = accentColor,
                 pillText = state.cityName,
                 compactLabel = statusBadge,
@@ -391,13 +391,13 @@ class OneUiUvWidget : GlanceAppWidget() {
                 primaryValue = "UV ${state.uvIndex.roundToInt()}",
                 statusBadge = statusBadge,
                 statusColor = accentColor,
-                pillText = protectionTip,
+                pillText = state.cityName,
                 compactLabel = statusBadge,
                 compactColor = accentColor,
                 detailLeftLabel = if (isEs) "Protección" else "Protection",
                 detailLeftValue = protectionTip,
-                detailRightLabel = if (isEs) "Ciudad" else "City",
-                detailRightValue = state.cityName,
+                detailRightLabel = if (isEs) "Nubosidad" else "Cloud Cover",
+                detailRightValue = "${state.cloudCoverPct}%",
                 isSpanish = isEs,
                 showRefreshAction = true,
                 opacityPct = opacityPct,
@@ -437,15 +437,20 @@ class OneUiMoonPhaseWidget : GlanceAppWidget() {
             val cycleTrend = lunar.localizedCycleTrend(isEs)
             val ageFormatted = String.format(Locale.US, "%.1f d", lunar.synodicAgeDays)
             val elongationFormatted = "${lunar.normalizedPhaseAngleDeg.roundToInt() % 360}°"
+            val litBadge = if (isEs) {
+                "Iluminación ${lunar.illuminationPercent}% • $cycleTrend"
+            } else {
+                "${lunar.illuminationPercent}% Lit • $cycleTrend"
+            }
 
             WeatherModularCard(
                 context = context,
                 layout = layout,
                 gaugeBitmap = moonBitmap,
                 gaugeContentDescription = "$phaseName ${lunar.illuminationPercent}%",
-                headerLabel = if (isEs) "Fase Lunar • ${lunar.illuminationPercent}%" else "Moon Phase • ${lunar.illuminationPercent}%",
+                headerLabel = if (isEs) "Fase Lunar" else "Moon Phase",
                 primaryValue = phaseName,
-                statusBadge = if (isEs) "Edad $ageFormatted • $elongationFormatted" else "Age $ageFormatted • $elongationFormatted",
+                statusBadge = litBadge,
                 statusColor = OneUiGlanceTokens.WeatherMoonSilver,
                 pillText = "$cycleTrend • $elongationFormatted",
                 compactLabel = "${lunar.illuminationPercent}%",
@@ -453,7 +458,7 @@ class OneUiMoonPhaseWidget : GlanceAppWidget() {
                 detailLeftLabel = if (isEs) "Edad Sinódica" else "Synodic Age",
                 detailLeftValue = "$ageFormatted / 29.5 d",
                 detailRightLabel = if (isEs) "Elongación" else "Elongation",
-                detailRightValue = "$elongationFormatted ($cycleTrend)",
+                detailRightValue = elongationFormatted,
                 isSpanish = isEs,
                 showRefreshAction = false,
                 opacityPct = opacityPct,
@@ -583,7 +588,6 @@ class OneUiStargazingWidget : GlanceAppWidget() {
                 }
             }
 
-            val cloudsLabel = if (isEs) "Nubes" else "Clouds"
             val planets = star.localizedVisiblePlanets(isEs).take(2).joinToString(", ")
 
             WeatherModularCard(
@@ -593,7 +597,7 @@ class OneUiStargazingWidget : GlanceAppWidget() {
                 gaugeContentDescription = "$tierLabel ${star.scorePct}%",
                 headerLabel = if (isEs) "Cielo Nocturno" else "Night Sky",
                 primaryValue = "${star.scorePct}%",
-                statusBadge = "$tierLabel • $cloudsLabel ${star.cloudCoverPct}%",
+                statusBadge = tierLabel,
                 statusColor = accentColor,
                 pillText = state.cityName,
                 compactLabel = "${star.scorePct}%",
