@@ -1,7 +1,5 @@
 # Retro Music Widgets — Architecture & Visual Specs
 
-[English](retro-music-widgets.md) | [Español](retro-music-widgets.es.md)
-
 The Retro Music suite provides three home-screen players built with **Jetpack Glance** (`SizeMode.Exact`), custom `Canvas` bitmaps (`WidgetCanvasRenderer`), and a shared `MediaSessionManager` + `AudioManager` bridge (`MediaNotificationListener`).
 
 ---
@@ -12,8 +10,8 @@ The Retro Music suite provides three home-screen players built with **Jetpack Gl
   - `COMPACT`: Standard `2×2` vertical stack with scaled Click Wheel.
   - `TALL`: Expands the LCD display height (`34%` of inner height, up to 2 title lines) and centers the scaled Click Wheel in the lower body using weighted spacers.
   - `WIDE`: Switches to a horizontal `Row` with the LCD on the left and the Click Wheel on the right.
-- **Click Wheel Controls:** 5 proportional touch zones (`MENU` opening `MainActivity`, `⏮` previous, center/bottom `▶‖` play/pause, `⏭` next), rendered at `360px` via `WidgetCanvasRenderer.renderIpodClickWheelBitmap`.
-- **LCD Readout:** Emoji-free status header (`iPod • Now Playing` / `iPod • One UI`) and dynamic device model fallback from `Build.MANUFACTURER` / `Build.MODEL` when no media session is active.
+- **Click Wheel Controls:** 5 proportional touch zones (`MENU` opening `MainActivity`, `⏮` previous, center/bottom `▶`/`⏸` play/pause, `⏭` next), rendered at `360px` via `WidgetCanvasRenderer.renderIpodClickWheelBitmap` with a dynamic Play/Pause icon inside the center button.
+- **LCD Readout:** Rounded album artwork (or music-note placeholder), track title, dynamic device model fallback from `Build.MANUFACTURER` / `Build.MODEL`, favorite heart indicator, One UI progress bar, and elapsed/duration timestamps (`0:00`).
 
 ## 2. 2000s USB MP3 Stick (`RetroMp3Widget`)
 - **Provider:** `app/src/main/res/xml/widget_music_mp3_info.xml` (`4×1` default, `resizeMode="horizontal|vertical"`)
@@ -24,8 +22,8 @@ The Retro Music suite provides three home-screen players built with **Jetpack Gl
 
 ## 3. Circular Portable CD Discman (`DiscmanWidget`)
 - **Provider:** `app/src/main/res/xml/widget_music_discman_info.xml` (`2×2` default, `resizeMode="horizontal|vertical"`)
-- **Visual Design:** 1:1 circular matte-graphite Discman body (`WidgetCanvasRenderer.renderDiscmanBodyBitmap`, `440px`) with metallic bevel rim, `COMPACT DISC / DIGITAL AUDIO • ESP ANTI-SHOCK` branding, bottom perforated speaker grille arc, and transparent outer corners.
-- **Central Pill Controls (`calculateDiscmanLayout`):** Scales `discSizeDp = min(width, height)` to preserve a 1:1 circle at any grid size, with a centered pill module containing `⏮`, `≡` (menu, shown when `discSizeDp >= 190.dp`), **cyan** backlit LCD, `▶`/`⏸`, and `⏭`.
+- **Visual Design:** 1:1 circular matte-graphite Discman body (`WidgetCanvasRenderer.renderDiscmanBodyBitmap`, `440px`) with metallic bevel rim, top-right lavender lid-release latch accent, `COMPACT DISC / DIGITAL AUDIO • ESP ANTI-SHOCK` branding, bottom perforated speaker grille arc, and transparent outer corners.
+- **LCD & Ergonomic Controls (`calculateDiscmanLayout`):** Scales `discSizeDp = min(width, height)` to preserve a 1:1 circle at any grid size, with an upper-middle **cyan** backlit LCD (`CD • PLAY`/`PAUSE`, battery indicator, track title, `00:00` timestamp, and subtitle without album art) above a 4-button row (`⏮`, larger primary `▶`/`⏸`, `⏭`, and `≡` menu).
 
 ## 4. Media Transport & Widget Picker Previews
 - **Transport Fallback (`MediaNotificationListener.sendTransportCommand`):** Uses `MediaController.transportControls` when an active `MediaSession` is available (pausing on both `STATE_PLAYING` and `STATE_BUFFERING`) and falls back to `AudioManager.dispatchMediaKeyEvent` when no controller is active. Refreshes widget state immediately and after `250 ms`.
