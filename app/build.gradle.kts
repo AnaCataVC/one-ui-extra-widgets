@@ -13,8 +13,8 @@ android {
         applicationId = "com.anacatavc.oneuiextrawidgets"
         minSdk = 26
         targetSdk = 36
-        versionCode = 6
-        versionName = "0.3.2"
+        versionCode = 7
+        versionName = "0.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resourceConfigurations += listOf("es", "en")
