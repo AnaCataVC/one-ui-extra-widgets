@@ -260,18 +260,22 @@ class MediaNotificationListener : NotificationListenerService() {
             }
             if (progressTickerJob?.isActive == true) return
             progressTickerJob = scope.launch {
-                while (isActive) {
+                var keepTicking = true
+                while (isActive && keepTicking) {
                     delay(PROGRESS_TICK_MS)
-                    val active = observedController ?: break
-                    val playback = active.playbackState
+                    val active = observedController
+                    val playback = active?.playbackState
                     val playingNow = playback?.state == PlaybackState.STATE_PLAYING ||
                         playback?.state == PlaybackState.STATE_BUFFERING
-                    if (!playingNow) break
-                    val current = _mediaState.value
-                    val livePos = computeLivePositionMs(playback, current.durationMs)
-                    if (livePos != current.positionMs) {
-                        _mediaState.value = current.copy(positionMs = livePos)
-                        RetroMusicWidgetUpdater.updateAllMusicWidgets(appContext)
+                    if (active == null || !playingNow) {
+                        keepTicking = false
+                    } else {
+                        val current = _mediaState.value
+                        val livePos = computeLivePositionMs(playback, current.durationMs)
+                        if (livePos != current.positionMs) {
+                            _mediaState.value = current.copy(positionMs = livePos)
+                            RetroMusicWidgetUpdater.updateAllMusicWidgets(appContext)
+                        }
                     }
                 }
             }
