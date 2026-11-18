@@ -141,8 +141,11 @@ class MediaNotificationListener : NotificationListenerService() {
 
         private var observedController: MediaController? = null
         private var observedCallback: MediaController.Callback? = null
+        private var progressTickerJob: Job? = null
         private var lastArtSourceId: Int = 0
         private var cachedSquareArt: Bitmap? = null
+
+        private const val PROGRESS_TICK_MS = 3000L
 
         fun refreshActiveMediaSession(
             context: Context,
@@ -170,6 +173,23 @@ class MediaNotificationListener : NotificationListenerService() {
             return latestState
         }
 
+        private fun computeLivePositionMs(playback: PlaybackState?, durationMs: Long): Long {
+            if (playback == null) return 0L
+            val basePos = playback.position.coerceAtLeast(0L)
+            val livePos = if (
+                playback.state == PlaybackState.STATE_PLAYING &&
+                playback.lastPositionUpdateTime > 0L
+            ) {
+                val elapsed = (SystemClock.elapsedRealtime() - playback.lastPositionUpdateTime)
+                    .coerceAtLeast(0L)
+                val speed = if (playback.playbackSpeed > 0f) playback.playbackSpeed else 1f
+                basePos + (elapsed * speed).toLong()
+            } else {
+                basePos
+            }
+            return if (durationMs > 0L) livePos.coerceIn(0L, durationMs) else livePos.coerceAtLeast(0L)
+        }
+
         private fun syncFromController(
             context: Context,
             controller: MediaController?,
@@ -192,7 +212,7 @@ class MediaNotificationListener : NotificationListenerService() {
                 val squareArt = resolveSquareAlbumArt(rawArt)
                 val durationMs = meta?.getLong(MediaMetadata.METADATA_KEY_DURATION)
                     ?.coerceAtLeast(0L) ?: 0L
-                val positionMs = (playback?.position ?: 0L).coerceAtLeast(0L)
+                val positionMs = computeLivePositionMs(playback, durationMs)
 
                 ActiveMediaState(
                     title = meta?.getString(MediaMetadata.METADATA_KEY_TITLE)
@@ -222,6 +242,37 @@ class MediaNotificationListener : NotificationListenerService() {
             }
 
             updateStateIfChanged(context, newState, scope)
+            syncProgressTicker(context.applicationContext, controller, newState.isPlaying, scope)
+        }
+
+        private fun syncProgressTicker(
+            appContext: Context,
+            controller: MediaController?,
+            isPlaying: Boolean,
+            scope: CoroutineScope
+        ) {
+            if (!isPlaying || controller == null) {
+                progressTickerJob?.cancel()
+                progressTickerJob = null
+                return
+            }
+            if (progressTickerJob?.isActive == true) return
+            progressTickerJob = scope.launch {
+                while (isActive) {
+                    delay(PROGRESS_TICK_MS)
+                    val active = observedController ?: break
+                    val playback = active.playbackState
+                    val playingNow = playback?.state == PlaybackState.STATE_PLAYING ||
+                        playback?.state == PlaybackState.STATE_BUFFERING
+                    if (!playingNow) break
+                    val current = _mediaState.value
+                    val livePos = computeLivePositionMs(playback, current.durationMs)
+                    if (livePos != current.positionMs) {
+                        _mediaState.value = current.copy(positionMs = livePos)
+                        RetroMusicWidgetUpdater.updateAllMusicWidgets(appContext)
+                    }
+                }
+            }
         }
 
         private fun updateStateIfChanged(
@@ -272,6 +323,8 @@ class MediaNotificationListener : NotificationListenerService() {
         }
 
         private fun clearControllerCallback() {
+            progressTickerJob?.cancel()
+            progressTickerJob = null
             val prevController = observedController
             val prevCallback = observedCallback
             if (prevController != null && prevCallback != null) {

@@ -1026,7 +1026,11 @@ private fun MiniDiscElBezelDisplay(
             }
             if (showSpectrum) {
                 Spacer(modifier = GlanceModifier.width(8.dp))
-                MiniDiscSpectrumGraphic(isPlaying = media.isPlaying, isStacked = isStacked)
+                MiniDiscSpectrumGraphic(
+                    isPlaying = media.isPlaying,
+                    positionMs = media.positionMs,
+                    isStacked = isStacked
+                )
             }
         }
     }
@@ -1035,10 +1039,16 @@ private fun MiniDiscElBezelDisplay(
 @Composable
 private fun MiniDiscSpectrumGraphic(
     isPlaying: Boolean,
+    positionMs: Long,
     isStacked: Boolean
 ) {
     val scale = if (isStacked) 1.2f else 1.0f
-    val barHeights = listOf(7f, 14f, 9f, 17f, 11f)
+    val barHeights = computeEqualizerBarHeights(
+        positionMs = positionMs,
+        isPlaying = isPlaying,
+        minHeightDp = 4f,
+        maxHeightDp = 17f
+    )
     val barColor = if (isPlaying) OneUiGlanceTokens.MiniDiscElText else OneUiGlanceTokens.MiniDiscTrackBg
     Row(verticalAlignment = Alignment.Bottom) {
         barHeights.forEachIndexed { index, rawHeight ->

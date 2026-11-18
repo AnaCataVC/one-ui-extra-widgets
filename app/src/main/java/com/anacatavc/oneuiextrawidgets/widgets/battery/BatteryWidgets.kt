@@ -64,30 +64,26 @@ class OneUiBatteryThermalWidget : GlanceAppWidget() {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             }
 
-            val tempFormatted = String.format(Locale.US, "%.1f °C", snapshot.temperatureC)
+            val voltageVolts = String.format(Locale.US, "%.2f V", snapshot.voltageMv / 1000.0)
             val powerFormatted = String.format(Locale.US, "%.1f W", snapshot.powerWatts)
             val thermalLabel = snapshot.localizedThermalLabel(isEs)
             val powerSource = snapshot.localizedPowerSource(isEs)
-            val header = if (isEs) {
-                "Salud Térmica • ${snapshot.levelPct}%"
-            } else {
-                "Battery Thermal • ${snapshot.levelPct}%"
-            }
+            val header = if (isEs) "Salud Térmica" else "Battery Thermal"
 
             WeatherModularCard(
                 context = context,
                 layout = layout,
                 gaugeBitmap = bitmap,
-                gaugeContentDescription = "$thermalLabel $tempFormatted",
+                gaugeContentDescription = "$thermalLabel ${snapshot.temperatureC.roundToInt()}°C",
                 headerLabel = header,
-                primaryValue = tempFormatted,
+                primaryValue = "${snapshot.levelPct}%",
                 statusBadge = thermalLabel,
                 statusColor = accentColor,
                 pillText = powerSource,
                 compactLabel = "${snapshot.temperatureC.roundToInt()}°C",
                 compactColor = accentColor,
                 detailLeftLabel = if (isEs) "Voltaje / Corr." else "Voltage / Curr.",
-                detailLeftValue = "${snapshot.voltageMv} mV / ${snapshot.currentMa} mA",
+                detailLeftValue = "$voltageVolts / ${snapshot.currentMa} mA",
                 detailRightLabel = if (isEs) "Potencia" else "Power Draw",
                 detailRightValue = powerFormatted,
                 isSpanish = isEs,

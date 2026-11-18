@@ -600,7 +600,17 @@ class RetroMp3Widget : GlanceAppWidget() {
             val playPauseIcon = if (media.isPlaying) R.drawable.ic_media_pause else R.drawable.ic_media_play
             val lcdClickIntent = if (media.hasNotificationAccess) menuIntent else notifSettingsIntent
 
+            val progressFraction = if (media.durationMs > 0L) {
+                (media.positionMs.toFloat() / media.durationMs.toFloat()).coerceIn(0.05f, 1f)
+            } else if (media.isPlaying) {
+                0.35f
+            } else {
+                0.15f
+            }
+            val eqConsume = if (layout.showEqualizer) 28f else 0f
+
             if (layout.mode == RetroMp3LayoutMode.STACKED) {
+                val barMaxWidthDp = (size.width.value - 24f - 20f - eqConsume).coerceIn(60f, 220f)
                 Column(
                     modifier = GlanceModifier
                         .fillMaxSize()
@@ -613,6 +623,8 @@ class RetroMp3Widget : GlanceAppWidget() {
                         media = media,
                         isStacked = true,
                         showEqualizer = layout.showEqualizer,
+                        progressFraction = progressFraction,
+                        barMaxWidthDp = barMaxWidthDp,
                         sp = sp,
                         modifier = GlanceModifier
                             .fillMaxWidth()
@@ -653,6 +665,11 @@ class RetroMp3Widget : GlanceAppWidget() {
                     }
                 }
             } else {
+                val capConsume = if (layout.showUsbCap) layout.usbCapWidthDp else 0f
+                val buttonsConsume = layout.sideButtonSizeDp * 2f + layout.buttonSizeDp + 12f
+                val barMaxWidthDp =
+                    (size.width.value - capConsume - buttonsConsume - 56f - eqConsume)
+                        .coerceIn(48f, 180f)
                 Row(
                     modifier = GlanceModifier
                         .fillMaxSize()
@@ -702,6 +719,8 @@ class RetroMp3Widget : GlanceAppWidget() {
                             media = media,
                             isStacked = false,
                             showEqualizer = layout.showEqualizer,
+                            progressFraction = progressFraction,
+                            barMaxWidthDp = barMaxWidthDp,
                             sp = sp,
                             modifier = GlanceModifier
                                 .defaultWeight()
@@ -727,6 +746,8 @@ private fun Mp3BezelDisplay(
     media: ActiveMediaState,
     isStacked: Boolean,
     showEqualizer: Boolean,
+    progressFraction: Float,
+    barMaxWidthDp: Float,
     sp: (Float) -> TextUnit,
     modifier: GlanceModifier
 ) {
@@ -788,13 +809,17 @@ private fun Mp3BezelDisplay(
                     )
                 )
                 Spacer(modifier = GlanceModifier.height(if (isStacked) 6.dp else 4.dp))
-                Mp3ScreenProgressBar(isPlaying = media.isPlaying)
+                Mp3ScreenProgressBar(
+                    progressFraction = progressFraction,
+                    maxWidthDp = barMaxWidthDp
+                )
             }
 
             if (showEqualizer) {
                 Spacer(modifier = GlanceModifier.width(8.dp))
                 Mp3EqualizerGraphic(
                     isPlaying = media.isPlaying,
+                    positionMs = media.positionMs,
                     isStacked = isStacked
                 )
             }
@@ -803,7 +828,10 @@ private fun Mp3BezelDisplay(
 }
 
 @Composable
-private fun Mp3ScreenProgressBar(isPlaying: Boolean) {
+private fun Mp3ScreenProgressBar(
+    progressFraction: Float,
+    maxWidthDp: Float
+) {
     Row(
         modifier = GlanceModifier
             .fillMaxWidth()
@@ -813,7 +841,7 @@ private fun Mp3ScreenProgressBar(isPlaying: Boolean) {
     ) {
         Box(
             modifier = GlanceModifier
-                .width(if (isPlaying) 56.dp else 28.dp)
+                .width((maxWidthDp * progressFraction.coerceIn(0.05f, 1f)).dp)
                 .fillMaxHeight()
                 .cornerRadius(2.dp)
                 .background(OneUiGlanceTokens.RetroLcdBacklight)
@@ -821,13 +849,43 @@ private fun Mp3ScreenProgressBar(isPlaying: Boolean) {
     }
 }
 
+internal fun computeEqualizerBarHeights(
+    positionMs: Long,
+    isPlaying: Boolean,
+    barCount: Int = 5,
+    minHeightDp: Float = 5f,
+    maxHeightDp: Float = 18f
+): List<Float> {
+    if (!isPlaying) {
+        val idleFactors = listOf(0.22f, 0.45f, 0.30f, 0.52f, 0.28f)
+        return List(barCount) { idx ->
+            val factor = idleFactors[idx % idleFactors.size]
+            minHeightDp + (maxHeightDp - minHeightDp) * factor
+        }
+    }
+    val phaseBase = positionMs.coerceAtLeast(0L) / 280.0
+    return List(barCount) { idx ->
+        val freq = 1.0 + idx * 0.31
+        val wave = (kotlin.math.sin(phaseBase * freq + idx * 1.35) + 1.0) * 0.5
+        val secondary = (kotlin.math.cos(phaseBase * 0.73 - idx * 0.85) + 1.0) * 0.5
+        val level = (wave * 0.72 + secondary * 0.28).toFloat().coerceIn(0f, 1f)
+        minHeightDp + (maxHeightDp - minHeightDp) * level
+    }
+}
+
 @Composable
 private fun Mp3EqualizerGraphic(
     isPlaying: Boolean,
+    positionMs: Long,
     isStacked: Boolean
 ) {
     val scale = if (isStacked) 1.2f else 1.0f
-    val barHeights = listOf(8f, 15f, 10f, 18f, 11f)
+    val barHeights = computeEqualizerBarHeights(
+        positionMs = positionMs,
+        isPlaying = isPlaying,
+        minHeightDp = 5f,
+        maxHeightDp = 18f
+    )
     Row(verticalAlignment = Alignment.Bottom) {
         barHeights.forEachIndexed { index, rawHeight ->
             if (index > 0) {

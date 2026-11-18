@@ -434,13 +434,12 @@ class OneUiMoonPhaseWidget : GlanceAppWidget() {
             val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
 
             val phaseName = lunar.localizedPhaseName(isEs)
-            val cycleTrend = lunar.localizedCycleTrend(isEs)
             val ageFormatted = String.format(Locale.US, "%.1f d", lunar.synodicAgeDays)
             val elongationFormatted = "${lunar.normalizedPhaseAngleDeg.roundToInt() % 360}°"
             val litBadge = if (isEs) {
-                "Iluminación ${lunar.illuminationPercent}% • $cycleTrend"
+                "${lunar.illuminationPercent}% ilum."
             } else {
-                "${lunar.illuminationPercent}% Lit • $cycleTrend"
+                "${lunar.illuminationPercent}% lit"
             }
 
             WeatherModularCard(
