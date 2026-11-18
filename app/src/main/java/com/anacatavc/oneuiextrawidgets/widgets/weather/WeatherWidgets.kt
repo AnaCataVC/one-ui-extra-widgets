@@ -451,7 +451,7 @@ class OneUiMoonPhaseWidget : GlanceAppWidget() {
                 primaryValue = phaseName,
                 statusBadge = litBadge,
                 statusColor = OneUiGlanceTokens.WeatherMoonSilver,
-                pillText = "$cycleTrend • $elongationFormatted",
+                pillText = elongationFormatted,
                 compactLabel = "${lunar.illuminationPercent}%",
                 compactColor = OneUiGlanceTokens.WeatherMoonSilver,
                 detailLeftLabel = if (isEs) "Edad Sinódica" else "Synodic Age",
