@@ -1,11 +1,17 @@
 package com.anacatavc.oneuiextrawidgets
 
 import com.anacatavc.oneuiextrawidgets.data.media.formatMediaTime
+import com.anacatavc.oneuiextrawidgets.widgets.music.CassetteLayoutMode
 import com.anacatavc.oneuiextrawidgets.widgets.music.IpodLayoutMode
+import com.anacatavc.oneuiextrawidgets.widgets.music.MiniDiscLayoutMode
 import com.anacatavc.oneuiextrawidgets.widgets.music.RetroMp3LayoutMode
+import com.anacatavc.oneuiextrawidgets.widgets.music.VinylLayoutMode
+import com.anacatavc.oneuiextrawidgets.widgets.music.calculateCassetteLayout
 import com.anacatavc.oneuiextrawidgets.widgets.music.calculateDiscmanLayout
 import com.anacatavc.oneuiextrawidgets.widgets.music.calculateIpodLayout
+import com.anacatavc.oneuiextrawidgets.widgets.music.calculateMiniDiscLayout
 import com.anacatavc.oneuiextrawidgets.widgets.music.calculateMp3Layout
+import com.anacatavc.oneuiextrawidgets.widgets.music.calculateVinylLayout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -82,5 +88,52 @@ class IpodLayoutSpecTest {
         assertEquals("3:05", formatMediaTime(185_000L))
         assertEquals("00:00", formatMediaTime(0L, padMinutes = true))
         assertEquals("03:05", formatMediaTime(185_000L, padMinutes = true))
+    }
+
+    @Test
+    fun `cassette walkman scales deck proportionally across COMPACT, TALL and WIDE modes`() {
+        val compact = calculateCassetteLayout(widthDp = 160f, heightDp = 160f)
+        val tall = calculateCassetteLayout(widthDp = 165f, heightDp = 320f)
+        val wide = calculateCassetteLayout(widthDp = 330f, heightDp = 160f)
+
+        assertEquals(CassetteLayoutMode.COMPACT, compact.mode)
+        assertEquals(CassetteLayoutMode.TALL, tall.mode)
+        assertEquals(CassetteLayoutMode.WIDE, wide.mode)
+        assertEquals(compact.deckWidthDp * (7f / 12f), compact.deckHeightDp, 0.05f)
+        assertTrue(tall.deckWidthDp > compact.deckWidthDp)
+        assertTrue(wide.buttonSizeDp > wide.sideButtonSizeDp)
+    }
+
+    @Test
+    fun `vinyl turntable preserves square platter and ergonomic buttons across modes`() {
+        val compact = calculateVinylLayout(widthDp = 160f, heightDp = 160f)
+        val tall = calculateVinylLayout(widthDp = 165f, heightDp = 320f)
+        val wide = calculateVinylLayout(widthDp = 330f, heightDp = 160f)
+
+        assertEquals(VinylLayoutMode.COMPACT, compact.mode)
+        assertEquals(VinylLayoutMode.TALL, tall.mode)
+        assertEquals(VinylLayoutMode.WIDE, wide.mode)
+        assertTrue(tall.platterSizeDp > compact.platterSizeDp)
+        assertTrue(wide.platterSizeDp in 88f..184f)
+        assertTrue(compact.buttonSizeDp > compact.sideButtonSizeDp)
+    }
+
+    @Test
+    fun `minidisc switches cleanly between PILL and STACKED modes`() {
+        val widePill = calculateMiniDiscLayout(widthDp = 310f, heightDp = 82f)
+        val narrowPill = calculateMiniDiscLayout(widthDp = 190f, heightDp = 82f)
+        val stacked = calculateMiniDiscLayout(widthDp = 180f, heightDp = 165f)
+
+        assertEquals(MiniDiscLayoutMode.PILL, widePill.mode)
+        assertTrue(widePill.showDiscBadge)
+        assertTrue(widePill.showSpectrum)
+
+        assertEquals(MiniDiscLayoutMode.PILL, narrowPill.mode)
+        assertFalse(narrowPill.showDiscBadge)
+        assertFalse(narrowPill.showSpectrum)
+
+        assertEquals(MiniDiscLayoutMode.STACKED, stacked.mode)
+        assertTrue(stacked.showDiscBadge)
+        assertTrue(stacked.buttonSizeDp > stacked.sideButtonSizeDp)
     }
 }

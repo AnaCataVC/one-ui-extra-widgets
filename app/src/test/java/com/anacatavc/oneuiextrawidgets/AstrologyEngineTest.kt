@@ -2,6 +2,7 @@ package com.anacatavc.oneuiextrawidgets
 
 import com.anacatavc.oneuiextrawidgets.data.astrology.AstrologyEngine
 import com.anacatavc.oneuiextrawidgets.data.astrology.PlanetaryMotionState
+import com.anacatavc.oneuiextrawidgets.data.astrology.SolarLightPhase
 import com.anacatavc.oneuiextrawidgets.data.astrology.ZodiacSign
 import io.github.cosinekitty.astronomy.Body
 import org.junit.Assert.assertEquals
@@ -9,6 +10,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.Instant
+import java.time.ZoneId
 
 class AstrologyEngineTest {
 
@@ -111,5 +113,59 @@ class AstrologyEngineTest {
         assertEquals(270.0, negativeAngle.normalizedPhaseAngleDeg, 1e-6)
         assertFalse(negativeAngle.isWaxing)
         assertEquals(0, negativeAngle.illuminationPercent)
+    }
+
+    @Test
+    fun `classifySolarLightPhase maps solar elevation angles to daylight and twilight tiers`() {
+        assertEquals(SolarLightPhase.DAYLIGHT, AstrologyEngine.classifySolarLightPhase(15.0))
+        assertEquals(SolarLightPhase.GOLDEN_HOUR, AstrologyEngine.classifySolarLightPhase(6.0))
+        assertEquals(SolarLightPhase.GOLDEN_HOUR, AstrologyEngine.classifySolarLightPhase(-4.0))
+        assertEquals(SolarLightPhase.BLUE_HOUR, AstrologyEngine.classifySolarLightPhase(-6.0))
+        assertEquals(SolarLightPhase.TWILIGHT, AstrologyEngine.classifySolarLightPhase(-12.0))
+        assertEquals(SolarLightPhase.NIGHT, AstrologyEngine.classifySolarLightPhase(-25.0))
+        assertEquals("Hora Dorada", SolarLightPhase.GOLDEN_HOUR.localizedLabel(isSpanish = true))
+        assertEquals("Golden Hour", SolarLightPhase.GOLDEN_HOUR.localizedLabel(isSpanish = false))
+    }
+
+    @Test
+    fun `computeSolarArcSnapshot returns valid daylight bounds and formatted HHmm times`() {
+        val noonSantiago = Instant.parse("2026-11-17T16:00:00Z")
+        val solar = AstrologyEngine.computeSolarArcSnapshot(
+            latitude = -33.4489,
+            longitude = -70.6693,
+            instant = noonSantiago,
+            zoneId = ZoneId.of("America/Santiago")
+        )
+
+        assertTrue(solar.sunAltitudeDeg > 30.0)
+        assertEquals(SolarLightPhase.DAYLIGHT, solar.lightPhase)
+        assertTrue(solar.dayProgressFraction in 0.2f..0.8f)
+        assertTrue(solar.sunriseFormatted.matches(Regex("\\d{2}:\\d{2}")))
+        assertTrue(solar.sunsetFormatted.matches(Regex("\\d{2}:\\d{2}")))
+        assertTrue(solar.goldenHourFormatted.matches(Regex("\\d{2}:\\d{2}")))
+        assertTrue(solar.daylightDurationFormatted.contains("h "))
+    }
+
+    @Test
+    fun `computeStargazingScore and snapshot combine clouds, moon glare and visible planets`() {
+        assertEquals(100, AstrologyEngine.computeStargazingScore(cloudCoverPct = 0, moonIlluminationPct = 0))
+        assertEquals(0, AstrologyEngine.computeStargazingScore(cloudCoverPct = 100, moonIlluminationPct = 100))
+        assertEquals(70, AstrologyEngine.computeStargazingScore(cloudCoverPct = 0, moonIlluminationPct = 100))
+        assertEquals(30, AstrologyEngine.computeStargazingScore(cloudCoverPct = 100, moonIlluminationPct = 0))
+        assertEquals(100, AstrologyEngine.computeStargazingScore(cloudCoverPct = -20, moonIlluminationPct = -5))
+
+        val nightInstant = Instant.parse("2026-11-18T02:00:00Z")
+        val star = AstrologyEngine.computeStargazingSnapshot(
+            cloudCoverPct = 12,
+            latitude = -33.4489,
+            longitude = -70.6693,
+            instant = nightInstant,
+            zoneId = ZoneId.of("America/Santiago")
+        )
+
+        assertTrue(star.scorePct in 0..100)
+        assertEquals(12, star.cloudCoverPct)
+        assertTrue(star.visiblePlanetNamesEs.isNotEmpty())
+        assertEquals(star.visiblePlanetNamesEs.size, star.visiblePlanetNamesEn.size)
     }
 }

@@ -4,19 +4,41 @@ import androidx.compose.ui.graphics.Color
 import com.anacatavc.oneuiextrawidgets.data.preferences.AppPreferences
 import com.anacatavc.oneuiextrawidgets.data.preferences.WidgetFontScaleMode
 import com.anacatavc.oneuiextrawidgets.widgets.WidgetInstanceHelper
+import com.anacatavc.oneuiextrawidgets.widgets.astrology.OneUiAstrologyWidget
 import com.anacatavc.oneuiextrawidgets.widgets.astrology.OneUiAstrologyWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.battery.OneUiBatteryThermalWidget
+import com.anacatavc.oneuiextrawidgets.widgets.battery.OneUiBatteryThermalWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.music.CassetteWalkmanWidget
+import com.anacatavc.oneuiextrawidgets.widgets.music.CassetteWalkmanWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.music.DiscmanWidget
 import com.anacatavc.oneuiextrawidgets.widgets.music.DiscmanWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.music.IpodClassicWidget
 import com.anacatavc.oneuiextrawidgets.widgets.music.IpodClassicWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.music.MiniDiscWidget
+import com.anacatavc.oneuiextrawidgets.widgets.music.MiniDiscWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.music.RetroMp3Widget
 import com.anacatavc.oneuiextrawidgets.widgets.music.RetroMp3WidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.music.VinylTurntableWidget
+import com.anacatavc.oneuiextrawidgets.widgets.music.VinylTurntableWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.network.OneUiNetworkWidget
 import com.anacatavc.oneuiextrawidgets.widgets.network.OneUiNetworkWidgetReceiver
 import com.anacatavc.oneuiextrawidgets.widgets.theme.OneUiGlanceTokens
+import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiAqiWidget
 import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiAqiWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiMoonPhaseWidget
 import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiMoonPhaseWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiRainWidget
 import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiRainWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiStargazingWidget
+import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiStargazingWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiSunArcWidget
+import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiSunArcWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiUvWidget
 import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiUvWidgetReceiver
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class WidgetOpacityTest {
@@ -53,20 +75,29 @@ class WidgetOpacityTest {
     }
 
     @Test
-    fun `resolveWidgetForProvider maps all 9 receivers and rejects unknown`() {
-        val receivers = listOf(
-            OneUiRainWidgetReceiver::class.java.name,
-            OneUiAqiWidgetReceiver::class.java.name,
-            OneUiUvWidgetReceiver::class.java.name,
-            OneUiMoonPhaseWidgetReceiver::class.java.name,
-            OneUiAstrologyWidgetReceiver::class.java.name,
-            IpodClassicWidgetReceiver::class.java.name,
-            RetroMp3WidgetReceiver::class.java.name,
-            DiscmanWidgetReceiver::class.java.name,
-            OneUiNetworkWidgetReceiver::class.java.name
+    fun `resolveWidgetForProvider maps all 15 receivers and rejects unknown`() {
+        val expectedMappings = listOf(
+            OneUiRainWidgetReceiver::class.java.name to OneUiRainWidget::class.java,
+            OneUiAqiWidgetReceiver::class.java.name to OneUiAqiWidget::class.java,
+            OneUiUvWidgetReceiver::class.java.name to OneUiUvWidget::class.java,
+            OneUiMoonPhaseWidgetReceiver::class.java.name to OneUiMoonPhaseWidget::class.java,
+            OneUiSunArcWidgetReceiver::class.java.name to OneUiSunArcWidget::class.java,
+            OneUiStargazingWidgetReceiver::class.java.name to OneUiStargazingWidget::class.java,
+            OneUiAstrologyWidgetReceiver::class.java.name to OneUiAstrologyWidget::class.java,
+            IpodClassicWidgetReceiver::class.java.name to IpodClassicWidget::class.java,
+            RetroMp3WidgetReceiver::class.java.name to RetroMp3Widget::class.java,
+            DiscmanWidgetReceiver::class.java.name to DiscmanWidget::class.java,
+            CassetteWalkmanWidgetReceiver::class.java.name to CassetteWalkmanWidget::class.java,
+            VinylTurntableWidgetReceiver::class.java.name to VinylTurntableWidget::class.java,
+            MiniDiscWidgetReceiver::class.java.name to MiniDiscWidget::class.java,
+            OneUiNetworkWidgetReceiver::class.java.name to OneUiNetworkWidget::class.java,
+            OneUiBatteryThermalWidgetReceiver::class.java.name to OneUiBatteryThermalWidget::class.java
         )
-        receivers.forEach { className ->
-            assertNotNull("Expected widget for $className", WidgetInstanceHelper.resolveWidgetForProvider(className))
+        assertEquals(15, expectedMappings.size)
+        expectedMappings.forEach { (className, widgetClass) ->
+            val resolved = WidgetInstanceHelper.resolveWidgetForProvider(className)
+            assertNotNull("Expected widget for $className", resolved)
+            assertTrue("Expected ${widgetClass.simpleName} for $className", widgetClass.isInstance(resolved))
         }
         assertNull(WidgetInstanceHelper.resolveWidgetForProvider(null))
         assertNull(WidgetInstanceHelper.resolveWidgetForProvider("com.example.UnknownReceiver"))
