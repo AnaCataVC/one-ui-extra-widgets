@@ -18,7 +18,7 @@
     <!-- Permisos -->
     <string name="permissions_card_title">Permisos y Accesos</string>
     <string name="perm_location_desc">Ubicación para Clima local, Calidad del Aire (AQI) y nombre Wi-Fi</string>
-    <string name="perm_notification_desc">Acceso a notificaciones para widgets iPod, MP3 y Discman</string>
+    <string name="perm_notification_desc">Acceso a notificaciones para widgets de Música Retro (iPod, Walkman, Vinilo, MiniDisc)</string>
     <string name="perm_phone_desc">Estado del teléfono para potencia de señal 5G NR / LTE en dBm</string>
     <string name="btn_grant">Permitir</string>
     <string name="status_granted">Activo</string>
@@ -32,11 +32,17 @@
     <string name="widget_weather_uv_desc">Medidor en arco de radiación UV solar con nivel de riesgo OMS y guía FPS</string>
     <string name="widget_weather_moon_title">Clima One UI: Fase Lunar</string>
     <string name="widget_weather_moon_desc">Esfera científica de fase lunar, porcentaje de iluminación, edad sinódica y elongación</string>
+    <string name="widget_weather_sun_arc_title">Sol One UI: Arco Solar y Hora Dorada</string>
+    <string name="widget_weather_sun_arc_desc">Arco solar 100% offline, Hora Dorada y Azul, y horarios exactos de amanecer y atardecer</string>
+    <string name="widget_weather_stargazing_title">Cielo Nocturno: Observación Estelar</string>
+    <string name="widget_weather_stargazing_desc">Índice de cielo nocturno (0–100%) con nubosidad, brillo lunar y planetas visibles</string>
     <string name="weather_rain_prob">Prob. Lluvia (6h)</string>
     <string name="weather_rain_low">Prob. Baja</string>
     <string name="weather_aqi_label">Calidad del Aire (AQI)</string>
     <string name="weather_uv_label">Índice UV Solar</string>
     <string name="weather_uv_moderate">Moderado</string>
+    <string name="weather_sun_arc_preview_label">Hora Dorada</string>
+    <string name="weather_stargazing_preview_label">Cielo Óptimo</string>
     <string name="weather_refresh">Actualizar Clima</string>
     <string name="aqi_good">Buena</string>
     <string name="aqi_fair">Aceptable</string>
@@ -69,6 +75,12 @@
     <string name="widget_music_mp3_desc">Reproductor MP3 compacto con pantalla LCD retroiluminada</string>
     <string name="widget_music_discman_title">Música Retro: Discman CD</string>
     <string name="widget_music_discman_desc">Reproductor de CD portátil con carátula en disco y ESP Anti-Shock</string>
+    <string name="widget_music_cassette_title">Música Retro: Walkman Cassette</string>
+    <string name="widget_music_cassette_desc">Cassette retro de los 80/90 con carretes dinámicos según el progreso y botones físicos</string>
+    <string name="widget_music_vinyl_title">Música Retro: Tocadiscos Vinilo</string>
+    <string name="widget_music_vinyl_desc">Tocadiscos minimalista con vinilo surcado, carátula en sello y brazo fonocaptor</string>
+    <string name="widget_music_minidisc_title">Música Retro: MiniDisc Hi-MD</string>
+    <string name="widget_music_minidisc_desc">Reproductor Hi-MD 2000s con pantalla electroluminiscente ATRAC y controles ergonómicos</string>
     <string name="music_no_track">Sin música activa</string>
     <string name="music_tap_to_play">Reproduce música en tu app favorita</string>
 
@@ -80,6 +92,12 @@
     <string name="network_disconnected">Desconectado</string>
     <string name="network_preview_header">Señal • 5G y Wi-Fi</string>
     <string name="network_preview_quality_excellent">Excelente</string>
+
+    <!-- Widget de Salud Térmica y Eléctrica de Batería -->
+    <string name="widget_battery_thermal_title">Batería One UI: Salud Térmica</string>
+    <string name="widget_battery_thermal_desc">Temperatura de batería (°C), voltaje (mV), potencia (W) y fuente de carga en tiempo real</string>
+    <string name="battery_thermal_optimal">Óptima</string>
+    <string name="battery_thermal_preview_label">Salud Térmica</string>
 
     <!-- Configuración de Transparencia por Instancia -->
     <string name="widget_config_title">Transparencia del Widget</string>

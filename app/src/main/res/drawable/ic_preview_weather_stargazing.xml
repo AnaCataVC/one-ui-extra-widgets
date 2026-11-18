@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M 13.6,50.4 A 26,26 0 1,1 50.4,50.4"
+        android:strokeWidth="6"
+        android:strokeColor="@color/oneui_preview_gauge_track"
+        android:strokeLineCap="round" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M 13.6,50.4 A 26,26 0 1,1 57.9,34.0"
+        android:strokeWidth="6"
+        android:strokeColor="@color/oneui_preview_stargazing_cyan"
+        android:strokeLineCap="round" />
+    <path
+        android:fillColor="@color/oneui_preview_stargazing_sky"
+        android:pathData="M 32,32 m -16,0 a 16,16 0 1,0 32,0 a 16,16 0 1,0 -32,0" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M 22,36 L 28,28 L 35,33 L 41,25"
+        android:strokeWidth="1.6"
+        android:strokeColor="@color/oneui_preview_stargazing_indigo"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="@color/oneui_preview_stargazing_star"
+        android:pathData="M 29,23.5 Q 29,29 34.5,29 Q 29,29 29,34.5 Q 29,29 23.5,29 Q 29,29 29,23.5 Z" />
+    <path
+        android:fillColor="@color/oneui_preview_stargazing_cyan"
+        android:pathData="M 39,32.8 Q 39,36 42.2,36 Q 39,36 39,39.2 Q 39,36 35.8,36 Q 39,36 39,32.8 Z" />
+</vector>

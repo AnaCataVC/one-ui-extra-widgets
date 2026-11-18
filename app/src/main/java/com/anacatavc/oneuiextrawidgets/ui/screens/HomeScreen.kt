@@ -82,7 +82,12 @@ fun HomeScreen(
         }
 
         // Available Widgets Gallery Card
-        OneUiCard(title = if (isSpanish) "Catálogo de Widgets One UI (9 incluidos)" else "One UI Widget Catalog (9 included)") {
+        val catalogTitle = if (isSpanish) {
+            "Catálogo de Widgets One UI (15 incluidos)"
+        } else {
+            "One UI Widget Catalog (15 included)"
+        }
+        OneUiCard(title = catalogTitle) {
             WidgetSummaryItem(
                 title = stringResource(R.string.widget_weather_rain_title),
                 desc = stringResource(R.string.widget_weather_rain_desc)
@@ -98,6 +103,14 @@ fun HomeScreen(
             WidgetSummaryItem(
                 title = stringResource(R.string.widget_weather_moon_title),
                 desc = stringResource(R.string.widget_weather_moon_desc)
+            )
+            WidgetSummaryItem(
+                title = stringResource(R.string.widget_weather_sun_arc_title),
+                desc = stringResource(R.string.widget_weather_sun_arc_desc)
+            )
+            WidgetSummaryItem(
+                title = stringResource(R.string.widget_weather_stargazing_title),
+                desc = stringResource(R.string.widget_weather_stargazing_desc)
             )
             WidgetSummaryItem(
                 title = stringResource(R.string.widget_astrology_title),
@@ -116,8 +129,24 @@ fun HomeScreen(
                 desc = stringResource(R.string.widget_music_discman_desc)
             )
             WidgetSummaryItem(
+                title = stringResource(R.string.widget_music_cassette_title),
+                desc = stringResource(R.string.widget_music_cassette_desc)
+            )
+            WidgetSummaryItem(
+                title = stringResource(R.string.widget_music_vinyl_title),
+                desc = stringResource(R.string.widget_music_vinyl_desc)
+            )
+            WidgetSummaryItem(
+                title = stringResource(R.string.widget_music_minidisc_title),
+                desc = stringResource(R.string.widget_music_minidisc_desc)
+            )
+            WidgetSummaryItem(
                 title = stringResource(R.string.widget_network_title),
                 desc = stringResource(R.string.widget_network_desc)
+            )
+            WidgetSummaryItem(
+                title = stringResource(R.string.widget_battery_thermal_title),
+                desc = stringResource(R.string.widget_battery_thermal_desc)
             )
         }
     }

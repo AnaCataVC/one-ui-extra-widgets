@@ -13,6 +13,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalSize
+import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
@@ -48,6 +49,7 @@ import com.anacatavc.oneuiextrawidgets.MainActivity
 import com.anacatavc.oneuiextrawidgets.R
 import com.anacatavc.oneuiextrawidgets.data.astrology.AstrologyEngine
 import com.anacatavc.oneuiextrawidgets.data.astrology.LunarPhaseStatus
+import com.anacatavc.oneuiextrawidgets.data.astrology.SolarLightPhase
 import com.anacatavc.oneuiextrawidgets.data.preferences.AppPreferences
 import com.anacatavc.oneuiextrawidgets.data.preferences.CachedWeatherState
 import com.anacatavc.oneuiextrawidgets.data.preferences.WidgetFontScaleMode
@@ -184,7 +186,7 @@ internal fun classifyUvLevel(uvIndex: Double): UvRiskLevel {
     }
 }
 
-private fun createWeatherDetailIntent(context: Context): Intent =
+internal fun createWeatherDetailIntent(context: Context): Intent =
     Intent(context, MainActivity::class.java).apply {
         putExtra(MainActivity.EXTRA_INITIAL_TAB, MainActivity.TAB_WEATHER)
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -461,8 +463,156 @@ class OneUiMoonPhaseWidget : GlanceAppWidget() {
     }
 }
 
+/**
+ * 5. One UI Sun Arc & Golden/Blue Hour Widget (2×1 Default, Resizable, 100% Offline)
+ */
+class OneUiSunArcWidget : GlanceAppWidget() {
+
+    override val sizeMode: SizeMode = SizeMode.Exact
+
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
+        val weatherFlow = AppPreferences.observeWeather(context)
+        val initialWeather = weatherFlow.first()
+        val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
+        val initialOpacity = opacityFlow.first()
+        val fontScaleFlow = WidgetInstanceHelper.observeWidgetFontScale(context, id)
+        val initialFontScale = fontScaleFlow.first()
+        val isDark = OneUiGlanceTokens.isNightModeActive(context)
+
+        provideContent {
+            val state by weatherFlow.collectAsState(initial = initialWeather)
+            val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
+            val fontScaleMode by fontScaleFlow.collectAsState(initial = initialFontScale)
+            val isEs = LocaleHelper.isSpanishActive()
+            val size = LocalSize.current
+            val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
+            val solar = AstrologyEngine.computeSolarArcSnapshot(state.latitude, state.longitude)
+            val bitmap = WidgetCanvasRenderer.renderSunArcGaugeBitmap(
+                sunAltitudeDeg = solar.sunAltitudeDeg,
+                dayProgressFraction = solar.dayProgressFraction,
+                sizePx = 160,
+                isDarkTheme = isDark
+            )
+
+            val accentColor = when (solar.lightPhase) {
+                SolarLightPhase.GOLDEN_HOUR -> OneUiGlanceTokens.SunGoldenAmber
+                SolarLightPhase.BLUE_HOUR,
+                SolarLightPhase.TWILIGHT -> OneUiGlanceTokens.SunBlueHourIndigo
+                SolarLightPhase.DAYLIGHT -> OneUiGlanceTokens.WeatherModerateAmber
+                SolarLightPhase.NIGHT -> OneUiGlanceTokens.StargazingIndigo
+            }
+
+            val phaseLabel = solar.lightPhase.localizedLabel(isEs)
+            val goldenBadge = if (isEs) {
+                "Dorada ${solar.goldenHourFormatted}"
+            } else {
+                "Golden ${solar.goldenHourFormatted}"
+            }
+
+            WeatherModularCard(
+                context = context,
+                layout = layout,
+                gaugeBitmap = bitmap,
+                gaugeContentDescription = "$phaseLabel ${solar.sunriseFormatted}–${solar.sunsetFormatted}",
+                headerLabel = if (isEs) "Sol • Hora Dorada" else "Sun • Golden Hour",
+                primaryValue = phaseLabel,
+                statusBadge = goldenBadge,
+                statusColor = accentColor,
+                pillText = solar.daylightDurationFormatted,
+                compactLabel = solar.sunriseFormatted,
+                compactColor = accentColor,
+                detailLeftLabel = if (isEs) "Amanecer" else "Sunrise",
+                detailLeftValue = solar.sunriseFormatted,
+                detailRightLabel = if (isEs) "Atardecer" else "Sunset",
+                detailRightValue = solar.sunsetFormatted,
+                isSpanish = isEs,
+                showRefreshAction = false,
+                opacityPct = opacityPct,
+                fontScaleMode = fontScaleMode
+            )
+        }
+    }
+}
+
+/**
+ * 6. One UI Night Sky: Stargazing Index Widget (2×1 Default, Resizable, Zero Temperature/Zodiac)
+ */
+class OneUiStargazingWidget : GlanceAppWidget() {
+
+    override val sizeMode: SizeMode = SizeMode.Exact
+
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
+        val weatherFlow = AppPreferences.observeWeather(context)
+        val initialWeather = weatherFlow.first()
+        val opacityFlow = WidgetInstanceHelper.observeWidgetOpacity(context, id)
+        val initialOpacity = opacityFlow.first()
+        val fontScaleFlow = WidgetInstanceHelper.observeWidgetFontScale(context, id)
+        val initialFontScale = fontScaleFlow.first()
+        val isDark = OneUiGlanceTokens.isNightModeActive(context)
+
+        provideContent {
+            val state by weatherFlow.collectAsState(initial = initialWeather)
+            val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
+            val fontScaleMode by fontScaleFlow.collectAsState(initial = initialFontScale)
+            val isEs = LocaleHelper.isSpanishActive()
+            val size = LocalSize.current
+            val layout = calculateWeatherCardLayout(size.width.value, size.height.value)
+            val star = AstrologyEngine.computeStargazingSnapshot(
+                cloudCoverPct = state.cloudCoverPct,
+                latitude = state.latitude,
+                longitude = state.longitude
+            )
+            val bitmap = WidgetCanvasRenderer.renderStargazingGaugeBitmap(
+                stargazingIndexPct = star.scorePct,
+                sizePx = 160,
+                isDarkTheme = isDark
+            )
+
+            val (tierLabel, accentColor) = when {
+                star.scorePct >= 75 -> {
+                    val label = if (isEs) "Cielo Óptimo" else "Clear Sky"
+                    label to OneUiGlanceTokens.StargazingCyan
+                }
+                star.scorePct >= 45 -> {
+                    val label = if (isEs) "Visibilidad Media" else "Fair Sky"
+                    label to OneUiGlanceTokens.StargazingIndigo
+                }
+                else -> {
+                    val label = if (isEs) "Nublado / Brillo" else "Cloudy / Glare"
+                    label to OneUiGlanceTokens.WeatherModerateAmber
+                }
+            }
+
+            val cloudsLabel = if (isEs) "Nubes" else "Clouds"
+            val planets = star.localizedVisiblePlanets(isEs).take(2).joinToString(", ")
+
+            WeatherModularCard(
+                context = context,
+                layout = layout,
+                gaugeBitmap = bitmap,
+                gaugeContentDescription = "$tierLabel ${star.scorePct}%",
+                headerLabel = if (isEs) "Cielo Nocturno" else "Night Sky",
+                primaryValue = "${star.scorePct}%",
+                statusBadge = "$tierLabel • $cloudsLabel ${star.cloudCoverPct}%",
+                statusColor = accentColor,
+                pillText = state.cityName,
+                compactLabel = "${star.scorePct}%",
+                compactColor = accentColor,
+                detailLeftLabel = if (isEs) "Planetas Visibles" else "Visible Planets",
+                detailLeftValue = planets,
+                detailRightLabel = if (isEs) "Nubes / Luna" else "Clouds / Moon",
+                detailRightValue = "${star.cloudCoverPct}% / ${star.moonIlluminationPct}%",
+                isSpanish = isEs,
+                showRefreshAction = true,
+                opacityPct = opacityPct,
+                fontScaleMode = fontScaleMode
+            )
+        }
+    }
+}
+
 @Composable
-private fun WeatherModularCard(
+internal fun WeatherModularCard(
     context: Context,
     layout: WeatherCardLayoutSpec,
     gaugeBitmap: Bitmap,
@@ -481,9 +631,10 @@ private fun WeatherModularCard(
     isSpanish: Boolean,
     showRefreshAction: Boolean,
     opacityPct: Int,
-    fontScaleMode: WidgetFontScaleMode
+    fontScaleMode: WidgetFontScaleMode,
+    clickIntent: Intent = createWeatherDetailIntent(context),
+    refreshAction: Action = actionRunCallback<RefreshWeatherAction>()
 ) {
-    val detailIntent = createWeatherDetailIntent(context)
     val refreshDescription = if (isSpanish) "Actualizar datos del clima" else "Refresh weather data"
     val surfaceBg = OneUiGlanceTokens.surfaceBackground(opacityPct)
     val innerBg = OneUiGlanceTokens.innerCardSurface(opacityPct)
@@ -502,7 +653,7 @@ private fun WeatherModularCard(
                     .cornerRadius(OneUiGlanceTokens.CornerRadius)
                     .background(surfaceBg)
                     .padding(layout.cardPaddingDp.dp)
-                    .clickable(actionStartActivity(detailIntent)),
+                    .clickable(actionStartActivity(clickIntent)),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -531,7 +682,7 @@ private fun WeatherModularCard(
                     .cornerRadius(OneUiGlanceTokens.CornerRadius)
                     .background(surfaceBg)
                     .padding(layout.cardPaddingDp.dp)
-                    .clickable(actionStartActivity(detailIntent)),
+                    .clickable(actionStartActivity(clickIntent)),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
@@ -560,7 +711,8 @@ private fun WeatherModularCard(
                                 label = if (layout.showExtendedDetails) "$pillText ↻" else "↻",
                                 contentDesc = refreshDescription,
                                 background = innerBg,
-                                fontSize = sp(10f)
+                                fontSize = sp(10f),
+                                refreshAction = refreshAction
                             )
                         }
                     }
@@ -593,7 +745,7 @@ private fun WeatherModularCard(
                     .cornerRadius(OneUiGlanceTokens.CornerRadius)
                     .background(surfaceBg)
                     .padding(layout.cardPaddingDp.dp)
-                    .clickable(actionStartActivity(detailIntent)),
+                    .clickable(actionStartActivity(clickIntent)),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(
@@ -615,7 +767,8 @@ private fun WeatherModularCard(
                             label = "↻",
                             contentDesc = refreshDescription,
                             background = innerBg,
-                            fontSize = sp(10f)
+                            fontSize = sp(10f),
+                            refreshAction = refreshAction
                         )
                     }
                 }
@@ -663,7 +816,7 @@ private fun WeatherModularCard(
                     .cornerRadius(OneUiGlanceTokens.CornerRadius)
                     .background(surfaceBg)
                     .padding(layout.cardPaddingDp.dp)
-                    .clickable(actionStartActivity(detailIntent)),
+                    .clickable(actionStartActivity(clickIntent)),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
@@ -692,7 +845,8 @@ private fun WeatherModularCard(
                                 label = "$pillText ↻",
                                 contentDesc = refreshDescription,
                                 background = innerBg,
-                                fontSize = sp(10f)
+                                fontSize = sp(10f),
+                                refreshAction = refreshAction
                             )
                         }
                     }
@@ -744,11 +898,12 @@ private fun WeatherModularCard(
 }
 
 @Composable
-private fun RefreshPillBadge(
+internal fun RefreshPillBadge(
     label: String,
     contentDesc: String,
     background: ColorProvider,
-    fontSize: TextUnit
+    fontSize: TextUnit,
+    refreshAction: Action = actionRunCallback<RefreshWeatherAction>()
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -757,7 +912,7 @@ private fun RefreshPillBadge(
             .background(background)
             .padding(horizontal = 7.dp, vertical = 3.dp)
             .semantics { contentDescription = contentDesc }
-            .clickable(actionRunCallback<RefreshWeatherAction>())
+            .clickable(refreshAction)
     ) {
         Text(
             text = label,
@@ -772,7 +927,7 @@ private fun RefreshPillBadge(
 }
 
 @Composable
-private fun DetailSubPill(
+internal fun DetailSubPill(
     label: String,
     value: String,
     background: ColorProvider,
@@ -812,7 +967,9 @@ suspend fun updateAllWeatherWidgets(context: Context) {
         OneUiRainWidget(),
         OneUiAqiWidget(),
         OneUiUvWidget(),
-        OneUiMoonPhaseWidget()
+        OneUiMoonPhaseWidget(),
+        OneUiSunArcWidget(),
+        OneUiStargazingWidget()
     )
     for (widget in widgets) {
         val ids = manager.getGlanceIds(widget.javaClass)
@@ -871,4 +1028,12 @@ class OneUiUvWidgetReceiver : OneUiGlanceWidgetReceiver() {
 
 class OneUiMoonPhaseWidgetReceiver : OneUiGlanceWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = OneUiMoonPhaseWidget()
+}
+
+class OneUiSunArcWidgetReceiver : OneUiGlanceWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = OneUiSunArcWidget()
+}
+
+class OneUiStargazingWidgetReceiver : OneUiGlanceWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = OneUiStargazingWidget()
 }

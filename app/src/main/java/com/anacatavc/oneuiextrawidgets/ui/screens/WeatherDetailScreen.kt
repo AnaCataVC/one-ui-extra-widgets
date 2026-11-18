@@ -28,7 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.anacatavc.oneuiextrawidgets.data.astrology.AstrologyEngine
 import com.anacatavc.oneuiextrawidgets.data.astrology.LunarPhaseStatus
+import com.anacatavc.oneuiextrawidgets.data.astrology.SolarArcSnapshot
+import com.anacatavc.oneuiextrawidgets.data.astrology.StargazingSnapshot
 import com.anacatavc.oneuiextrawidgets.data.preferences.CachedWeatherState
 import com.anacatavc.oneuiextrawidgets.ui.components.OneUiCard
 import com.anacatavc.oneuiextrawidgets.ui.components.OneUiHeader
@@ -44,6 +47,20 @@ fun WeatherDetailScreen(
     isSpanish: Boolean,
     isRefreshing: Boolean = false,
     errorMessage: String? = null,
+    solarArc: SolarArcSnapshot = remember(weather.latitude, weather.longitude) {
+        AstrologyEngine.computeSolarArcSnapshot(weather.latitude, weather.longitude)
+    },
+    stargazing: StargazingSnapshot = remember(
+        weather.cloudCoverPct,
+        weather.latitude,
+        weather.longitude
+    ) {
+        AstrologyEngine.computeStargazingSnapshot(
+            cloudCoverPct = weather.cloudCoverPct,
+            latitude = weather.latitude,
+            longitude = weather.longitude
+        )
+    },
     onRefreshWeather: () -> Unit
 ) {
     val isDark = isSystemInDarkTheme()
@@ -60,6 +77,21 @@ fun WeatherDetailScreen(
     val moonBitmap = remember(lunarStatus.phaseAngleDeg) {
         WidgetCanvasRenderer.renderMoonPhaseBitmap(lunarStatus.phaseAngleDeg, sizePx = 180)
     }
+    val sunArcBitmap = remember(solarArc.sunAltitudeDeg, solarArc.dayProgressFraction, isDark) {
+        WidgetCanvasRenderer.renderSunArcGaugeBitmap(
+            sunAltitudeDeg = solarArc.sunAltitudeDeg,
+            dayProgressFraction = solarArc.dayProgressFraction,
+            sizePx = 180,
+            isDarkTheme = isDark
+        )
+    }
+    val stargazingBitmap = remember(stargazing.scorePct, isDark) {
+        WidgetCanvasRenderer.renderStargazingGaugeBitmap(
+            stargazingIndexPct = stargazing.scorePct,
+            sizePx = 180,
+            isDarkTheme = isDark
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -71,9 +103,9 @@ fun WeatherDetailScreen(
         OneUiHeader(
             title = weather.cityName,
             subtitle = if (isSpanish) {
-                "4 Widgets Ambientales y Fase Lunar Científica • Fuente Open-Meteo"
+                "6 Widgets Ambientales y Astronómicos Científicos • Fuente Open-Meteo"
             } else {
-                "4 Environmental & Scientific Lunar Widgets • Open-Meteo Source"
+                "6 Environmental & Scientific Astronomical Widgets • Open-Meteo"
             }
         )
 
@@ -249,6 +281,89 @@ fun WeatherDetailScreen(
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+
+        // 5. Solar Arc & Golden Hour Card (100% Offline Ephemeris)
+        val solarTitle = if (isSpanish) {
+            "5. Arco Solar y Hora Dorada (Offline)"
+        } else {
+            "5. Solar Arc & Golden Hour (Offline)"
+        }
+        OneUiCard(title = solarTitle) {
+            val deltaSign = if (solarArc.daylightDeltaMinutes >= 0) "+" else ""
+            val deltaText = "$deltaSign${solarArc.daylightDeltaMinutes} min"
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Image(
+                    bitmap = sunArcBitmap.asImageBitmap(),
+                    contentDescription = solarArc.lightPhase.localizedLabel(isSpanish),
+                    modifier = Modifier.size(64.dp)
+                )
+                FlowRow(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    MetricBlock(
+                        label = if (isSpanish) "Fase Lumínica" else "Light Phase",
+                        value = solarArc.lightPhase.localizedLabel(isSpanish)
+                    )
+                    MetricBlock(
+                        label = if (isSpanish) "Hora Dorada" else "Golden Hour",
+                        value = solarArc.goldenHourFormatted
+                    )
+                    MetricBlock(
+                        label = if (isSpanish) "Amanecer / Atardecer" else "Sunrise / Sunset",
+                        value = "${solarArc.sunriseFormatted} • ${solarArc.sunsetFormatted}"
+                    )
+                    MetricBlock(
+                        label = if (isSpanish) "Luz Solar" else "Daylight",
+                        value = "${solarArc.daylightDurationFormatted} ($deltaText)"
+                    )
+                }
+            }
+        }
+
+        // 6. Night Sky & Stargazing Index Card
+        val starTitle = if (isSpanish) {
+            "6. Cielo Nocturno y Observación Estelar"
+        } else {
+            "6. Night Sky & Stargazing Index"
+        }
+        OneUiCard(title = starTitle) {
+            val visiblePlanets = stargazing.localizedVisiblePlanets(isSpanish).joinToString(", ")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Image(
+                    bitmap = stargazingBitmap.asImageBitmap(),
+                    contentDescription = "${stargazing.scorePct}%",
+                    modifier = Modifier.size(64.dp)
+                )
+                FlowRow(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    MetricBlock(
+                        label = if (isSpanish) "Claridad Nocturna" else "Sky Clarity",
+                        value = "${stargazing.scorePct}%"
+                    )
+                    MetricBlock(
+                        label = if (isSpanish) "Nubes / Luna" else "Clouds / Moon",
+                        value = "${stargazing.cloudCoverPct}% / ${stargazing.moonIlluminationPct}%"
+                    )
+                    MetricBlock(
+                        label = if (isSpanish) "Planetas Visibles" else "Visible Planets",
+                        value = visiblePlanets
                     )
                 }
             }

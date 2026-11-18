@@ -125,13 +125,13 @@ internal fun calculateIpodLayout(widthDp: Float, heightDp: Float): IpodLayoutSpe
     }
 }
 
-private fun buildMenuIntent(context: Context): Intent =
+internal fun buildMenuIntent(context: Context): Intent =
     Intent(context, MainActivity::class.java).apply {
         putExtra(MainActivity.EXTRA_INITIAL_TAB, MainActivity.TAB_HOME)
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
     }
 
-private fun buildNotificationAccessIntent(): Intent =
+internal fun buildNotificationAccessIntent(): Intent =
     Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
@@ -1140,14 +1140,17 @@ class PrevTrackAction : ActionCallback {
 object RetroMusicWidgetUpdater {
     suspend fun updateAllMusicWidgets(context: Context) {
         val manager = GlanceAppWidgetManager(context)
-        manager.getGlanceIds(IpodClassicWidget::class.java).forEach {
-            IpodClassicWidget().update(context, it)
-        }
-        manager.getGlanceIds(RetroMp3Widget::class.java).forEach {
-            RetroMp3Widget().update(context, it)
-        }
-        manager.getGlanceIds(DiscmanWidget::class.java).forEach {
-            DiscmanWidget().update(context, it)
+        listOf(
+            IpodClassicWidget(),
+            RetroMp3Widget(),
+            DiscmanWidget(),
+            CassetteWalkmanWidget(),
+            VinylTurntableWidget(),
+            MiniDiscWidget()
+        ).forEach { widget ->
+            manager.getGlanceIds(widget.javaClass).forEach { glanceId ->
+                widget.update(context, glanceId)
+            }
         }
     }
 }

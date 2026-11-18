@@ -30,6 +30,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.anacatavc.oneuiextrawidgets.data.astrology.AstrologyEngine
+import com.anacatavc.oneuiextrawidgets.data.battery.BatteryThermalMonitor
 import com.anacatavc.oneuiextrawidgets.data.network.NetworkQualityMonitor
 import com.anacatavc.oneuiextrawidgets.data.preferences.AppPreferences
 import com.anacatavc.oneuiextrawidgets.data.preferences.CachedWeatherState
@@ -78,6 +79,9 @@ class MainActivity : AppCompatActivity() {
                 var networkSnapshot by remember {
                     mutableStateOf(NetworkQualityMonitor.readSnapshot(this))
                 }
+                var batterySnapshot by remember {
+                    mutableStateOf(BatteryThermalMonitor.readSnapshot(this))
+                }
                 var isRefreshingWeather by remember { mutableStateOf(false) }
                 var weatherError by remember { mutableStateOf<String?>(null) }
                 var isRefreshingNetwork by remember { mutableStateOf(false) }
@@ -121,6 +125,7 @@ class MainActivity : AppCompatActivity() {
                         if (event == Lifecycle.Event.ON_RESUME) {
                             hasNotifAccess = PermissionHelper.hasNotificationListenerAccess(this@MainActivity)
                             networkSnapshot = NetworkQualityMonitor.readSnapshot(this@MainActivity)
+                            batterySnapshot = BatteryThermalMonitor.readSnapshot(this@MainActivity)
                             if (hasNotifAccess) {
                                 com.anacatavc.oneuiextrawidgets.data.media.MediaNotificationListener
                                     .refreshActiveMediaSession(this@MainActivity)
@@ -231,9 +236,11 @@ class MainActivity : AppCompatActivity() {
                                 snapshot = networkSnapshot,
                                 isSpanish = isSpanish,
                                 isRefreshing = isRefreshingNetwork,
+                                batterySnapshot = batterySnapshot,
                                 onRefresh = {
                                     isRefreshingNetwork = true
                                     networkSnapshot = NetworkQualityMonitor.readSnapshot(this@MainActivity)
+                                    batterySnapshot = BatteryThermalMonitor.readSnapshot(this@MainActivity)
                                     isRefreshingNetwork = false
                                 }
                             )

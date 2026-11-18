@@ -27,6 +27,7 @@ data class CachedWeatherState(
     val pm25: Double = 9.4,
     val pm10: Double = 18.2,
     val weatherCode: Int = 1,
+    val cloudCoverPct: Int = 15,
     val lastUpdatedMillis: Long = 0L
 )
 
@@ -61,6 +62,7 @@ object AppPreferences {
     private val KEY_PM25 = doublePreferencesKey("weather_pm25")
     private val KEY_PM10 = doublePreferencesKey("weather_pm10")
     private val KEY_WMO = intPreferencesKey("weather_wmo_code")
+    private val KEY_CLOUD_COVER = intPreferencesKey("weather_cloud_cover")
     private val KEY_UPDATED = longPreferencesKey("weather_updated_ms")
 
     private fun widgetOpacityKey(appWidgetId: Int) =
@@ -159,6 +161,7 @@ object AppPreferences {
                 pm25 = prefs[KEY_PM25] ?: 9.4,
                 pm10 = prefs[KEY_PM10] ?: 18.2,
                 weatherCode = prefs[KEY_WMO] ?: 1,
+                cloudCoverPct = (prefs[KEY_CLOUD_COVER] ?: 15).coerceIn(0, 100),
                 lastUpdatedMillis = prefs[KEY_UPDATED] ?: 0L
             )
         }
@@ -177,6 +180,7 @@ object AppPreferences {
             prefs[KEY_PM25] = state.pm25
             prefs[KEY_PM10] = state.pm10
             prefs[KEY_WMO] = state.weatherCode
+            prefs[KEY_CLOUD_COVER] = state.cloudCoverPct.coerceIn(0, 100)
             prefs[KEY_UPDATED] = state.lastUpdatedMillis
         }
     }

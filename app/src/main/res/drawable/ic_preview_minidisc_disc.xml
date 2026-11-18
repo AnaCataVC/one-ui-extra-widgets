@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <!-- MiniDisc Cartridge Shell -->
+    <path
+        android:fillColor="@color/oneui_preview_minidisc_shell"
+        android:pathData="M14,6 H82 A8,8 0 0,1 90,14 V82 A8,8 0 0,1 82,90 H14 A8,8 0 0,1 6,82 V14 A8,8 0 0,1 14,6 Z"
+        android:strokeColor="@color/oneui_preview_minidisc_bevel"
+        android:strokeWidth="1.8" />
+    <!-- Top-Left Insertion Arrow -->
+    <path
+        android:fillColor="@color/oneui_preview_minidisc_amber"
+        android:pathData="M18,9 L13,15 H23 Z" />
+    <!-- Smoky Optical Disc Window -->
+    <path
+        android:fillColor="@color/oneui_preview_minidisc_bezel"
+        android:pathData="M17,18 H59 A4,4 0 0,1 63,22 V74 A4,4 0 0,1 59,78 H17 A4,4 0 0,1 13,74 V22 A4,4 0 0,1 17,18 Z"
+        android:strokeColor="@color/oneui_preview_minidisc_bevel"
+        android:strokeWidth="1.4" />
+    <!-- Iridescent Magneto-Optical Disc -->
+    <path
+        android:fillColor="@color/oneui_preview_minidisc_disc_teal"
+        android:pathData="M15,48 a23,23 0 1,0 46,0 a23,23 0 1,0 -46,0" />
+    <path
+        android:fillAlpha="0.65"
+        android:fillColor="@color/oneui_preview_minidisc_disc_violet"
+        android:pathData="M38,48 L54,32 A23,23 0 0,1 58,58 Z M38,48 L22,64 A23,23 0 0,1 18,38 Z" />
+    <path
+        android:pathData="M21,48 a17,17 0 1,0 34,0 a17,17 0 1,0 -34,0"
+        android:strokeAlpha="0.35"
+        android:strokeColor="@color/oneui_preview_minidisc_shutter"
+        android:strokeWidth="1" />
+    <!-- Center Clamping Hub -->
+    <path
+        android:fillColor="@color/oneui_preview_minidisc_shutter"
+        android:pathData="M29.5,48 a8.5,8.5 0 1,0 17,0 a8.5,8.5 0 1,0 -17,0" />
+    <path
+        android:fillColor="@color/oneui_preview_minidisc_bevel"
+        android:pathData="M34.4,48 a3.6,3.6 0 1,0 7.2,0 a3.6,3.6 0 1,0 -7.2,0" />
+    <!-- Brushed Silver Shutter Plate -->
+    <path
+        android:fillColor="@color/oneui_preview_minidisc_shutter"
+        android:pathData="M69,9 H84 A3,3 0 0,1 87,12 V84 A3,3 0 0,1 84,87 H69 A3,3 0 0,1 66,84 V12 A3,3 0 0,1 69,9 Z"
+        android:strokeColor="@color/oneui_preview_minidisc_bevel"
+        android:strokeWidth="1.4" />
+    <!-- Minimalist MD Emblem Accent -->
+    <path
+        android:fillColor="@color/oneui_preview_minidisc_btn_text"
+        android:pathData="M71,44 H74 V52 H71 Z M78,44 H82 V52 H78 Z" />
+</vector>

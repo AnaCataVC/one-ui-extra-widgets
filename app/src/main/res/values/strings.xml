@@ -18,7 +18,7 @@
     <!-- Permissions -->
     <string name="permissions_card_title">Permissions &amp; Access</string>
     <string name="perm_location_desc">Location for local Weather, AQI &amp; Wi-Fi SSID</string>
-    <string name="perm_notification_desc">Notification Access for iPod, MP3 &amp; Discman music widgets</string>
+    <string name="perm_notification_desc">Notification Access for Retro Music widgets (iPod, Walkman, Vinyl, MiniDisc)</string>
     <string name="perm_phone_desc">Phone State for 5G NR / LTE signal dBm</string>
     <string name="btn_grant">Grant</string>
     <string name="status_granted">Active</string>
@@ -32,11 +32,17 @@
     <string name="widget_weather_uv_desc">Solar UV radiation arc gauge with WHO risk category &amp; SPF guidance</string>
     <string name="widget_weather_moon_title">One UI Weather: Lunar Phase</string>
     <string name="widget_weather_moon_desc">Scientific lunar phase sphere, illumination percentage, synodic age &amp; elongation</string>
+    <string name="widget_weather_sun_arc_title">One UI Sun: Solar Arc &amp; Golden Hour</string>
+    <string name="widget_weather_sun_arc_desc">100% offline solar elevation arc, Golden/Blue Hour, sunrise &amp; sunset times</string>
+    <string name="widget_weather_stargazing_title">One UI Night Sky: Stargazing Index</string>
+    <string name="widget_weather_stargazing_desc">Night sky clarity score (0–100%) combining cloud cover, moon glare &amp; visible planets</string>
     <string name="weather_rain_prob">Rain Prob. (6h)</string>
     <string name="weather_rain_low">Low Chance</string>
     <string name="weather_aqi_label">Air Quality (AQI)</string>
     <string name="weather_uv_label">Solar UV Index</string>
     <string name="weather_uv_moderate">Moderate</string>
+    <string name="weather_sun_arc_preview_label">Golden Hour</string>
+    <string name="weather_stargazing_preview_label">Clear Sky</string>
     <string name="weather_refresh">Refresh Weather</string>
     <string name="aqi_good">Good</string>
     <string name="aqi_fair">Fair</string>
@@ -69,6 +75,12 @@
     <string name="widget_music_mp3_desc">Backlit dot-matrix LCD stick player</string>
     <string name="widget_music_discman_title">Retro Music: Portable CD Discman</string>
     <string name="widget_music_discman_desc">Spinning CD player with ESP Anti-Shock aesthetic</string>
+    <string name="widget_music_cassette_title">Retro Music: Cassette Walkman</string>
+    <string name="widget_music_cassette_desc">80s/90s transparent cassette deck with dynamic tape reels &amp; physical transport keys</string>
+    <string name="widget_music_vinyl_title">Retro Music: Vinyl Turntable</string>
+    <string name="widget_music_vinyl_desc">Minimalist turntable with micro-grooved LP, album label art &amp; tracking tonearm</string>
+    <string name="widget_music_minidisc_title">Retro Music: MiniDisc Hi-MD</string>
+    <string name="widget_music_minidisc_desc">2000s electroluminescent Hi-MD player with ATRAC spectrum readout &amp; jog controls</string>
     <string name="music_no_track">No active music session</string>
     <string name="music_tap_to_play">Play music in any app to sync</string>
 
@@ -80,6 +92,12 @@
     <string name="network_disconnected">Disconnected</string>
     <string name="network_preview_header">Signal • 5G &amp; Wi-Fi</string>
     <string name="network_preview_quality_excellent">Excellent</string>
+
+    <!-- Battery Thermal & Power Widget -->
+    <string name="widget_battery_thermal_title">One UI Battery: Thermal &amp; Power</string>
+    <string name="widget_battery_thermal_desc">Real-time battery temperature (°C), voltage (mV), wattage &amp; charging source</string>
+    <string name="battery_thermal_optimal">Optimal</string>
+    <string name="battery_thermal_preview_label">Battery Thermal</string>
 
     <!-- Per-Instance Widget Transparency Configuration -->
     <string name="widget_config_title">Widget Transparency</string>

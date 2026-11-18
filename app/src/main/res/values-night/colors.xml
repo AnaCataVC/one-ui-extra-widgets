@@ -53,4 +53,60 @@
     <color name="oneui_preview_discman_btn_bg">#FFD0D5E2</color>
     <color name="oneui_preview_discman_btn_text">#FF121316</color>
     <color name="oneui_preview_discman_latch">#FF8E95E8</color>
+
+    <!-- Cassette Walkman Preview Tokens (Night) -->
+    <color name="oneui_preview_cassette_shell">#FF23262E</color>
+    <color name="oneui_preview_cassette_bevel">#FF404654</color>
+    <color name="oneui_preview_cassette_label">#FF2A2620</color>
+    <color name="oneui_preview_cassette_label_text">#FFF2ECE0</color>
+    <color name="oneui_preview_cassette_stripe_amber">#FFF59E0B</color>
+    <color name="oneui_preview_cassette_stripe_red">#FFEF4444</color>
+    <color name="oneui_preview_cassette_window">#FF14171E</color>
+    <color name="oneui_preview_cassette_tape">#FF3A2820</color>
+    <color name="oneui_preview_cassette_reel">#FFF2EFE8</color>
+    <color name="oneui_preview_cassette_counter_bg">#FF0D0F14</color>
+    <color name="oneui_preview_cassette_counter_text">#FFF5F6F9</color>
+    <color name="oneui_preview_cassette_btn_bg">#FF343844</color>
+    <color name="oneui_preview_cassette_btn_text">#FFF5F6F9</color>
+
+    <!-- Vinyl Turntable Preview Tokens (Night) -->
+    <color name="oneui_preview_vinyl_plinth">#FF1D1E22</color>
+    <color name="oneui_preview_vinyl_plinth_stroke">#FF343740</color>
+    <color name="oneui_preview_vinyl_platter">#FF4B505C</color>
+    <color name="oneui_preview_vinyl_disc">#FF111216</color>
+    <color name="oneui_preview_vinyl_groove">#FF2B2F3A</color>
+    <color name="oneui_preview_vinyl_label">#FFFF782C</color>
+    <color name="oneui_preview_vinyl_accent">#FFFF782C</color>
+    <color name="oneui_preview_vinyl_tonearm">#FFC4C9D4</color>
+    <color name="oneui_preview_vinyl_readout_bg">#FF282A30</color>
+    <color name="oneui_preview_vinyl_text_primary">#FFF5F6F9</color>
+    <color name="oneui_preview_vinyl_text_secondary">#FFA0A4B0</color>
+
+    <!-- MiniDisc Hi-MD Preview Tokens (Night) -->
+    <color name="oneui_preview_minidisc_shell">#FF1E293B</color>
+    <color name="oneui_preview_minidisc_bevel">#FF334155</color>
+    <color name="oneui_preview_minidisc_bezel">#FF0B1118</color>
+    <color name="oneui_preview_minidisc_el_text">#FF2CE6B8</color>
+    <color name="oneui_preview_minidisc_el_subtext">#FF8DA2BA</color>
+    <color name="oneui_preview_minidisc_amber">#FFF5C542</color>
+    <color name="oneui_preview_minidisc_shutter">#FFC4CCD8</color>
+    <color name="oneui_preview_minidisc_disc_teal">#FF2CE6B8</color>
+    <color name="oneui_preview_minidisc_disc_violet">#FF8B5CF6</color>
+    <color name="oneui_preview_minidisc_btn_bg">#FFDCE1F0</color>
+    <color name="oneui_preview_minidisc_btn_text">#FF131A26</color>
+
+    <!-- Sun Arc, Stargazing & Battery Thermal Preview Tokens (Night) -->
+    <color name="oneui_preview_sun_gold">#FFFBBF24</color>
+    <color name="oneui_preview_sun_orb">#FFFDE047</color>
+    <color name="oneui_preview_sun_horizon">#FF64748B</color>
+    <color name="oneui_preview_sun_blue_hour">#FF60A5FA</color>
+
+    <color name="oneui_preview_stargazing_indigo">#FF818CF8</color>
+    <color name="oneui_preview_stargazing_cyan">#FF22D3EE</color>
+    <color name="oneui_preview_stargazing_sky">#FF14182B</color>
+    <color name="oneui_preview_stargazing_star">#FFFDE047</color>
+
+    <color name="oneui_preview_thermal_cool">#FF34D399</color>
+    <color name="oneui_preview_thermal_warm">#FFFBBF24</color>
+    <color name="oneui_preview_thermal_hot">#FFF87171</color>
 </resources>

@@ -68,6 +68,12 @@ object OneUiGlanceTokens {
     private val RetroMp3ShellNightBase = Color(0xFF2D3380)
     private val RetroMp3CapSeamDayBase = Color(0xFF252A6E)
     private val RetroMp3CapSeamNightBase = Color(0xFF191D4D)
+    private val CassetteShellDayBase = Color(0xFFDCE0E8)
+    private val CassetteShellNightBase = Color(0xFF23262E)
+    private val VinylPlinthDayBase = Color(0xFFEBECEE)
+    private val VinylPlinthNightBase = Color(0xFF1D1E22)
+    private val MiniDiscShellDayBase = Color(0xFF334766)
+    private val MiniDiscShellNightBase = Color(0xFF1E293B)
 
     val SurfaceBackground: ColorProvider = dayNightColorProvider(
         day = SurfaceDayBase,
@@ -124,6 +130,30 @@ object OneUiGlanceTokens {
         return dayNightColorProvider(
             day = scaleColorAlpha(RetroMp3CapSeamDayBase, opacityPct),
             night = scaleColorAlpha(RetroMp3CapSeamNightBase, opacityPct)
+        )
+    }
+
+    fun cassetteShellSurface(opacityPct: Int): ColorProvider {
+        if (opacityPct >= 100) return CassetteShellSurface
+        return dayNightColorProvider(
+            day = scaleColorAlpha(CassetteShellDayBase, opacityPct),
+            night = scaleColorAlpha(CassetteShellNightBase, opacityPct)
+        )
+    }
+
+    fun vinylPlinthSurface(opacityPct: Int): ColorProvider {
+        if (opacityPct >= 100) return VinylPlinthSurface
+        return dayNightColorProvider(
+            day = scaleColorAlpha(VinylPlinthDayBase, opacityPct),
+            night = scaleColorAlpha(VinylPlinthNightBase, opacityPct)
+        )
+    }
+
+    fun miniDiscShellSurface(opacityPct: Int): ColorProvider {
+        if (opacityPct >= 100) return MiniDiscShellSurface
+        return dayNightColorProvider(
+            day = scaleColorAlpha(MiniDiscShellDayBase, opacityPct),
+            night = scaleColorAlpha(MiniDiscShellNightBase, opacityPct)
         )
     }
 
@@ -283,11 +313,157 @@ object OneUiGlanceTokens {
         day = Color(0x1FD97706),
         night = Color(0x2AFBBF24)
     )
+
+    // Cassette Walkman Tokens (Day / Night adaptive)
+    val CassetteShellSurface: ColorProvider = dayNightColorProvider(
+        day = CassetteShellDayBase,
+        night = CassetteShellNightBase
+    )
+
+    val CassetteAmberAccent = dayNightColorProvider(
+        day = Color(0xFFD97706),
+        night = Color(0xFFF59E0B)
+    )
+
+    val CassetteLabelSurface = dayNightColorProvider(
+        day = Color(0xFFF6F1E2),
+        night = Color(0xFF2A2620)
+    )
+
+    val CassetteLabelText = dayNightColorProvider(
+        day = Color(0xFF1E222A),
+        night = Color(0xFFF2ECE0)
+    )
+
+    val CassetteLabelSubtext = dayNightColorProvider(
+        day = Color(0xFF5A5850),
+        night = Color(0xFFB5AFA2)
+    )
+
+    val CassetteWindowSurface = dayNightColorProvider(
+        day = Color(0xFF14171E),
+        night = Color(0xFF14171E)
+    )
+
+    val CassetteWindowText = dayNightColorProvider(
+        day = Color(0xFFF5F6F9),
+        night = Color(0xFFF5F6F9)
+    )
+
+    val CassetteButtonSurface = dayNightColorProvider(
+        day = Color(0xFFFFFFFF),
+        night = Color(0xFF343844)
+    )
+
+    val CassetteButtonText = dayNightColorProvider(
+        day = Color(0xFF121316),
+        night = Color(0xFFF5F6F9)
+    )
+
+    // Vinyl Turntable (Braun / Dieter Rams) Tokens (Day / Night adaptive)
+    val VinylPlinthSurface: ColorProvider = dayNightColorProvider(
+        day = VinylPlinthDayBase,
+        night = VinylPlinthNightBase
+    )
+
+    val VinylBraunAccent = dayNightColorProvider(
+        day = Color(0xFFD95D16),
+        night = Color(0xFFFF782C)
+    )
+
+    val VinylReadoutSurface = dayNightColorProvider(
+        day = Color(0xFFFFFFFF),
+        night = Color(0xFF282A30)
+    )
+
+    val VinylControlSurface = dayNightColorProvider(
+        day = Color(0xFFDCDFE5),
+        night = Color(0xFF2E3138)
+    )
+
+    val VinylProgressTrack = dayNightColorProvider(
+        day = Color(0xFFD0D4DE),
+        night = Color(0xFF333640)
+    )
+
+    // MiniDisc Hi-MD Tokens (Day / Night adaptive)
+    val MiniDiscShellSurface: ColorProvider = dayNightColorProvider(
+        day = MiniDiscShellDayBase,
+        night = MiniDiscShellNightBase
+    )
+
+    val MiniDiscElBezelSurface = dayNightColorProvider(
+        day = Color(0xFF0B1118),
+        night = Color(0xFF0B1118)
+    )
+
+    val MiniDiscElText = dayNightColorProvider(
+        day = Color(0xFF34F5C5),
+        night = Color(0xFF2CE6B8)
+    )
+
+    val MiniDiscElSubtext = dayNightColorProvider(
+        day = Color(0xFF94A3B8),
+        night = Color(0xFF8DA2BA)
+    )
+
+    val MiniDiscHiMdAmber = dayNightColorProvider(
+        day = Color(0xFFF5C542),
+        night = Color(0xFFF5C542)
+    )
+
+    val MiniDiscTrackBg = dayNightColorProvider(
+        day = Color(0xFF1B2736),
+        night = Color(0xFF16202E)
+    )
+
+    val MiniDiscButtonSurface = dayNightColorProvider(
+        day = Color(0xFFEDEFF8),
+        night = Color(0xFFDCE1F0)
+    )
+
+    val MiniDiscButtonText = dayNightColorProvider(
+        day = Color(0xFF1E293B),
+        night = Color(0xFF131A26)
+    )
+
+    // Sun Arc & Golden/Blue Hour Tokens (Day / Night adaptive)
+    val SunGoldenAmber = dayNightColorProvider(
+        day = Color(0xFFD97706),
+        night = Color(0xFFFBBF24)
+    )
+
+    val SunBlueHourIndigo = dayNightColorProvider(
+        day = Color(0xFF3B82F6),
+        night = Color(0xFF60A5FA)
+    )
+
+    // Stargazing Tokens (Day / Night adaptive)
+    val StargazingIndigo = dayNightColorProvider(
+        day = Color(0xFF4338CA),
+        night = Color(0xFF818CF8)
+    )
+
+    val StargazingCyan = dayNightColorProvider(
+        day = Color(0xFF0284C7),
+        night = Color(0xFF22D3EE)
+    )
+
+    val StargazingStarGold = dayNightColorProvider(
+        day = Color(0xFFD97706),
+        night = Color(0xFFFDE047)
+    )
+
+    // Battery Thermal Tokens (reusing semantic Weather thermal palette)
+    val BatteryThermalCool: ColorProvider = WeatherGoodGreen
+    val BatteryThermalWarm: ColorProvider = WeatherModerateAmber
+    val BatteryThermalHot: ColorProvider = WeatherDangerRed
 }
 
 /**
  * Centralized ARGB integer color tokens for deterministic Android Canvas rendering
- * in [com.anacatavc.oneuiextrawidgets.utils.WidgetCanvasRenderer].
+ * in [com.anacatavc.oneuiextrawidgets.utils.WidgetCanvasRenderer] and
+ * [com.anacatavc.oneuiextrawidgets.utils.MusicCanvasRenderer].
  */
 object OneUiCanvasPalette {
     const val GAUGE_TRACK_DARK: Int = 0xFF2C2E36.toInt()
@@ -386,6 +562,142 @@ object OneUiCanvasPalette {
     const val SIGNAL_BAR_EMPTY_DARK: Int = 0xFF3A3D47.toInt()
     const val SIGNAL_BADGE_BG_LIGHT: Int = 0x1A0381FE
     const val SIGNAL_BADGE_BG_DARK: Int = 0x243E9BFF
+
+    // Cassette Walkman Canvas Palette
+    const val CASSETTE_BODY_TOP_LIGHT: Int = 0xFFE4E7EE.toInt()
+    const val CASSETTE_BODY_BOTTOM_LIGHT: Int = 0xFFCED4DF.toInt()
+    const val CASSETTE_BODY_TOP_DARK: Int = 0xFF2B2F39.toInt()
+    const val CASSETTE_BODY_BOTTOM_DARK: Int = 0xFF1C1F26.toInt()
+    const val CASSETTE_BEVEL_LIGHT: Int = 0xFFAEB6C4.toInt()
+    const val CASSETTE_BEVEL_DARK: Int = 0xFF404654.toInt()
+    const val CASSETTE_RECESS_STROKE_LIGHT: Int = 0x28000000
+    const val CASSETTE_RECESS_STROKE_DARK: Int = 0x24FFFFFF
+    const val CASSETTE_SCREW_HEAD_LIGHT: Int = 0xFFB8BFCC.toInt()
+    const val CASSETTE_SCREW_HEAD_DARK: Int = 0xFF4B5160.toInt()
+    const val CASSETTE_SCREW_SLOT: Int = 0xFF1F232C.toInt()
+    const val CASSETTE_LABEL_LIGHT: Int = 0xFFF6F1E2.toInt()
+    const val CASSETTE_LABEL_DARK: Int = 0xFF2A2620.toInt()
+    const val CASSETTE_LABEL_INK_LIGHT: Int = 0xFF1E222A.toInt()
+    const val CASSETTE_LABEL_INK_DARK: Int = 0xFFF2ECE0.toInt()
+    const val CASSETTE_LABEL_STRIPE_ORANGE: Int = 0xFFD97706.toInt()
+    const val CASSETTE_LABEL_STRIPE_RED: Int = 0xFFDC2626.toInt()
+    const val CASSETTE_LABEL_STRIPE_AMBER: Int = 0xFFF59E0B.toInt()
+    const val CASSETTE_WINDOW_BG: Int = 0xFF14171E.toInt()
+    const val CASSETTE_WINDOW_BORDER_LIGHT: Int = 0xFF8C94A4.toInt()
+    const val CASSETTE_WINDOW_BORDER_DARK: Int = 0xFF3A404D.toInt()
+    const val CASSETTE_WINDOW_GLINT: Int = 0x1AFFFFFF
+    const val CASSETTE_TAPE_SPOOL_BROWN: Int = 0xFF3A2820.toInt()
+    const val CASSETTE_TAPE_RING: Int = 0x336E4E40
+    const val CASSETTE_REEL_WHITE: Int = 0xFFF2EFE8.toInt()
+    const val CASSETTE_HUB_TEETH: Int = 0xFF23262E.toInt()
+    const val CASSETTE_HUB_CORE: Int = 0xFF0E1015.toInt()
+    const val CASSETTE_COUNTER_BG: Int = 0xFF0D0F14.toInt()
+    const val CASSETTE_COUNTER_BORDER: Int = 0xFF424856.toInt()
+    const val CASSETTE_COUNTER_TEXT: Int = 0xFFF5F6F9.toInt()
+    const val CASSETTE_BRIDGE_LIGHT: Int = 0xFFC2C8D5.toInt()
+    const val CASSETTE_BRIDGE_DARK: Int = 0xFF191C23.toInt()
+    const val CASSETTE_HOLE_DARK: Int = 0xFF0B0D11.toInt()
+    const val CASSETTE_PLAYHEAD_ACTIVE: Int = 0xFFF59E0B.toInt()
+    const val CASSETTE_PLAYHEAD_IDLE: Int = 0xFF64748B.toInt()
+    const val CASSETTE_TAPE_RIBBON: Int = 0xFF4D342A.toInt()
+
+    // Vinyl Turntable (Braun / Dieter Rams) Canvas Palette
+    const val VINYL_PLINTH_RECESS_LIGHT: Int = 0xFFD8DBE2.toInt()
+    const val VINYL_PLINTH_RECESS_DARK: Int = 0xFF15161A.toInt()
+    const val VINYL_PLATTER_TOP_LIGHT: Int = 0xFFECEEF3.toInt()
+    const val VINYL_PLATTER_BOTTOM_LIGHT: Int = 0xFFBFC4CE.toInt()
+    const val VINYL_PLATTER_TOP_DARK: Int = 0xFF565B68.toInt()
+    const val VINYL_PLATTER_BOTTOM_DARK: Int = 0xFF2E323B.toInt()
+    const val VINYL_PLATTER_RIM_LIGHT: Int = 0xFFFFFFFF.toInt()
+    const val VINYL_PLATTER_RIM_DARK: Int = 0xFF707685.toInt()
+    const val VINYL_STROBE_DOT_LIGHT: Int = 0xFF5B6170.toInt()
+    const val VINYL_STROBE_DOT_DARK: Int = 0xFFD0D5E0.toInt()
+    const val VINYL_STROBE_GLOW_ORANGE: Int = 0xFFD95D16.toInt()
+    const val VINYL_DISC_BASE: Int = 0xFF111216.toInt()
+    const val VINYL_DISC_RIM: Int = 0xFF323640.toInt()
+    const val VINYL_GROOVE_STROKE: Int = 0x38525866
+    const val VINYL_LEADOUT_STROKE: Int = 0x55747B8C
+    const val VINYL_SPECULAR_SHEEN: Int = 0x26FFFFFF
+    const val VINYL_SPECULAR_SOFT: Int = 0x10FFFFFF
+    const val VINYL_SPECULAR_CLEAR: Int = 0x00FFFFFF
+    const val VINYL_LABEL_OUTER: Int = 0xFFD95D16.toInt()
+    const val VINYL_LABEL_INNER: Int = 0xFFF6F1E2.toInt()
+    const val VINYL_LABEL_ACCENT: Int = 0xFF23252C.toInt()
+    const val VINYL_LABEL_TEXT: Int = 0xFF23252C.toInt()
+    const val VINYL_SPINDLE_SHADOW: Int = 0x66000000
+    const val VINYL_SPINDLE_CHROME_LIGHT: Int = 0xFFF8FAFC.toInt()
+    const val VINYL_SPINDLE_CHROME_DARK: Int = 0xFF7D8596.toInt()
+    const val VINYL_TONEARM_SHADOW: Int = 0x45000000
+    const val VINYL_TONEARM_BASE_LIGHT: Int = 0xFFC5C9D3.toInt()
+    const val VINYL_TONEARM_BASE_DARK: Int = 0xFF2B2E36.toInt()
+    const val VINYL_TONEARM_GIMBAL_RING: Int = 0xFF6B7280.toInt()
+    const val VINYL_TONEARM_SILVER_LIGHT: Int = 0xFFF3F5F9.toInt()
+    const val VINYL_TONEARM_SILVER_DARK: Int = 0xFF9AA1B0.toInt()
+    const val VINYL_COUNTERWEIGHT_DARK: Int = 0xFF343842.toInt()
+    const val VINYL_HEADSHELL_BODY: Int = 0xFF1F2229.toInt()
+    const val VINYL_HEADSHELL_ACCENT: Int = 0xFFFF782C.toInt()
+    const val VINYL_ARM_REST_DARK: Int = 0xFF474C59.toInt()
+
+    // MiniDisc Hi-MD Canvas Palette
+    const val MINIDISC_SHELL_TOP_LIGHT: Int = 0xFF455D82.toInt()
+    const val MINIDISC_SHELL_BOTTOM_LIGHT: Int = 0xFF2B3D59.toInt()
+    const val MINIDISC_SHELL_TOP_DARK: Int = 0xFF2A3950.toInt()
+    const val MINIDISC_SHELL_BOTTOM_DARK: Int = 0xFF182233.toInt()
+    const val MINIDISC_SHELL_BEVEL: Int = 0x55A7C0E8
+    const val MINIDISC_ARROW_ACCENT: Int = 0xFFF5C542.toInt()
+    const val MINIDISC_WINDOW_BG: Int = 0x550B1118
+    const val MINIDISC_WINDOW_STROKE: Int = 0xFF566E94.toInt()
+    const val MINIDISC_WINDOW_SHEEN: Int = 0x28FFFFFF
+    const val MINIDISC_DISC_TEAL: Int = 0xFF2CE6B8.toInt()
+    const val MINIDISC_DISC_CYAN: Int = 0xFF38BDF8.toInt()
+    const val MINIDISC_DISC_VIOLET: Int = 0xFF8B5CF6.toInt()
+    const val MINIDISC_DISC_MAGENTA: Int = 0xFFEC4899.toInt()
+    const val MINIDISC_DISC_INDIGO: Int = 0xFF4F46E5.toInt()
+    const val MINIDISC_DISC_RING: Int = 0x44FFFFFF
+    const val MINIDISC_SHUTTER_TOP: Int = 0xFFF1F5F9.toInt()
+    const val MINIDISC_SHUTTER_MID: Int = 0xFFCBD5E1.toInt()
+    const val MINIDISC_SHUTTER_BOTTOM: Int = 0xFF94A3B8.toInt()
+    const val MINIDISC_SHUTTER_STROKE: Int = 0xFF475569.toInt()
+    const val MINIDISC_SHUTTER_TEXT: Int = 0xFF1E293B.toInt()
+    const val MINIDISC_HUB_OUTER: Int = 0xFFE2E8F0.toInt()
+    const val MINIDISC_HUB_INNER: Int = 0xFF334155.toInt()
+    const val MINIDISC_HUB_RING: Int = 0xFF64748B.toInt()
+
+    // Sun Arc Canvas Palette
+    const val SUN_ARC_HORIZON_LIGHT: Int = 0xFF94A3B8.toInt()
+    const val SUN_ARC_HORIZON_DARK: Int = 0xFF64748B.toInt()
+    const val SUN_ARC_TWILIGHT_LIGHT: Int = 0xFF3B82F6.toInt()
+    const val SUN_ARC_TWILIGHT_DARK: Int = 0xFF60A5FA.toInt()
+    const val SUN_ARC_GOLD_START: Int = 0xFFD97706.toInt()
+    const val SUN_ARC_NOON_PEAK: Int = 0xFFFDE047.toInt()
+    const val SUN_ARC_GOLD_END: Int = 0xFFF59E0B.toInt()
+    const val SUN_ORB_CORE: Int = 0xFFFDE047.toInt()
+    const val SUN_ORB_RIM: Int = 0xFFD97706.toInt()
+    const val SUN_ORB_HALO: Int = 0x44FBBF24
+    const val SUN_TWILIGHT_ORB: Int = 0xFF60A5FA.toInt()
+    const val SUN_TWILIGHT_HALO: Int = 0x443B82F6
+
+    // Stargazing Canvas Palette
+    const val STAR_SKY_DOME_LIGHT: Int = 0xFFE8ECF8.toInt()
+    const val STAR_SKY_DOME_DARK: Int = 0xFF14182B.toInt()
+    const val STAR_ARC_INDIGO_LIGHT: Int = 0xFF4338CA.toInt()
+    const val STAR_ARC_INDIGO_DARK: Int = 0xFF818CF8.toInt()
+    const val STAR_ARC_CYAN_LIGHT: Int = 0xFF0284C7.toInt()
+    const val STAR_ARC_CYAN_DARK: Int = 0xFF22D3EE.toInt()
+    const val STAR_SPARKLE_WHITE: Int = 0xFFFFFFFF.toInt()
+    const val STAR_SPARKLE_GOLD: Int = 0xFFFDE047.toInt()
+    const val STAR_CONSTELLATION_CYAN_LIGHT: Int = 0xFF0369A1.toInt()
+    const val STAR_CONSTELLATION_CYAN_DARK: Int = 0xFF38BDF8.toInt()
+    const val STAR_CONSTELLATION_LINE_LIGHT: Int = 0x664338CA
+    const val STAR_CONSTELLATION_LINE_DARK: Int = 0x77818CF8
+
+    // Battery Thermal Canvas Palette
+    const val THERMAL_COOL_LIGHT: Int = 0xFF059669.toInt()
+    const val THERMAL_COOL_DARK: Int = 0xFF34D399.toInt()
+    const val THERMAL_WARM_LIGHT: Int = 0xFFD97706.toInt()
+    const val THERMAL_WARM_DARK: Int = 0xFFFBBF24.toInt()
+    const val THERMAL_HOT_LIGHT: Int = 0xFFDC2626.toInt()
+    const val THERMAL_HOT_DARK: Int = 0xFFF87171.toInt()
 }
 
 

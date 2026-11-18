@@ -2,14 +2,26 @@ package com.anacatavc.oneuiextrawidgets.data.astrology
 
 import io.github.cosinekitty.astronomy.Aberration
 import io.github.cosinekitty.astronomy.Body
+import io.github.cosinekitty.astronomy.Direction
+import io.github.cosinekitty.astronomy.EquatorEpoch
+import io.github.cosinekitty.astronomy.Observer
+import io.github.cosinekitty.astronomy.Refraction
 import io.github.cosinekitty.astronomy.Time
 import io.github.cosinekitty.astronomy.eclipticGeoMoon
+import io.github.cosinekitty.astronomy.equator
 import io.github.cosinekitty.astronomy.equatorialToEcliptic
 import io.github.cosinekitty.astronomy.geoVector
+import io.github.cosinekitty.astronomy.horizon
 import io.github.cosinekitty.astronomy.illumination
 import io.github.cosinekitty.astronomy.moonPhase
+import io.github.cosinekitty.astronomy.searchAltitude
+import io.github.cosinekitty.astronomy.searchRiseSet
 import io.github.cosinekitty.astronomy.sunPosition
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+import kotlin.math.roundToInt
 
 enum class ZodiacSign(
     val symbol: String,
@@ -93,6 +105,41 @@ data class AstrologySnapshot(
 ) {
     val mercuryStatus: PlanetTransitStatus
         get() = planets.first { it.body == Body.Mercury }
+}
+
+enum class SolarLightPhase(
+    val labelEs: String,
+    val labelEn: String
+) {
+    DAYLIGHT("Día Solar", "Solar Day"),
+    GOLDEN_HOUR("Hora Dorada", "Golden Hour"),
+    BLUE_HOUR("Hora Azul", "Blue Hour"),
+    TWILIGHT("Crepúsculo", "Twilight"),
+    NIGHT("Noche", "Night");
+
+    fun localizedLabel(isSpanish: Boolean): String = if (isSpanish) labelEs else labelEn
+}
+
+data class SolarArcSnapshot(
+    val sunAltitudeDeg: Double,
+    val dayProgressFraction: Float,
+    val sunriseFormatted: String,
+    val sunsetFormatted: String,
+    val goldenHourFormatted: String,
+    val daylightDurationFormatted: String,
+    val lightPhase: SolarLightPhase,
+    val daylightDeltaMinutes: Int
+)
+
+data class StargazingSnapshot(
+    val scorePct: Int,
+    val cloudCoverPct: Int,
+    val moonIlluminationPct: Int,
+    val visiblePlanetNamesEs: List<String>,
+    val visiblePlanetNamesEn: List<String>
+) {
+    fun localizedVisiblePlanets(isSpanish: Boolean): List<String> =
+        if (isSpanish) visiblePlanetNamesEs else visiblePlanetNamesEn
 }
 
 /**
@@ -192,6 +239,188 @@ object AstrologyEngine {
         val vec = geoVector(body, time, Aberration.Corrected)
         val ecl = equatorialToEcliptic(vec)
         return ((ecl.elon % 360.0) + 360.0) % 360.0
+    }
+
+    fun classifySolarLightPhase(sunAltitudeDeg: Double): SolarLightPhase {
+        if (sunAltitudeDeg.isNaN()) return SolarLightPhase.NIGHT
+        return when {
+            sunAltitudeDeg > 6.0 -> SolarLightPhase.DAYLIGHT
+            sunAltitudeDeg >= -4.0 -> SolarLightPhase.GOLDEN_HOUR
+            sunAltitudeDeg >= -8.0 -> SolarLightPhase.BLUE_HOUR
+            sunAltitudeDeg >= -18.0 -> SolarLightPhase.TWILIGHT
+            else -> SolarLightPhase.NIGHT
+        }
+    }
+
+    fun computeSolarArcSnapshot(
+        latitude: Double,
+        longitude: Double,
+        instant: Instant = Instant.now(),
+        zoneId: ZoneId = ZoneId.systemDefault()
+    ): SolarArcSnapshot {
+        val safeLat = if (latitude.isNaN()) -33.4489 else latitude.coerceIn(-89.9, 89.9)
+        val safeLon = if (longitude.isNaN()) -70.6693 else longitude.coerceIn(-180.0, 180.0)
+        val observer = Observer(safeLat, safeLon, 0.0)
+        val nowTime = Time.fromMillisecondsSince1970(instant.toEpochMilli())
+        val sunAltitudeDeg = bodyAltitudeDegrees(Body.Sun, nowTime, observer)
+        val lightPhase = classifySolarLightPhase(sunAltitudeDeg)
+
+        val localDate = instant.atZone(zoneId).toLocalDate()
+        val dayStartInstant = localDate.atStartOfDay(zoneId).toInstant()
+        val dayStartTime = Time.fromMillisecondsSince1970(dayStartInstant.toEpochMilli())
+        val yesterdayStartInstant = localDate.minusDays(1).atStartOfDay(zoneId).toInstant()
+        val yesterdayStartTime = Time.fromMillisecondsSince1970(yesterdayStartInstant.toEpochMilli())
+
+        var sunrise = searchRiseSet(Body.Sun, observer, Direction.Rise, dayStartTime, 1.0)
+        var sunset = if (sunrise != null) {
+            searchRiseSet(Body.Sun, observer, Direction.Set, sunrise, 1.0)
+        } else {
+            searchRiseSet(Body.Sun, observer, Direction.Set, dayStartTime, 1.0)
+        }
+
+        if (sunrise != null &&
+            instant.toEpochMilli() < sunrise.toMillisecondsSince1970() &&
+            sunAltitudeDeg > -0.833
+        ) {
+            val activeRise = searchRiseSet(Body.Sun, observer, Direction.Rise, nowTime, -1.0)
+            val activeSet = searchRiseSet(Body.Sun, observer, Direction.Set, nowTime, 1.0)
+            if (activeRise != null && activeSet != null) {
+                sunrise = activeRise
+                sunset = activeSet
+            }
+        }
+
+        val ySunrise = searchRiseSet(Body.Sun, observer, Direction.Rise, yesterdayStartTime, 1.0)
+        val ySunset = ySunrise?.let { searchRiseSet(Body.Sun, observer, Direction.Set, it, 1.0) }
+
+        val formatter = DateTimeFormatter.ofPattern("HH:mm").withZone(zoneId)
+        val nowMs = instant.toEpochMilli()
+
+        val (dayProgressFraction, daylightDurationFormatted, daylightDeltaMinutes) =
+            if (sunrise != null && sunset != null) {
+                val riseMs = sunrise.toMillisecondsSince1970()
+                val setMs = sunset.toMillisecondsSince1970()
+                val spanMs = (setMs - riseMs).coerceAtLeast(1L)
+                val progress = ((nowMs - riseMs).toDouble() / spanMs.toDouble())
+                    .toFloat().coerceIn(0f, 1f)
+                val todayMinutes = (spanMs / 60_000.0).roundToInt().coerceAtLeast(0)
+                val delta = if (ySunrise != null && ySunset != null) {
+                    val yesterdayMs = (ySunset.toMillisecondsSince1970() - ySunrise.toMillisecondsSince1970())
+                        .coerceAtLeast(0L)
+                    ((spanMs - yesterdayMs) / 60_000.0).roundToInt()
+                } else {
+                    0
+                }
+                Triple(progress, formatDurationMinutes(todayMinutes), delta)
+            } else if (sunAltitudeDeg > -0.833) {
+                val dayElapsed = ((nowMs - dayStartInstant.toEpochMilli()).toDouble() / 86_400_000.0)
+                    .toFloat().coerceIn(0f, 1f)
+                Triple(dayElapsed, "24h 00m", 0)
+            } else {
+                Triple(0f, "0h 00m", 0)
+            }
+
+        val goldenHourTime = findNextGoldenHourTransition(
+            observer = observer,
+            nowTime = nowTime,
+            sunAltitudeDeg = sunAltitudeDeg,
+            lightPhase = lightPhase
+        )
+
+        return SolarArcSnapshot(
+            sunAltitudeDeg = sunAltitudeDeg,
+            dayProgressFraction = dayProgressFraction,
+            sunriseFormatted = sunrise?.let { formatTime(it, formatter) } ?: "--:--",
+            sunsetFormatted = sunset?.let { formatTime(it, formatter) } ?: "--:--",
+            goldenHourFormatted = goldenHourTime?.let { formatTime(it, formatter) } ?: "--:--",
+            daylightDurationFormatted = daylightDurationFormatted,
+            lightPhase = lightPhase,
+            daylightDeltaMinutes = daylightDeltaMinutes
+        )
+    }
+
+    fun computeStargazingScore(cloudCoverPct: Int, moonIlluminationPct: Int): Int {
+        val cloudScore = (100 - cloudCoverPct.coerceIn(0, 100)) * 0.70
+        val darkScore = (100 - moonIlluminationPct.coerceIn(0, 100)) * 0.30
+        return (cloudScore + darkScore).roundToInt().coerceIn(0, 100)
+    }
+
+    fun computeStargazingSnapshot(
+        cloudCoverPct: Int,
+        latitude: Double,
+        longitude: Double,
+        instant: Instant = Instant.now(),
+        zoneId: ZoneId = ZoneId.systemDefault()
+    ): StargazingSnapshot {
+        val safeCloudCover = cloudCoverPct.coerceIn(0, 100)
+        val moonPct = computeSnapshot(instant).lunarStatus.illuminationPercent
+        val score = computeStargazingScore(safeCloudCover, moonPct)
+
+        val safeLat = if (latitude.isNaN()) -33.4489 else latitude.coerceIn(-89.9, 89.9)
+        val safeLon = if (longitude.isNaN()) -70.6693 else longitude.coerceIn(-180.0, 180.0)
+        val observer = Observer(safeLat, safeLon, 0.0)
+        val nowTime = Time.fromMillisecondsSince1970(instant.toEpochMilli())
+        val currentSunAlt = bodyAltitudeDegrees(Body.Sun, nowTime, observer)
+        val obsTime = if (currentSunAlt < -6.0) {
+            nowTime
+        } else {
+            searchAltitude(Body.Sun, observer, Direction.Set, nowTime, 1.0, -6.0)
+                ?: Time.fromMillisecondsSince1970(
+                    instant.atZone(zoneId).toLocalDate()
+                        .atTime(21, 30)
+                        .atZone(zoneId)
+                        .toInstant()
+                        .toEpochMilli()
+                )
+        }
+
+        val planetAltitudes = trackedPlanets
+            .map { meta -> meta to bodyAltitudeDegrees(meta.body, obsTime, observer) }
+            .sortedByDescending { it.second }
+
+        val visible = planetAltitudes.filter { it.second > 5.0 }
+            .ifEmpty { listOf(planetAltitudes.first()) }
+
+        return StargazingSnapshot(
+            scorePct = score,
+            cloudCoverPct = safeCloudCover,
+            moonIlluminationPct = moonPct,
+            visiblePlanetNamesEs = visible.map { it.first.nameEs },
+            visiblePlanetNamesEn = visible.map { it.first.nameEn }
+        )
+    }
+
+    private fun bodyAltitudeDegrees(body: Body, time: Time, observer: Observer): Double {
+        val eq = equator(body, time, observer, EquatorEpoch.OfDate, Aberration.Corrected)
+        return horizon(time, observer, eq.ra, eq.dec, Refraction.Normal).altitude
+    }
+
+    private fun findNextGoldenHourTransition(
+        observer: Observer,
+        nowTime: Time,
+        sunAltitudeDeg: Double,
+        lightPhase: SolarLightPhase
+    ): Time? = when {
+        lightPhase == SolarLightPhase.DAYLIGHT ->
+            searchAltitude(Body.Sun, observer, Direction.Set, nowTime, 1.05, 6.0)
+        lightPhase == SolarLightPhase.GOLDEN_HOUR -> {
+            val morningEnd = searchAltitude(Body.Sun, observer, Direction.Rise, nowTime, 1.05, 6.0)
+            val eveningEnd = searchAltitude(Body.Sun, observer, Direction.Set, nowTime, 1.05, -4.0)
+            listOfNotNull(morningEnd, eveningEnd).minByOrNull { it.toMillisecondsSince1970() }
+        }
+        sunAltitudeDeg < -4.0 ->
+            searchAltitude(Body.Sun, observer, Direction.Rise, nowTime, 1.05, -4.0)
+        else -> null
+    }
+
+    private fun formatTime(time: Time, formatter: DateTimeFormatter): String =
+        formatter.format(Instant.ofEpochMilli(time.toMillisecondsSince1970()))
+
+    private fun formatDurationMinutes(totalMinutes: Int): String {
+        val safeMinutes = totalMinutes.coerceAtLeast(0)
+        val hours = safeMinutes / 60
+        val minutes = safeMinutes % 60
+        return String.format(Locale.US, "%dh %02dm", hours, minutes)
     }
 
     private fun angularDeltaDegrees(fromDeg: Double, toDeg: Double): Double {

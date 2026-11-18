@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:description="@string/widget_weather_stargazing_desc"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:minWidth="140dp"
+    android:minHeight="70dp"
+    android:minResizeWidth="70dp"
+    android:minResizeHeight="70dp"
+    android:previewLayout="@layout/widget_preview_weather_stargazing"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellWidth="2"
+    android:targetCellHeight="1"
+    android:updatePeriodMillis="1800000"
+    android:configure="com.anacatavc.oneuiextrawidgets.ui.config.WidgetConfigActivity"
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable|configuration_optional"
+    tools:targetApi="p" />

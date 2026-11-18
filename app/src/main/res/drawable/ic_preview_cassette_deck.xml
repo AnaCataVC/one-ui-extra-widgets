@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="180dp"
+    android:height="105dp"
+    android:viewportWidth="240"
+    android:viewportHeight="140">
+    <!-- Outer Cassette Shell -->
+    <path
+        android:fillColor="@color/oneui_preview_cassette_shell"
+        android:pathData="M15,4 H225 A11,11 0 0,1 236,15 V125 A11,11 0 0,1 225,136 H15 A11,11 0 0,1 4,125 V15 A11,11 0 0,1 15,4 Z"
+        android:strokeColor="@color/oneui_preview_cassette_bevel"
+        android:strokeWidth="2.2" />
+    <!-- Inner Recessed Groove -->
+    <path
+        android:pathData="M17,10 H223 A7,7 0 0,1 230,17 V123 A7,7 0 0,1 223,130 H17 A7,7 0 0,1 10,123 V17 A7,7 0 0,1 17,10 Z"
+        android:strokeAlpha="0.55"
+        android:strokeColor="@color/oneui_preview_cassette_bevel"
+        android:strokeWidth="1" />
+    <!-- 4 Corner Micro-Screws -->
+    <path
+        android:fillColor="@color/oneui_preview_cassette_bevel"
+        android:pathData="M12.8,16 a3.2,3.2 0 1,0 6.4,0 a3.2,3.2 0 1,0 -6.4,0 M220.8,16 a3.2,3.2 0 1,0 6.4,0 a3.2,3.2 0 1,0 -6.4,0 M12.8,124 a3.2,3.2 0 1,0 6.4,0 a3.2,3.2 0 1,0 -6.4,0 M220.8,124 a3.2,3.2 0 1,0 6.4,0 a3.2,3.2 0 1,0 -6.4,0" />
+    <!-- Creamy Paper Cassette Label -->
+    <path
+        android:fillColor="@color/oneui_preview_cassette_label"
+        android:pathData="M26,13 H214 A5,5 0 0,1 219,18 V97 A5,5 0 0,1 214,102 H26 A5,5 0 0,1 21,97 V18 A5,5 0 0,1 26,13 Z" />
+    <!-- Header Accent Bars -->
+    <path
+        android:fillColor="@color/oneui_preview_cassette_label_text"
+        android:pathData="M28,21 H86 V24.5 H28 Z" />
+    <path
+        android:fillColor="@color/oneui_preview_cassette_stripe_amber"
+        android:pathData="M204,20 H212 V25.5 H204 Z" />
+    <!-- Classic Type II Racing Stripes -->
+    <path
+        android:fillColor="@color/oneui_preview_cassette_stripe_amber"
+        android:pathData="M21,31 H219 V35 H21 Z M21,40 H219 V42.2 H21 Z" />
+    <path
+        android:fillColor="@color/oneui_preview_cassette_stripe_red"
+        android:pathData="M21,36 H219 V39 H21 Z" />
+    <!-- Dark Smoky Center Tape Window -->
+    <path
+        android:fillColor="@color/oneui_preview_cassette_window"
+        android:pathData="M60,45 H180 A11,11 0 0,1 191,56 V82 A11,11 0 0,1 180,93 H60 A11,11 0 0,1 49,82 V56 A11,11 0 0,1 60,45 Z"
+        android:strokeColor="@color/oneui_preview_cassette_bevel"
+        android:strokeWidth="1.5" />
+    <!-- Left & Right Magnetic Tape Spools -->
+    <path
+        android:fillColor="@color/oneui_preview_cassette_tape"
+        android:pathData="M55,69 a21,21 0 1,0 42,0 a21,21 0 1,0 -42,0 M148,69 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0" />
+    <!-- Reel Hubs -->
+    <path
+        android:fillColor="@color/oneui_preview_cassette_reel"
+        android:pathData="M63.5,69 a12.5,12.5 0 1,0 25,0 a12.5,12.5 0 1,0 -25,0 M151.5,69 a12.5,12.5 0 1,0 25,0 a12.5,12.5 0 1,0 -25,0" />
+    <!-- Hub Inner Cores -->
+    <path
+        android:fillColor="@color/oneui_preview_cassette_window"
+        android:pathData="M68.5,69 a7.5,7.5 0 1,0 15,0 a7.5,7.5 0 1,0 -15,0 M156.5,69 a7.5,7.5 0 1,0 15,0 a7.5,7.5 0 1,0 -15,0" />
+    <!-- Center 3-Digit Tape Counter -->
+    <path
+        android:fillColor="@color/oneui_preview_cassette_counter_bg"
+        android:pathData="M105,59 H135 A3,3 0 0,1 138,62 V76 A3,3 0 0,1 135,79 H105 A3,3 0 0,1 102,76 V62 A3,3 0 0,1 105,59 Z"
+        android:strokeColor="@color/oneui_preview_cassette_bevel"
+        android:strokeWidth="1.1" />
+    <path
+        android:fillColor="@color/oneui_preview_cassette_counter_text"
+        android:pathData="M108,65 H113 V73 H108 Z M117.5,65 H122.5 V73 H117.5 Z M127,65 H132 V73 H127 Z" />
+    <!-- Bottom Trapezoidal Head Bridge -->
+    <path
+        android:fillColor="@color/oneui_preview_cassette_bevel"
+        android:pathData="M46,136 L57,108 H183 L194,136 Z" />
+    <!-- Capstan & Alignment Pin Holes -->
+    <path
+        android:fillColor="@color/oneui_preview_cassette_window"
+        android:pathData="M75.8,122 a4.2,4.2 0 1,0 8.4,0 a4.2,4.2 0 1,0 -8.4,0 M155.8,122 a4.2,4.2 0 1,0 8.4,0 a4.2,4.2 0 1,0 -8.4,0 M95.8,124 a3.2,3.2 0 1,0 6.4,0 a3.2,3.2 0 1,0 -6.4,0 M137.8,124 a3.2,3.2 0 1,0 6.4,0 a3.2,3.2 0 1,0 -6.4,0" />
+    <!-- Active Playhead Amber Indicator -->
+    <path
+        android:fillColor="@color/oneui_preview_cassette_stripe_amber"
+        android:pathData="M114,112 H126 V116 H114 Z" />
+</vector>

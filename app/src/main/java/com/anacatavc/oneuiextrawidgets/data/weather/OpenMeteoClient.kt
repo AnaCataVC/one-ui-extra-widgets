@@ -23,7 +23,7 @@ object OpenMeteoClient {
         runCatching {
             val forecastUrl =
                 "https://api.open-meteo.com/v1/forecast?latitude=$latitude&longitude=$longitude" +
-                    "&current=temperature_2m,apparent_temperature,weather_code" +
+                    "&current=temperature_2m,apparent_temperature,weather_code,cloud_cover" +
                     "&hourly=precipitation_probability,uv_index&forecast_days=1&timezone=auto"
 
             val aqiUrl =
@@ -85,6 +85,7 @@ object OpenMeteoClient {
         val euAqi = currentAqi?.optInt("european_aqi", 25) ?: 25
         val pm25 = currentAqi?.optDouble("pm2_5", 8.0) ?: 8.0
         val pm10 = currentAqi?.optDouble("pm10", 15.0) ?: 15.0
+        val cloudCover = current.optInt("cloud_cover", 15).coerceIn(0, 100)
 
         return CachedWeatherState(
             cityName = cityName,
@@ -98,6 +99,7 @@ object OpenMeteoClient {
             pm25 = pm25,
             pm10 = pm10,
             weatherCode = current.optInt("weather_code", 0),
+            cloudCoverPct = cloudCover,
             lastUpdatedMillis = nowMillis
         )
     }

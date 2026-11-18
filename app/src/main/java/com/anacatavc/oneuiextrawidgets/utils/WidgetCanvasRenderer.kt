@@ -2,6 +2,7 @@ package com.anacatavc.oneuiextrawidgets.utils
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.DashPathEffect
 import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
@@ -9,7 +10,6 @@ import android.graphics.RectF
 import android.graphics.Shader
 import com.anacatavc.oneuiextrawidgets.data.astrology.ZodiacSign
 import com.anacatavc.oneuiextrawidgets.widgets.theme.OneUiCanvasPalette
-import com.anacatavc.oneuiextrawidgets.widgets.theme.OneUiGlanceTokens
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -17,11 +17,8 @@ import kotlin.math.sin
 /**
  * Renders custom Canvas Bitmaps for Jetpack Glance widgets:
  * - Accurate Lunar Phase sphere with waxing/waning terminator curve
- * - One UI 7 Rain Probability ring gauge with sculpted water droplet
- * - One UI 7 European AQI 270° radial arc gauge with indicator dot
- * - One UI 7 Solar UV Index 270° radial arc gauge with sun rays
- * - iPod Classic Click Wheel graphic
- * - Circular portable CD Discman body with metallic rim & speaker grille
+ * - One UI 7 Rain, AQI, UV, Sun Arc, Stargazing, and Battery Thermal radial gauges
+ * - Retro music player hardware graphics (iPod, Discman, Cassette, Vinyl, MiniDisc)
  */
 object WidgetCanvasRenderer {
 
@@ -114,13 +111,7 @@ object WidgetCanvasRenderer {
         val radius = safeSize * 0.41f
         val arcRect = RectF(cx - radius, cy - radius, cx + radius, cy + radius)
 
-        val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = if (isDarkTheme) OneUiCanvasPalette.GAUGE_TRACK_DARK else OneUiCanvasPalette.GAUGE_TRACK_LIGHT
-            style = Paint.Style.STROKE
-            strokeWidth = strokeW
-            strokeCap = Paint.Cap.ROUND
-        }
-        canvas.drawArc(arcRect, 135f, 270f, false, trackPaint)
+        drawRadialGaugeTrack(canvas, arcRect, strokeW, isDarkTheme)
 
         val clampedPct = probabilityPct.coerceIn(0, 100)
         val sweep = (clampedPct / 100f) * 270f
@@ -200,13 +191,7 @@ object WidgetCanvasRenderer {
         val radius = safeSize * 0.41f
         val arcRect = RectF(cx - radius, cy - radius, cx + radius, cy + radius)
 
-        val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = if (isDarkTheme) OneUiCanvasPalette.GAUGE_TRACK_DARK else OneUiCanvasPalette.GAUGE_TRACK_LIGHT
-            style = Paint.Style.STROKE
-            strokeWidth = strokeW
-            strokeCap = Paint.Cap.ROUND
-        }
-        canvas.drawArc(arcRect, 135f, 270f, false, trackPaint)
+        drawRadialGaugeTrack(canvas, arcRect, strokeW, isDarkTheme)
 
         val aqiColor = when {
             europeanAqi <= 20 -> OneUiCanvasPalette.AQI_GOOD
@@ -225,21 +210,7 @@ object WidgetCanvasRenderer {
             strokeCap = Paint.Cap.ROUND
         }
         canvas.drawArc(arcRect, 135f, sweep, false, activePaint)
-
-        // Indicator dot on the arc tip
-        val endAngleRad = Math.toRadians((135f + sweep).toDouble())
-        val dotX = cx + (radius * cos(endAngleRad)).toFloat()
-        val dotY = cy + (radius * sin(endAngleRad)).toFloat()
-        val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = if (isDarkTheme) OneUiCanvasPalette.INDICATOR_RING_DARK else OneUiCanvasPalette.INDICATOR_RING_LIGHT
-            style = Paint.Style.FILL
-        }
-        val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = aqiColor
-            style = Paint.Style.FILL
-        }
-        canvas.drawCircle(dotX, dotY, strokeW * 0.65f, ringPaint)
-        canvas.drawCircle(dotX, dotY, strokeW * 0.42f, dotPaint)
+        drawRadialTipIndicator(canvas, cx, cy, radius, strokeW, sweep, aqiColor, isDarkTheme)
 
         // Center AQI numeric readout
         val valuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -277,13 +248,7 @@ object WidgetCanvasRenderer {
         val radius = safeSize * 0.41f
         val arcRect = RectF(cx - radius, cy - radius, cx + radius, cy + radius)
 
-        val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = if (isDarkTheme) OneUiCanvasPalette.GAUGE_TRACK_DARK else OneUiCanvasPalette.GAUGE_TRACK_LIGHT
-            style = Paint.Style.STROKE
-            strokeWidth = strokeW
-            strokeCap = Paint.Cap.ROUND
-        }
-        canvas.drawArc(arcRect, 135f, 270f, false, trackPaint)
+        drawRadialGaugeTrack(canvas, arcRect, strokeW, isDarkTheme)
 
         val uvRounded = uvIndex.roundToInt().coerceAtLeast(0)
         val uvColor = when {
@@ -363,6 +328,56 @@ object WidgetCanvasRenderer {
         sizePx = sizePx,
         isDarkTheme = isDarkTheme,
         opacityPct = opacityPct
+    )
+
+    /**
+     * Renders a retro Walkman compact cassette deck with dynamic tape spools, 6-tooth hubs,
+     * 3-digit counter, and bottom head bridge.
+     */
+    fun renderCassetteDeckBitmap(
+        progressFraction: Float,
+        sizePx: Int = 360,
+        isDarkTheme: Boolean = true,
+        isPlaying: Boolean = false,
+        opacityPct: Int = 100
+    ): Bitmap = MusicCanvasRenderer.renderCassetteDeckBitmap(
+        progressFraction = progressFraction,
+        sizePx = sizePx,
+        isDarkTheme = isDarkTheme,
+        isPlaying = isPlaying,
+        opacityPct = opacityPct
+    )
+
+    /**
+     * Renders a Braun / Dieter Rams vinyl turntable platter, stroboscopic speed rim,
+     * micro-grooved LP disc with circular-clipped album art, and articulated S-shaped tonearm.
+     */
+    fun renderVinylTurntableBitmap(
+        albumArt: Bitmap?,
+        progressFraction: Float,
+        sizePx: Int = 320,
+        isDarkTheme: Boolean = true,
+        isPlaying: Boolean = false
+    ): Bitmap = MusicCanvasRenderer.renderVinylTurntableBitmap(
+        albumArt = albumArt,
+        progressFraction = progressFraction,
+        sizePx = sizePx,
+        isDarkTheme = isDarkTheme,
+        isPlaying = isPlaying
+    )
+
+    /**
+     * Renders a square Sony-style MiniDisc cartridge badge with smoky window,
+     * iridescent magneto-optical disc, clamping hub, and brushed silver shutter.
+     */
+    fun renderMiniDiscBadgeBitmap(
+        sizePx: Int = 128,
+        isDarkTheme: Boolean = true,
+        isPlaying: Boolean = false
+    ): Bitmap = MusicCanvasRenderer.renderMiniDiscBadgeBitmap(
+        sizePx = sizePx,
+        isDarkTheme = isDarkTheme,
+        isPlaying = isPlaying
     )
 
     /**
@@ -575,6 +590,415 @@ object WidgetCanvasRenderer {
             val off = safeSize * 0.20f
             canvas.drawLine(cx - off, cy + off, cx + off, cy - off, slashPaint)
         }
+
+        return bitmap
+    }
+
+    /**
+     * Renders a One UI 270° Sun Arc & Golden/Blue Hour radial gauge with an interior horizon line,
+     * golden daytime parabola, dashed twilight curve, and sun orb tracking [sunAltitudeDeg] and
+     * [dayProgressFraction].
+     */
+    fun renderSunArcGaugeBitmap(
+        sunAltitudeDeg: Double,
+        dayProgressFraction: Float,
+        sizePx: Int = 160,
+        isDarkTheme: Boolean = true
+    ): Bitmap = EnvironmentalGaugePainter.renderSunArcGauge(
+        sunAltitudeDeg = sunAltitudeDeg,
+        dayProgressFraction = dayProgressFraction,
+        sizePx = sizePx,
+        isDarkTheme = isDarkTheme
+    )
+
+    /**
+     * Renders a One UI 270° Stargazing Clarity radial gauge with an indigo-to-cyan arc,
+     * indicator dot, central night-sky constellation emblem with 4-point sparkles, and percentage.
+     */
+    fun renderStargazingGaugeBitmap(
+        stargazingIndexPct: Int,
+        sizePx: Int = 160,
+        isDarkTheme: Boolean = true
+    ): Bitmap = EnvironmentalGaugePainter.renderStargazingGauge(
+        stargazingIndexPct = stargazingIndexPct,
+        sizePx = sizePx,
+        isDarkTheme = isDarkTheme
+    )
+
+    /**
+     * Renders a One UI 270° Battery Thermal radial gauge mapped across 15°C..50°C with
+     * tier-colored arc (< 35°C green, 35..40°C amber, > 40°C red), indicator dot, and °C readout.
+     */
+    fun renderBatteryThermalGaugeBitmap(
+        temperatureC: Double,
+        sizePx: Int = 160,
+        isDarkTheme: Boolean = true
+    ): Bitmap = EnvironmentalGaugePainter.renderBatteryThermalGauge(
+        temperatureC = temperatureC,
+        sizePx = sizePx,
+        isDarkTheme = isDarkTheme
+    )
+}
+
+private fun drawRadialGaugeTrack(
+    canvas: Canvas,
+    arcRect: RectF,
+    strokeW: Float,
+    isDarkTheme: Boolean
+) {
+    val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = if (isDarkTheme) OneUiCanvasPalette.GAUGE_TRACK_DARK else OneUiCanvasPalette.GAUGE_TRACK_LIGHT
+        style = Paint.Style.STROKE
+        strokeWidth = strokeW
+        strokeCap = Paint.Cap.ROUND
+    }
+    canvas.drawArc(arcRect, 135f, 270f, false, trackPaint)
+}
+
+private fun drawRadialTipIndicator(
+    canvas: Canvas,
+    cx: Float,
+    cy: Float,
+    radius: Float,
+    strokeW: Float,
+    sweep: Float,
+    dotColor: Int,
+    isDarkTheme: Boolean
+) {
+    val endAngleRad = Math.toRadians((135f + sweep).toDouble())
+    val dotX = cx + (radius * cos(endAngleRad)).toFloat()
+    val dotY = cy + (radius * sin(endAngleRad)).toFloat()
+    val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = if (isDarkTheme) {
+            OneUiCanvasPalette.INDICATOR_RING_DARK
+        } else {
+            OneUiCanvasPalette.INDICATOR_RING_LIGHT
+        }
+        style = Paint.Style.FILL
+    }
+    val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = dotColor
+        style = Paint.Style.FILL
+    }
+    canvas.drawCircle(dotX, dotY, strokeW * 0.65f, ringPaint)
+    canvas.drawCircle(dotX, dotY, strokeW * 0.42f, dotPaint)
+}
+
+private object EnvironmentalGaugePainter {
+
+    fun renderSunArcGauge(
+        sunAltitudeDeg: Double,
+        dayProgressFraction: Float,
+        sizePx: Int,
+        isDarkTheme: Boolean
+    ): Bitmap {
+        val safeSize = sizePx.coerceIn(64, 360)
+        val bitmap = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val cx = safeSize / 2f
+        val cy = safeSize / 2f
+        val strokeW = safeSize * 0.105f
+        val radius = safeSize * 0.41f
+        val arcRect = RectF(cx - radius, cy - radius, cx + radius, cy + radius)
+
+        drawRadialGaugeTrack(canvas, arcRect, strokeW, isDarkTheme)
+
+        val safeAlt = if (sunAltitudeDeg.isNaN()) 0.0 else sunAltitudeDeg.coerceIn(-90.0, 90.0)
+        val safeProg = if (dayProgressFraction.isNaN()) 0.5f else dayProgressFraction.coerceIn(0f, 1f)
+        val isAboveHorizon = safeAlt >= 0.0
+        val twilightColor = if (isDarkTheme) {
+            OneUiCanvasPalette.SUN_ARC_TWILIGHT_DARK
+        } else {
+            OneUiCanvasPalette.SUN_ARC_TWILIGHT_LIGHT
+        }
+
+        val sweep = (safeProg * 270f).coerceAtLeast(16f)
+        val activePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            shader = if (isAboveHorizon) {
+                LinearGradient(
+                    cx - radius, cy, cx + radius, cy,
+                    OneUiCanvasPalette.SUN_ARC_GOLD_START,
+                    OneUiCanvasPalette.SUN_ARC_GOLD_END,
+                    Shader.TileMode.CLAMP
+                )
+            } else {
+                LinearGradient(
+                    cx - radius, cy, cx + radius, cy,
+                    if (isDarkTheme) OneUiCanvasPalette.STAR_ARC_INDIGO_DARK else OneUiCanvasPalette.STAR_ARC_INDIGO_LIGHT,
+                    twilightColor,
+                    Shader.TileMode.CLAMP
+                )
+            }
+            style = Paint.Style.STROKE
+            strokeWidth = strokeW
+            strokeCap = Paint.Cap.ROUND
+        }
+        canvas.drawArc(arcRect, 135f, sweep, false, activePaint)
+
+        // Interior horizon line, dashed twilight dip, and golden daytime solar parabola
+        val horizonY = cy + safeSize * 0.055f
+        val pathHalfW = safeSize * 0.245f
+        val peakH = safeSize * 0.195f
+        val twilightDip = safeSize * 0.095f
+
+        val horizonPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) {
+                OneUiCanvasPalette.SUN_ARC_HORIZON_DARK
+            } else {
+                OneUiCanvasPalette.SUN_ARC_HORIZON_LIGHT
+            }
+            style = Paint.Style.STROKE
+            strokeWidth = (safeSize * 0.016f).coerceAtLeast(1.4f)
+            strokeCap = Paint.Cap.ROUND
+        }
+        canvas.drawLine(cx - pathHalfW * 1.06f, horizonY, cx + pathHalfW * 1.06f, horizonY, horizonPaint)
+
+        val dashLen = (safeSize * 0.032f).coerceAtLeast(3f)
+        val twilightPath = Path().apply {
+            moveTo(cx - pathHalfW, horizonY)
+            quadTo(cx, horizonY + twilightDip * 1.85f, cx + pathHalfW, horizonY)
+        }
+        val twilightPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = twilightColor
+            alpha = 190
+            style = Paint.Style.STROKE
+            strokeWidth = (safeSize * 0.020f).coerceAtLeast(1.6f)
+            strokeCap = Paint.Cap.ROUND
+            pathEffect = DashPathEffect(floatArrayOf(dashLen, dashLen * 0.85f), 0f)
+        }
+        canvas.drawPath(twilightPath, twilightPaint)
+
+        val solarPath = Path().apply {
+            moveTo(cx - pathHalfW, horizonY)
+            quadTo(cx, horizonY - peakH * 2f, cx + pathHalfW, horizonY)
+        }
+        val solarArcPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            shader = LinearGradient(
+                cx - pathHalfW, horizonY, cx + pathHalfW, horizonY - peakH,
+                intArrayOf(
+                    OneUiCanvasPalette.SUN_ARC_GOLD_START,
+                    OneUiCanvasPalette.SUN_ARC_NOON_PEAK,
+                    OneUiCanvasPalette.SUN_ARC_GOLD_END
+                ),
+                null,
+                Shader.TileMode.CLAMP
+            )
+            style = Paint.Style.STROKE
+            strokeWidth = (safeSize * 0.028f).coerceAtLeast(2.2f)
+            strokeCap = Paint.Cap.ROUND
+        }
+        canvas.drawPath(solarPath, solarArcPaint)
+
+        // Position sun orb along the solar/twilight path
+        val orbX = cx + (safeProg * 2f - 1f) * pathHalfW
+        val orbY = if (isAboveHorizon) {
+            val curveFactor = 4f * safeProg * (1f - safeProg)
+            val altNorm = if (safeAlt <= 0.0) 0f else (safeAlt / 60.0).toFloat().coerceIn(0.10f, 1f)
+            val heightNorm = if (safeAlt <= 0.0) 0f else (0.5f * curveFactor + 0.5f * altNorm)
+            horizonY - peakH * heightNorm
+        } else {
+            val depthNorm = (-safeAlt / 36.0).toFloat().coerceIn(0.18f, 1f)
+            horizonY + twilightDip * depthNorm
+        }
+
+        val orbR = (safeSize * 0.056f).coerceAtLeast(4.5f)
+        val haloPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isAboveHorizon) OneUiCanvasPalette.SUN_ORB_HALO else OneUiCanvasPalette.SUN_TWILIGHT_HALO
+            style = Paint.Style.FILL
+        }
+        val orbPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isAboveHorizon) OneUiCanvasPalette.SUN_ORB_CORE else OneUiCanvasPalette.SUN_TWILIGHT_ORB
+            style = Paint.Style.FILL
+        }
+        canvas.drawCircle(orbX, orbY, orbR * 1.85f, haloPaint)
+        canvas.drawCircle(orbX, orbY, orbR, orbPaint)
+
+        if (isAboveHorizon) {
+            val orbRimPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = OneUiCanvasPalette.SUN_ORB_RIM
+                style = Paint.Style.STROKE
+                strokeWidth = (safeSize * 0.012f).coerceAtLeast(1.2f)
+            }
+            canvas.drawCircle(orbX, orbY, orbR, orbRimPaint)
+        }
+
+        return bitmap
+    }
+
+    fun renderStargazingGauge(
+        stargazingIndexPct: Int,
+        sizePx: Int,
+        isDarkTheme: Boolean
+    ): Bitmap {
+        val safeSize = sizePx.coerceIn(64, 360)
+        val bitmap = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val cx = safeSize / 2f
+        val cy = safeSize / 2f
+        val strokeW = safeSize * 0.105f
+        val radius = safeSize * 0.41f
+        val arcRect = RectF(cx - radius, cy - radius, cx + radius, cy + radius)
+
+        drawRadialGaugeTrack(canvas, arcRect, strokeW, isDarkTheme)
+
+        val clampedPct = stargazingIndexPct.coerceIn(0, 100)
+        val sweep = (clampedPct / 100f).coerceAtLeast(0.06f) * 270f
+        val indigoColor = if (isDarkTheme) {
+            OneUiCanvasPalette.STAR_ARC_INDIGO_DARK
+        } else {
+            OneUiCanvasPalette.STAR_ARC_INDIGO_LIGHT
+        }
+        val cyanColor = if (isDarkTheme) {
+            OneUiCanvasPalette.STAR_ARC_CYAN_DARK
+        } else {
+            OneUiCanvasPalette.STAR_ARC_CYAN_LIGHT
+        }
+
+        val activePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            shader = LinearGradient(
+                cx - radius, cy + radius, cx + radius, cy - radius,
+                indigoColor,
+                cyanColor,
+                Shader.TileMode.CLAMP
+            )
+            style = Paint.Style.STROKE
+            strokeWidth = strokeW
+            strokeCap = Paint.Cap.ROUND
+        }
+        canvas.drawArc(arcRect, 135f, sweep, false, activePaint)
+        drawRadialTipIndicator(canvas, cx, cy, radius, strokeW, sweep, cyanColor, isDarkTheme)
+
+        // Central night-sky dome & constellation emblem
+        val skyCy = cy - safeSize * 0.025f
+        val skyR = safeSize * 0.255f
+        val skyDomePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) OneUiCanvasPalette.STAR_SKY_DOME_DARK else OneUiCanvasPalette.STAR_SKY_DOME_LIGHT
+            style = Paint.Style.FILL
+        }
+        canvas.drawCircle(cx, skyCy, skyR, skyDomePaint)
+
+        val nodes = arrayOf(
+            cx - skyR * 0.56f to skyCy + skyR * 0.26f,
+            cx - skyR * 0.20f to skyCy - skyR * 0.24f,
+            cx + skyR * 0.16f to skyCy + skyR * 0.10f,
+            cx + skyR * 0.54f to skyCy - skyR * 0.34f
+        )
+        val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) {
+                OneUiCanvasPalette.STAR_CONSTELLATION_LINE_DARK
+            } else {
+                OneUiCanvasPalette.STAR_CONSTELLATION_LINE_LIGHT
+            }
+            style = Paint.Style.STROKE
+            strokeWidth = (safeSize * 0.014f).coerceAtLeast(1.2f)
+            strokeCap = Paint.Cap.ROUND
+        }
+        for (i in 0 until nodes.size - 1) {
+            canvas.drawLine(nodes[i].first, nodes[i].second, nodes[i + 1].first, nodes[i + 1].second, linePaint)
+        }
+
+        val nodePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) {
+                OneUiCanvasPalette.STAR_CONSTELLATION_CYAN_DARK
+            } else {
+                OneUiCanvasPalette.STAR_CONSTELLATION_CYAN_LIGHT
+            }
+            style = Paint.Style.FILL
+        }
+        for ((nx, ny) in nodes) {
+            canvas.drawCircle(nx, ny, (safeSize * 0.018f).coerceAtLeast(1.5f), nodePaint)
+        }
+
+        val primarySparklePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) OneUiCanvasPalette.STAR_SPARKLE_GOLD else indigoColor
+            style = Paint.Style.FILL
+        }
+        val secondarySparklePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) OneUiCanvasPalette.STAR_SPARKLE_WHITE else cyanColor
+            style = Paint.Style.FILL
+        }
+        drawFourPointSparkle(canvas, cx - skyR * 0.12f, skyCy - skyR * 0.08f, safeSize * 0.085f, primarySparklePaint)
+        drawFourPointSparkle(canvas, cx + skyR * 0.44f, skyCy + skyR * 0.28f, safeSize * 0.048f, secondarySparklePaint)
+        drawFourPointSparkle(canvas, cx - skyR * 0.46f, skyCy - skyR * 0.38f, safeSize * 0.038f, secondarySparklePaint)
+
+        // Crisp percentage readout seated in the open lower mouth of the 270° gauge
+        val pctPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) OneUiCanvasPalette.TEXT_PRIMARY_DARK else OneUiCanvasPalette.TEXT_PRIMARY_LIGHT
+            textSize = safeSize * 0.145f
+            textAlign = Paint.Align.CENTER
+            isFakeBoldText = true
+        }
+        canvas.drawText("$clampedPct%", cx, cy + safeSize * 0.39f, pctPaint)
+
+        return bitmap
+    }
+
+    private fun drawFourPointSparkle(
+        canvas: Canvas,
+        cx: Float,
+        cy: Float,
+        radius: Float,
+        paint: Paint
+    ) {
+        val path = Path().apply {
+            moveTo(cx, cy - radius)
+            quadTo(cx, cy, cx + radius, cy)
+            quadTo(cx, cy, cx, cy + radius)
+            quadTo(cx, cy, cx - radius, cy)
+            quadTo(cx, cy, cx, cy - radius)
+            close()
+        }
+        canvas.drawPath(path, paint)
+    }
+
+    fun renderBatteryThermalGauge(
+        temperatureC: Double,
+        sizePx: Int,
+        isDarkTheme: Boolean
+    ): Bitmap {
+        val safeSize = sizePx.coerceIn(64, 360)
+        val bitmap = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val cx = safeSize / 2f
+        val cy = safeSize / 2f
+        val strokeW = safeSize * 0.105f
+        val radius = safeSize * 0.41f
+        val arcRect = RectF(cx - radius, cy - radius, cx + radius, cy + radius)
+
+        drawRadialGaugeTrack(canvas, arcRect, strokeW, isDarkTheme)
+
+        val safeTemp = if (temperatureC.isNaN()) 25.0 else temperatureC
+        val thermalColor = when {
+            safeTemp < 35.0 -> if (isDarkTheme) OneUiCanvasPalette.THERMAL_COOL_DARK else OneUiCanvasPalette.THERMAL_COOL_LIGHT
+            safeTemp <= 40.0 -> if (isDarkTheme) OneUiCanvasPalette.THERMAL_WARM_DARK else OneUiCanvasPalette.THERMAL_WARM_LIGHT
+            else -> if (isDarkTheme) OneUiCanvasPalette.THERMAL_HOT_DARK else OneUiCanvasPalette.THERMAL_HOT_LIGHT
+        }
+
+        val normalized = ((safeTemp - 15.0) / 35.0).coerceIn(0.06, 1.0).toFloat()
+        val sweep = normalized * 270f
+        val activePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = thermalColor
+            style = Paint.Style.STROKE
+            strokeWidth = strokeW
+            strokeCap = Paint.Cap.ROUND
+        }
+        canvas.drawArc(arcRect, 135f, sweep, false, activePaint)
+        drawRadialTipIndicator(canvas, cx, cy, radius, strokeW, sweep, thermalColor, isDarkTheme)
+
+        val valuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) OneUiCanvasPalette.TEXT_PRIMARY_DARK else OneUiCanvasPalette.TEXT_PRIMARY_LIGHT
+            textSize = safeSize * 0.25f
+            textAlign = Paint.Align.CENTER
+            isFakeBoldText = true
+        }
+        val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = thermalColor
+            textSize = safeSize * 0.125f
+            textAlign = Paint.Align.CENTER
+            isFakeBoldText = true
+        }
+        canvas.drawText("${safeTemp.roundToInt()}°", cx, cy + safeSize * 0.05f, valuePaint)
+        canvas.drawText("°C", cx, cy + safeSize * 0.24f, labelPaint)
 
         return bitmap
     }

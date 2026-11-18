@@ -1,5 +1,7 @@
 package com.anacatavc.oneuiextrawidgets.ui.screens
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,20 +19,36 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.anacatavc.oneuiextrawidgets.data.battery.BatteryThermalSnapshot
 import com.anacatavc.oneuiextrawidgets.data.network.NetworkQualitySnapshot
 import com.anacatavc.oneuiextrawidgets.ui.components.OneUiCard
 import com.anacatavc.oneuiextrawidgets.ui.components.OneUiHeader
+import com.anacatavc.oneuiextrawidgets.utils.WidgetCanvasRenderer
+import java.util.Locale
 
 @Composable
 fun NetworkDetailScreen(
     snapshot: NetworkQualitySnapshot,
     isSpanish: Boolean,
     isRefreshing: Boolean = false,
+    batterySnapshot: BatteryThermalSnapshot = BatteryThermalSnapshot(),
     onRefresh: () -> Unit
 ) {
+    val isDark = isSystemInDarkTheme()
+    val batteryBitmap = remember(batterySnapshot.temperatureC, isDark) {
+        WidgetCanvasRenderer.renderBatteryThermalGaugeBitmap(
+            temperatureC = batterySnapshot.temperatureC,
+            sizePx = 180,
+            isDarkTheme = isDark
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -39,7 +57,7 @@ fun NetworkDetailScreen(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         OneUiHeader(
-            title = if (isSpanish) "Diagnóstico 5G y Wi-Fi" else "5G & Wi-Fi Diagnostics",
+            title = if (isSpanish) "Diagnóstico 5G, Wi-Fi y Batería" else "5G, Wi-Fi & Battery Diagnostics",
             subtitle = "${snapshot.mobileGeneration} (${snapshot.mobileDbm} dBm) • ${snapshot.wifiSsid}"
         )
 
@@ -86,9 +104,52 @@ fun NetworkDetailScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = if (isSpanish) "Midiendo señal..." else "Measuring signal...")
                 } else {
-                    Text(text = if (isSpanish) "Actualizar Medición de Red" else "Refresh Network Metrics")
+                    Text(text = if (isSpanish) "Actualizar Diagnóstico" else "Refresh Diagnostics")
                 }
             }
+        }
+
+        val batteryCardTitle = if (isSpanish) {
+            "Salud Térmica y Eléctrica de Batería"
+        } else {
+            "Battery Thermal & Electrical Health"
+        }
+        OneUiCard(title = batteryCardTitle) {
+            val tempStr = String.format(Locale.US, "%.1f °C", batterySnapshot.temperatureC)
+            val wattsStr = String.format(Locale.US, "%.1f W", batterySnapshot.powerWatts)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                Image(
+                    bitmap = batteryBitmap.asImageBitmap(),
+                    contentDescription = tempStr,
+                    modifier = Modifier.size(64.dp)
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "$tempStr (${batterySnapshot.localizedThermalLabel(isSpanish)})",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "${batterySnapshot.levelPct}% • ${batterySnapshot.localizedPowerSource(isSpanish)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            NetworkInfoRow(
+                label = if (isSpanish) "Voltaje y Corriente" else "Voltage & Current",
+                value = "${batterySnapshot.voltageMv} mV • ${batterySnapshot.currentMa} mA"
+            )
+            NetworkInfoRow(
+                label = if (isSpanish) "Potencia Instantánea" else "Instant Power",
+                value = "$wattsStr (${batterySnapshot.localizedPowerSource(isSpanish)})"
+            )
         }
     }
 }

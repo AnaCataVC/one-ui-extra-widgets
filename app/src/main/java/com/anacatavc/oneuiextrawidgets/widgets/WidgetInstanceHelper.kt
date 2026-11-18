@@ -10,12 +10,20 @@ import com.anacatavc.oneuiextrawidgets.data.preferences.AppPreferences
 import com.anacatavc.oneuiextrawidgets.data.preferences.WidgetFontScaleMode
 import com.anacatavc.oneuiextrawidgets.widgets.astrology.OneUiAstrologyWidget
 import com.anacatavc.oneuiextrawidgets.widgets.astrology.OneUiAstrologyWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.battery.OneUiBatteryThermalWidget
+import com.anacatavc.oneuiextrawidgets.widgets.battery.OneUiBatteryThermalWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.music.CassetteWalkmanWidget
+import com.anacatavc.oneuiextrawidgets.widgets.music.CassetteWalkmanWidgetReceiver
 import com.anacatavc.oneuiextrawidgets.widgets.music.DiscmanWidget
 import com.anacatavc.oneuiextrawidgets.widgets.music.DiscmanWidgetReceiver
 import com.anacatavc.oneuiextrawidgets.widgets.music.IpodClassicWidget
 import com.anacatavc.oneuiextrawidgets.widgets.music.IpodClassicWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.music.MiniDiscWidget
+import com.anacatavc.oneuiextrawidgets.widgets.music.MiniDiscWidgetReceiver
 import com.anacatavc.oneuiextrawidgets.widgets.music.RetroMp3Widget
 import com.anacatavc.oneuiextrawidgets.widgets.music.RetroMp3WidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.music.VinylTurntableWidget
+import com.anacatavc.oneuiextrawidgets.widgets.music.VinylTurntableWidgetReceiver
 import com.anacatavc.oneuiextrawidgets.widgets.network.OneUiNetworkWidget
 import com.anacatavc.oneuiextrawidgets.widgets.network.OneUiNetworkWidgetReceiver
 import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiAqiWidget
@@ -24,6 +32,10 @@ import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiMoonPhaseWidget
 import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiMoonPhaseWidgetReceiver
 import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiRainWidget
 import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiRainWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiStargazingWidget
+import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiStargazingWidgetReceiver
+import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiSunArcWidget
+import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiSunArcWidgetReceiver
 import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiUvWidget
 import com.anacatavc.oneuiextrawidgets.widgets.weather.OneUiUvWidgetReceiver
 import kotlinx.coroutines.CoroutineScope
@@ -58,11 +70,17 @@ object WidgetInstanceHelper {
         OneUiAqiWidgetReceiver::class.java.name -> OneUiAqiWidget()
         OneUiUvWidgetReceiver::class.java.name -> OneUiUvWidget()
         OneUiMoonPhaseWidgetReceiver::class.java.name -> OneUiMoonPhaseWidget()
+        OneUiSunArcWidgetReceiver::class.java.name -> OneUiSunArcWidget()
+        OneUiStargazingWidgetReceiver::class.java.name -> OneUiStargazingWidget()
         OneUiAstrologyWidgetReceiver::class.java.name -> OneUiAstrologyWidget()
         IpodClassicWidgetReceiver::class.java.name -> IpodClassicWidget()
         RetroMp3WidgetReceiver::class.java.name -> RetroMp3Widget()
         DiscmanWidgetReceiver::class.java.name -> DiscmanWidget()
+        CassetteWalkmanWidgetReceiver::class.java.name -> CassetteWalkmanWidget()
+        VinylTurntableWidgetReceiver::class.java.name -> VinylTurntableWidget()
+        MiniDiscWidgetReceiver::class.java.name -> MiniDiscWidget()
         OneUiNetworkWidgetReceiver::class.java.name -> OneUiNetworkWidget()
+        OneUiBatteryThermalWidgetReceiver::class.java.name -> OneUiBatteryThermalWidget()
         else -> null
     }
 

@@ -47,7 +47,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Active Media Session Listener for Retro Music Widgets (iPod, MP3, Discman) -->
+        <!-- Active Media Session Listener for Retro Music Widgets -->
         <service
             android:name=".data.media.MediaNotificationListener"
             android:exported="true"
@@ -110,6 +110,32 @@
                 android:resource="@xml/widget_weather_moon_info" />
         </receiver>
 
+        <!-- 1e. Weather Widget: Solar Arc & Golden Hour -->
+        <receiver
+            android:name=".widgets.weather.OneUiSunArcWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_weather_sun_arc_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_weather_sun_arc_info" />
+        </receiver>
+
+        <!-- 1f. Weather Widget: Night Sky & Stargazing Index -->
+        <receiver
+            android:name=".widgets.weather.OneUiStargazingWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_weather_stargazing_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_weather_stargazing_info" />
+        </receiver>
+
         <!-- 2. Astrology Widget (Sun/Moon Sign + Mercury & Planetary Retrogrades) -->
         <receiver
             android:name=".widgets.astrology.OneUiAstrologyWidgetReceiver"
@@ -162,7 +188,46 @@
                 android:resource="@xml/widget_music_discman_info" />
         </receiver>
 
-        <!-- 6. 5G & Wi-Fi Network Quality Widget -->
+        <!-- 6. Retro Music Widget: 80s/90s Cassette Walkman -->
+        <receiver
+            android:name=".widgets.music.CassetteWalkmanWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_music_cassette_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_music_cassette_info" />
+        </receiver>
+
+        <!-- 7. Retro Music Widget: Minimalist Vinyl Turntable -->
+        <receiver
+            android:name=".widgets.music.VinylTurntableWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_music_vinyl_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_music_vinyl_info" />
+        </receiver>
+
+        <!-- 8. Retro Music Widget: 2000s MiniDisc Hi-MD -->
+        <receiver
+            android:name=".widgets.music.MiniDiscWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_music_minidisc_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_music_minidisc_info" />
+        </receiver>
+
+        <!-- 9. 5G & Wi-Fi Network Quality Widget -->
         <receiver
             android:name=".widgets.network.OneUiNetworkWidgetReceiver"
             android:exported="true"
@@ -173,6 +238,19 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_network_info" />
+        </receiver>
+
+        <!-- 10. Battery Thermal & Electrical Health Widget -->
+        <receiver
+            android:name=".widgets.battery.OneUiBatteryThermalWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_battery_thermal_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_battery_thermal_info" />
         </receiver>
 
         <!-- Persist AppCompat per-app locales on Android 8–12 (API < 33) -->

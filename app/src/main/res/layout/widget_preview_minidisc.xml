@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_preview_minidisc_shell"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="10dp"
+    android:paddingTop="7dp"
+    android:paddingEnd="10dp"
+    android:paddingBottom="7dp">
+
+    <!-- MiniDisc Cartridge Badge -->
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:contentDescription="@string/widget_music_minidisc_title"
+        android:src="@drawable/ic_preview_minidisc_disc" />
+
+    <!-- High-Contrast Dark Electroluminescent Bezel -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_preview_minidisc_bezel"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingStart="9dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="9dp"
+        android:paddingBottom="5dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HI-MD • ATRAC DSP"
+                android:textColor="@color/oneui_preview_minidisc_amber"
+                android:textSize="7sp"
+                android:textStyle="bold" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00"
+                android:textColor="@color/oneui_preview_minidisc_el_subtext"
+                android:textSize="7sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@string/music_no_track"
+                    android:textColor="@color/oneui_preview_minidisc_el_text"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@string/music_tap_to_play"
+                    android:textColor="@color/oneui_preview_minidisc_el_subtext"
+                    android:textSize="8.5sp" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="3dp"
+                    android:layout_marginTop="3dp"
+                    android:background="@drawable/bg_preview_minidisc_track">
+
+                    <FrameLayout
+                        android:layout_width="32dp"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_preview_minidisc_track_active" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- ATRAC Spectrum Equalizer Bars -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="2.5dp"
+                    android:layout_height="7dp"
+                    android:background="@color/oneui_preview_minidisc_el_text" />
+
+                <FrameLayout
+                    android:layout_width="2.5dp"
+                    android:layout_height="13dp"
+                    android:layout_marginStart="2dp"
+                    android:background="@color/oneui_preview_minidisc_el_text" />
+
+                <FrameLayout
+                    android:layout_width="2.5dp"
+                    android:layout_height="9dp"
+                    android:layout_marginStart="2dp"
+                    android:background="@color/oneui_preview_minidisc_el_text" />
+
+                <FrameLayout
+                    android:layout_width="2.5dp"
+                    android:layout_height="15dp"
+                    android:layout_marginStart="2dp"
+                    android:background="@color/oneui_preview_minidisc_el_text" />
+
+                <FrameLayout
+                    android:layout_width="2.5dp"
+                    android:layout_height="10dp"
+                    android:layout_marginStart="2dp"
+                    android:background="@color/oneui_preview_minidisc_el_text" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Silver Jog-Dial Transport Cluster -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:background="@drawable/bg_preview_minidisc_btn"
+            android:contentDescription="@string/widget_music_minidisc_title"
+            android:padding="6dp"
+            android:src="@drawable/ic_media_prev"
+            android:tint="@color/oneui_preview_minidisc_btn_text" />
+
+        <ImageView
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_preview_minidisc_btn"
+            android:contentDescription="@string/widget_music_minidisc_title"
+            android:padding="7dp"
+            android:src="@drawable/ic_media_play"
+            android:tint="@color/oneui_preview_minidisc_btn_text" />
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_preview_minidisc_btn"
+            android:contentDescription="@string/widget_music_minidisc_title"
+            android:padding="6dp"
+            android:src="@drawable/ic_media_next"
+            android:tint="@color/oneui_preview_minidisc_btn_text" />
+    </LinearLayout>
+</LinearLayout>
