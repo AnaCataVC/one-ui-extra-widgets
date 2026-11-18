@@ -46,10 +46,23 @@ data class ActiveMediaState(
     val artist: String = deviceModelLabel(),
     val album: String = "",
     val isPlaying: Boolean = false,
+    val positionMs: Long = 0L,
+    val durationMs: Long = 0L,
     val packageName: String = "",
     val albumArt: Bitmap? = null,
     val hasNotificationAccess: Boolean = true
 )
+
+fun formatMediaTime(ms: Long, padMinutes: Boolean = false): String {
+    val totalSeconds = (ms.coerceAtLeast(0L) / 1000L).toInt()
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return if (padMinutes) {
+        "%02d:%02d".format(java.util.Locale.US, minutes, seconds)
+    } else {
+        "%d:%02d".format(java.util.Locale.US, minutes, seconds)
+    }
+}
 
 /**
  * Bridges active Android MediaSessions (Spotify, YouTube Music, Apple Music, Samsung Music, etc.)
@@ -177,6 +190,9 @@ class MediaNotificationListener : NotificationListenerService() {
                 val rawArt = meta?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
                     ?: meta?.getBitmap(MediaMetadata.METADATA_KEY_ART)
                 val squareArt = resolveSquareAlbumArt(rawArt)
+                val durationMs = meta?.getLong(MediaMetadata.METADATA_KEY_DURATION)
+                    ?.coerceAtLeast(0L) ?: 0L
+                val positionMs = (playback?.position ?: 0L).coerceAtLeast(0L)
 
                 ActiveMediaState(
                     title = meta?.getString(MediaMetadata.METADATA_KEY_TITLE)
@@ -185,6 +201,8 @@ class MediaNotificationListener : NotificationListenerService() {
                         ?.takeIf { it.isNotBlank() } ?: fallbackArtist,
                     album = meta?.getString(MediaMetadata.METADATA_KEY_ALBUM) ?: "",
                     isPlaying = isPlaying,
+                    positionMs = positionMs,
+                    durationMs = durationMs,
                     packageName = controller.packageName ?: "",
                     albumArt = squareArt,
                     hasNotificationAccess = true

@@ -20,13 +20,17 @@ object MusicCanvasRenderer {
     /**
      * Renders the iPod Classic Click Wheel ring with MENU text, geometric media icons, and center button.
      */
-    fun renderIpodClickWheelBitmap(sizePx: Int = 220, isDarkTheme: Boolean = true): Bitmap {
+    fun renderIpodClickWheelBitmap(
+        sizePx: Int = 220,
+        isDarkTheme: Boolean = true,
+        isPlaying: Boolean = false
+    ): Bitmap {
         val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val cx = sizePx / 2f
         val cy = sizePx / 2f
         val outerR = sizePx * 0.46f
-        val innerR = sizePx * 0.18f
+        val innerR = sizePx * 0.185f
 
         val wheelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = if (isDarkTheme) OneUiCanvasPalette.IPOD_WHEEL_DARK else OneUiCanvasPalette.IPOD_WHEEL_LIGHT
@@ -61,8 +65,51 @@ object MusicCanvasRenderer {
 
         canvas.drawText("MENU", cx, cy - outerR * 0.65f, labelPaint)
         drawWheelMediaIcons(canvas, cx, cy, outerR, sizePx * 0.038f, labelColor)
+        drawCenterPlayPauseIcon(canvas, cx, cy, innerR, isPlaying, labelColor)
 
         return bitmap
+    }
+
+    private fun drawCenterPlayPauseIcon(
+        canvas: Canvas,
+        cx: Float,
+        cy: Float,
+        innerR: Float,
+        isPlaying: Boolean,
+        color: Int
+    ) {
+        val iconPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.color = color
+            style = Paint.Style.FILL
+        }
+        if (isPlaying) {
+            val barW = innerR * 0.22f
+            val barH = innerR * 0.72f
+            val gap = innerR * 0.16f
+            canvas.drawRoundRect(
+                RectF(cx - gap / 2f - barW, cy - barH / 2f, cx - gap / 2f, cy + barH / 2f),
+                barW * 0.3f,
+                barW * 0.3f,
+                iconPaint
+            )
+            canvas.drawRoundRect(
+                RectF(cx + gap / 2f, cy - barH / 2f, cx + gap / 2f + barW, cy + barH / 2f),
+                barW * 0.3f,
+                barW * 0.3f,
+                iconPaint
+            )
+        } else {
+            val halfH = innerR * 0.42f
+            val halfW = innerR * 0.38f
+            val shiftX = innerR * 0.06f
+            val path = Path().apply {
+                moveTo(cx - halfW + shiftX, cy - halfH)
+                lineTo(cx + halfW + shiftX, cy)
+                lineTo(cx - halfW + shiftX, cy + halfH)
+                close()
+            }
+            canvas.drawPath(path, iconPaint)
+        }
     }
 
     private fun drawWheelMediaIcons(
@@ -78,19 +125,13 @@ object MusicCanvasRenderer {
             style = Paint.Style.FILL
         }
 
-        // Bottom: Play triangle + Pause double bar
+        // Bottom: Pause double bar indicator
         val bottomY = cy + outerR * 0.71f
-        val playPath = Path().apply {
-            moveTo(cx - iconR * 1.15f, bottomY - iconR * 0.72f)
-            lineTo(cx - iconR * 0.1f, bottomY)
-            lineTo(cx - iconR * 1.15f, bottomY + iconR * 0.72f)
-            close()
-        }
-        canvas.drawPath(playPath, iconPaint)
-        val barW = iconR * 0.3f
-        val barH = iconR * 1.35f
-        canvas.drawRect(cx + iconR * 0.18f, bottomY - barH / 2f, cx + iconR * 0.18f + barW, bottomY + barH / 2f, iconPaint)
-        canvas.drawRect(cx + iconR * 0.72f, bottomY - barH / 2f, cx + iconR * 0.72f + barW, bottomY + barH / 2f, iconPaint)
+        val barW = iconR * 0.42f
+        val barH = iconR * 1.45f
+        val gap = iconR * 0.36f
+        canvas.drawRect(cx - gap / 2f - barW, bottomY - barH / 2f, cx - gap / 2f, bottomY + barH / 2f, iconPaint)
+        canvas.drawRect(cx + gap / 2f, bottomY - barH / 2f, cx + gap / 2f + barW, bottomY + barH / 2f, iconPaint)
 
         // Left: Previous track
         val prevX = cx - outerR * 0.68f
@@ -166,25 +207,36 @@ object MusicCanvasRenderer {
         }
         canvas.drawCircle(cx, cy, bodyR, bodyRimPaint)
 
+        // Top-right lid-release latch accent on the outer bevel
+        val latchRect = RectF(cx - outerR * 0.97f, cy - outerR * 0.97f, cx + outerR * 0.97f, cy + outerR * 0.97f)
+        val latchPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.DISCMAN_LATCH_ACCENT
+            style = Paint.Style.STROKE
+            strokeWidth = sizePx * 0.024f
+            strokeCap = Paint.Cap.ROUND
+        }
+        canvas.drawArc(latchRect, -64f, 26f, false, latchPaint)
+
         val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = OneUiCanvasPalette.DISCMAN_TITLE_TEXT
-            textSize = sizePx * 0.048f
+            textSize = sizePx * 0.052f
             textAlign = Paint.Align.CENTER
             isFakeBoldText = true
         }
         val subtitlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = OneUiCanvasPalette.DISCMAN_SUBTITLE_TEXT
-            textSize = sizePx * 0.026f
+            textSize = sizePx * 0.025f
             textAlign = Paint.Align.CENTER
             isFakeBoldText = true
         }
-        canvas.drawText("COMPACT DISC", cx, cy - bodyR * 0.56f, titlePaint)
-        canvas.drawText("DIGITAL AUDIO  •  ESP ANTI-SHOCK", cx, cy - bodyR * 0.42f, subtitlePaint)
+        canvas.drawText("COMPACT DISC", cx, cy - bodyR * 0.62f, titlePaint)
+        canvas.drawText("DIGITAL AUDIO  •  ESP ANTI-SHOCK", cx, cy - bodyR * 0.49f, subtitlePaint)
 
-        val pillW = bodyR * 1.66f
-        val pillH = bodyR * 0.48f
-        val pillRect = RectF(cx - pillW / 2f, cy - pillH / 2f, cx + pillW / 2f, cy + pillH / 2f)
-        val pillRadius = pillH / 2f
+        val lcdW = bodyR * 1.48f
+        val lcdH = bodyR * 0.54f
+        val lcdCenterY = cy - bodyR * 0.12f
+        val lcdRect = RectF(cx - lcdW / 2f, lcdCenterY - lcdH / 2f, cx + lcdW / 2f, lcdCenterY + lcdH / 2f)
+        val lcdRadius = sizePx * 0.045f
         val pillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = OneUiCanvasPalette.DISCMAN_PILL_BG
             style = Paint.Style.FILL
@@ -194,21 +246,21 @@ object MusicCanvasRenderer {
             style = Paint.Style.STROKE
             strokeWidth = sizePx * 0.006f
         }
-        canvas.drawRoundRect(pillRect, pillRadius, pillRadius, pillPaint)
-        canvas.drawRoundRect(pillRect, pillRadius, pillRadius, pillStrokePaint)
+        canvas.drawRoundRect(lcdRect, lcdRadius, lcdRadius, pillPaint)
+        canvas.drawRoundRect(lcdRect, lcdRadius, lcdRadius, pillStrokePaint)
 
         val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = OneUiCanvasPalette.DISCMAN_SPEAKER_DOT
             style = Paint.Style.FILL
         }
         val dotRadius = sizePx * 0.0085f
-        val arcRadii = floatArrayOf(bodyR * 0.56f, bodyR * 0.67f, bodyR * 0.78f)
-        val dotCounts = intArrayOf(11, 13, 15)
+        val arcRadii = floatArrayOf(bodyR * 0.68f, bodyR * 0.78f, bodyR * 0.87f)
+        val dotCounts = intArrayOf(9, 11, 13)
         for (row in arcRadii.indices) {
             val r = arcRadii[row]
             val count = dotCounts[row]
-            val startAngle = 42.0
-            val endAngle = 138.0
+            val startAngle = 52.0
+            val endAngle = 128.0
             for (i in 0 until count) {
                 val t = if (count == 1) 0.5 else i.toDouble() / (count - 1)
                 val angleRad = Math.toRadians(startAngle + t * (endAngle - startAngle))

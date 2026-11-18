@@ -16,6 +16,10 @@
         android:strokeColor="@color/oneui_preview_ipod_wheel_stroke"
         android:strokeWidth="1.5"
         android:pathData="M52,34 A18,18 0 1,1 51.99,34 Z" />
+    <!-- Center Play icon -->
+    <path
+        android:fillColor="@color/oneui_preview_ipod_wheel_label"
+        android:pathData="M47,44.5 L59,52 L47,59.5 Z" />
     <!-- Top MENU indicator bar -->
     <path
         android:fillColor="@color/oneui_preview_ipod_wheel_label"
@@ -28,8 +32,8 @@
     <path
         android:fillColor="@color/oneui_preview_ipod_wheel_label"
         android:pathData="M87,48 H89 V56 H87 Z M80,48 L86,52 L80,56 Z" />
-    <!-- Bottom Play/Pause icon -->
+    <!-- Bottom Pause double bar icon -->
     <path
         android:fillColor="@color/oneui_preview_ipod_wheel_label"
-        android:pathData="M46,85 L52,89 L46,93 Z M54,85 H56 V93 H54 Z M57.5,85 H59.5 V93 H57.5 Z" />
+        android:pathData="M48,85 H50.5 V93 H48 Z M53.5,85 H56 V93 H53.5 Z" />
 </vector>

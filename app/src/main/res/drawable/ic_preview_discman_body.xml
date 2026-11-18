@@ -8,20 +8,26 @@
     <path
         android:fillColor="@color/oneui_preview_discman_bevel"
         android:pathData="M90,3 A87,87 0 1,1 89.99,3 Z" />
+    <!-- Top-right lavender lid-release latch -->
+    <path
+        android:pathData="M128,14 A84,84 0 0,1 157,38"
+        android:strokeColor="@color/oneui_preview_discman_latch"
+        android:strokeLineCap="round"
+        android:strokeWidth="4" />
     <!-- Matte dark graphite body -->
     <path
         android:fillColor="@color/oneui_preview_discman_body"
         android:strokeColor="@color/oneui_preview_discman_rim_stroke"
         android:strokeWidth="1"
         android:pathData="M90,8 A82,82 0 1,1 89.99,8 Z" />
-    <!-- Center pill module recess -->
+    <!-- Upper-middle LCD recess -->
     <path
         android:fillColor="@color/oneui_preview_discman_pill_bg"
         android:strokeColor="@color/oneui_preview_discman_pill_stroke"
         android:strokeWidth="1.2"
-        android:pathData="M42,70 H138 A20,20 0 0,1 138,110 H42 A20,20 0 0,1 42,70 Z" />
-    <!-- Speaker grille dots -->
+        android:pathData="M42,54 H138 A8,8 0 0,1 146,62 V94 A8,8 0 0,1 138,102 H42 A8,8 0 0,1 34,94 V62 A8,8 0 0,1 42,54 Z" />
+    <!-- Bottom speaker grille dots -->
     <path
         android:fillColor="@color/oneui_preview_discman_speaker_dot"
-        android:pathData="M56,134 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M68,139 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M80,142 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M92,142 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M104,139 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M116,134 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M48,144 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M62,150 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M76,154 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M90,155 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M104,154 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M118,150 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M130,144 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+        android:pathData="M62,144 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M76,147 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M90,148 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M104,147 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M118,144 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M54,154 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M70,157 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M90,158 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M110,157 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M126,154 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
 </vector>

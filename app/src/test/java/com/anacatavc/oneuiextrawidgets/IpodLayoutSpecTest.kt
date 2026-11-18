@@ -1,5 +1,6 @@
 package com.anacatavc.oneuiextrawidgets
 
+import com.anacatavc.oneuiextrawidgets.data.media.formatMediaTime
 import com.anacatavc.oneuiextrawidgets.widgets.music.IpodLayoutMode
 import com.anacatavc.oneuiextrawidgets.widgets.music.RetroMp3LayoutMode
 import com.anacatavc.oneuiextrawidgets.widgets.music.calculateDiscmanLayout
@@ -63,14 +64,23 @@ class IpodLayoutSpecTest {
     }
 
     @Test
-    fun `discman stays circular and scales central pill proportionally`() {
+    fun `discman stays circular and scales LCD and ergonomic controls proportionally`() {
         val compactSpec = calculateDiscmanLayout(widthDp = 160f, heightDp = 240f)
         val largeSpec = calculateDiscmanLayout(widthDp = 280f, heightDp = 280f)
 
         assertEquals(160f, compactSpec.discSizeDp, 0.01f)
         assertEquals(280f, largeSpec.discSizeDp, 0.01f)
-        assertTrue(largeSpec.pillWidthDp > compactSpec.pillWidthDp)
-        assertTrue(largeSpec.pillHeightDp in 36f..72f)
-        assertTrue(largeSpec.buttonSizeDp in 22f..36f)
+        assertTrue(largeSpec.lcdWidthDp > compactSpec.lcdWidthDp)
+        assertTrue(largeSpec.lcdHeightDp in 36f..76f)
+        assertTrue(largeSpec.buttonSizeDp in 26f..44f)
+        assertTrue(largeSpec.buttonSizeDp > largeSpec.sideButtonSizeDp)
+    }
+
+    @Test
+    fun `formatMediaTime formats unpadded and padded durations accurately`() {
+        assertEquals("0:00", formatMediaTime(0L))
+        assertEquals("3:05", formatMediaTime(185_000L))
+        assertEquals("00:00", formatMediaTime(0L, padMinutes = true))
+        assertEquals("03:05", formatMediaTime(185_000L, padMinutes = true))
     }
 }

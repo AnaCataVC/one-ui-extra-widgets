@@ -52,6 +52,7 @@ import com.anacatavc.oneuiextrawidgets.R
 import com.anacatavc.oneuiextrawidgets.data.media.ActiveMediaState
 import com.anacatavc.oneuiextrawidgets.data.media.MediaNotificationListener
 import com.anacatavc.oneuiextrawidgets.data.media.TransportCommand
+import com.anacatavc.oneuiextrawidgets.data.media.formatMediaTime
 import com.anacatavc.oneuiextrawidgets.data.preferences.WidgetFontScaleMode
 import com.anacatavc.oneuiextrawidgets.utils.LocaleHelper
 import com.anacatavc.oneuiextrawidgets.utils.WidgetCanvasRenderer
@@ -150,10 +151,6 @@ class IpodClassicWidget : GlanceAppWidget() {
         val initialFontScale = fontScaleFlow.first()
         val isDark = OneUiGlanceTokens.isNightModeActive(context)
         val isSpanish = LocaleHelper.isSpanishActive()
-        val wheelBitmap = WidgetCanvasRenderer.renderIpodClickWheelBitmap(
-            sizePx = 360,
-            isDarkTheme = isDark
-        )
         val menuIntent = buildMenuIntent(context)
         val notifSettingsIntent = buildNotificationAccessIntent()
 
@@ -161,6 +158,13 @@ class IpodClassicWidget : GlanceAppWidget() {
             val media by MediaNotificationListener.mediaState.collectAsState()
             val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
             val fontScaleMode by fontScaleFlow.collectAsState(initial = initialFontScale)
+            val wheelBitmap = remember(isDark, media.isPlaying) {
+                WidgetCanvasRenderer.renderIpodClickWheelBitmap(
+                    sizePx = 360,
+                    isDarkTheme = isDark,
+                    isPlaying = media.isPlaying
+                )
+            }
             val shellBg = OneUiGlanceTokens.ipodShellSurface(opacityPct)
             val size = LocalSize.current
             val layout = calculateIpodLayout(size.width.value, size.height.value)
@@ -252,9 +256,19 @@ private fun IpodLcdScreen(
 ) {
     val isExpanded = mode != IpodLayoutMode.COMPACT
     val artSizeDp = when (mode) {
-        IpodLayoutMode.WIDE -> 58.dp
+        IpodLayoutMode.WIDE -> 56.dp
         IpodLayoutMode.TALL -> 44.dp
-        IpodLayoutMode.COMPACT -> 32.dp
+        IpodLayoutMode.COMPACT -> 30.dp
+    }
+    val progressFraction = if (media.durationMs > 0L) {
+        (media.positionMs.toFloat() / media.durationMs.toFloat()).coerceIn(0.08f, 1f)
+    } else {
+        0.18f
+    }
+    val barMaxWidth = when (mode) {
+        IpodLayoutMode.WIDE -> 124f
+        IpodLayoutMode.TALL -> 124f
+        IpodLayoutMode.COMPACT -> 108f
     }
 
     Column(
@@ -264,25 +278,6 @@ private fun IpodLcdScreen(
             .padding(if (isExpanded) 10.dp else 7.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val statusLabel = when {
-            !media.hasNotificationAccess && isSpanish -> "iPod  •  Sin permiso"
-            !media.hasNotificationAccess -> "iPod  •  Sync needed"
-            media.isPlaying && isSpanish -> "iPod  •  Reproduciendo"
-            media.isPlaying -> "iPod  •  Now Playing"
-            isSpanish -> "iPod  •  En pausa"
-            else -> "iPod  •  Standby"
-        }
-        Text(
-            text = statusLabel,
-            maxLines = 1,
-            style = TextStyle(
-                color = OneUiGlanceTokens.OneUiAccentBlue,
-                fontSize = sp(if (isExpanded) 11f else 9f),
-                fontWeight = FontWeight.Bold
-            )
-        )
-        Spacer(modifier = GlanceModifier.height(if (isExpanded) 6.dp else 4.dp))
-
         Row(
             modifier = GlanceModifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -295,20 +290,20 @@ private fun IpodLcdScreen(
                     contentScale = ContentScale.Crop,
                     modifier = GlanceModifier
                         .size(artSizeDp)
-                        .cornerRadius(6.dp)
+                        .cornerRadius(8.dp)
                 )
             } else {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = GlanceModifier
                         .size(artSizeDp)
-                        .cornerRadius(6.dp)
+                        .cornerRadius(8.dp)
                         .background(OneUiGlanceTokens.InnerCardSurface)
                 ) {
                     Image(
                         provider = ImageProvider(R.drawable.ic_music_note),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(OneUiGlanceTokens.SecondaryText),
+                        colorFilter = ColorFilter.tint(OneUiGlanceTokens.IpodAccentLavender),
                         modifier = GlanceModifier.size(artSizeDp * 0.55f)
                     )
                 }
@@ -322,7 +317,7 @@ private fun IpodLcdScreen(
                     maxLines = if (mode == IpodLayoutMode.WIDE) 2 else 1,
                     style = TextStyle(
                         color = OneUiGlanceTokens.PrimaryText,
-                        fontSize = sp(if (isExpanded) 14f else 12f),
+                        fontSize = sp(if (isExpanded) 13f else 11.5f),
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -331,7 +326,7 @@ private fun IpodLcdScreen(
                     maxLines = 1,
                     style = TextStyle(
                         color = OneUiGlanceTokens.SecondaryText,
-                        fontSize = sp(if (isExpanded) 12f else 10f)
+                        fontSize = sp(if (isExpanded) 11f else 9.5f)
                     )
                 )
                 if (mode == IpodLayoutMode.WIDE && media.album.isNotBlank()) {
@@ -340,11 +335,59 @@ private fun IpodLcdScreen(
                         maxLines = 1,
                         style = TextStyle(
                             color = OneUiGlanceTokens.SecondaryText,
-                            fontSize = sp(10f)
+                            fontSize = sp(9.5f)
                         )
                     )
                 }
             }
+
+            Spacer(modifier = GlanceModifier.width(4.dp))
+            Image(
+                provider = ImageProvider(R.drawable.ic_media_heart),
+                contentDescription = if (isSpanish) "Favorito" else "Favorite",
+                colorFilter = ColorFilter.tint(OneUiGlanceTokens.SecondaryText),
+                modifier = GlanceModifier.size(if (isExpanded) 15.dp else 12.dp)
+            )
+        }
+
+        Spacer(modifier = GlanceModifier.height(if (isExpanded) 7.dp else 4.dp))
+
+        Row(
+            modifier = GlanceModifier
+                .fillMaxWidth()
+                .height(3.dp)
+                .cornerRadius(2.dp)
+                .background(OneUiGlanceTokens.IpodProgressTrack)
+        ) {
+            Box(
+                modifier = GlanceModifier
+                    .width((barMaxWidth * progressFraction).dp)
+                    .fillMaxHeight()
+                    .cornerRadius(2.dp)
+                    .background(OneUiGlanceTokens.IpodAccentLavender)
+            ) {}
+        }
+
+        Spacer(modifier = GlanceModifier.height(2.dp))
+
+        Row(modifier = GlanceModifier.fillMaxWidth()) {
+            Text(
+                text = formatMediaTime(media.positionMs),
+                maxLines = 1,
+                style = TextStyle(
+                    color = OneUiGlanceTokens.SecondaryText,
+                    fontSize = sp(if (isExpanded) 9.5f else 8f)
+                )
+            )
+            Spacer(modifier = GlanceModifier.defaultWeight())
+            Text(
+                text = formatMediaTime(media.durationMs),
+                maxLines = 1,
+                style = TextStyle(
+                    color = OneUiGlanceTokens.SecondaryText,
+                    fontSize = sp(if (isExpanded) 9.5f else 8f)
+                )
+            )
         }
     }
 }
@@ -492,23 +535,26 @@ internal fun calculateMp3Layout(widthDp: Float, heightDp: Float): RetroMp3Layout
 
 internal data class DiscmanLayoutSpec(
     val discSizeDp: Float,
-    val pillWidthDp: Float,
-    val pillHeightDp: Float,
-    val buttonSizeDp: Float
+    val lcdWidthDp: Float,
+    val lcdHeightDp: Float,
+    val buttonSizeDp: Float,
+    val sideButtonSizeDp: Float
 )
 
 internal fun calculateDiscmanLayout(widthDp: Float, heightDp: Float): DiscmanLayoutSpec {
     val safeW = widthDp.coerceAtLeast(140f)
     val safeH = heightDp.coerceAtLeast(140f)
     val discSize = minOf(safeW, safeH).coerceIn(140f, 320f)
-    val pillWidth = discSize * 0.74f
-    val pillHeight = (discSize * 0.21f).coerceIn(36f, 72f)
-    val btnSize = (pillWidth * 0.135f).coerceIn(22f, 36f)
+    val lcdWidth = discSize * 0.64f
+    val lcdHeight = (discSize * 0.24f).coerceIn(36f, 76f)
+    val btnSize = (discSize * 0.165f).coerceIn(26f, 44f)
+    val sideBtnSize = (discSize * 0.125f).coerceIn(20f, 34f)
     return DiscmanLayoutSpec(
         discSizeDp = discSize,
-        pillWidthDp = pillWidth,
-        pillHeightDp = pillHeight,
-        buttonSizeDp = btnSize
+        lcdWidthDp = lcdWidth,
+        lcdHeightDp = lcdHeight,
+        buttonSizeDp = btnSize,
+        sideButtonSizeDp = sideBtnSize
     )
 }
 
@@ -929,86 +975,116 @@ class DiscmanWidget : GlanceAppWidget() {
                         modifier = GlanceModifier.fillMaxSize()
                     )
 
-                    // Central Pill Control Module
-                    Row(
-                        modifier = GlanceModifier
-                            .width(layout.pillWidthDp.dp)
-                            .height(layout.pillHeightDp.dp)
-                            .padding(horizontal = 4.dp, vertical = 3.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = GlanceModifier.fillMaxSize()
                     ) {
-                        DiscmanPillButton(
-                            iconRes = R.drawable.ic_media_prev,
-                            a11yLabel = if (isSpanish) "Pista anterior" else "Previous track",
-                            action = actionRunCallback<PrevTrackAction>(),
-                            sizeDp = layout.buttonSizeDp
-                        )
-                        if (!compactMode) {
-                            Spacer(modifier = GlanceModifier.width(3.dp))
-                            DiscmanPillButton(
-                                iconRes = R.drawable.ic_media_menu,
-                                a11yLabel = if (isSpanish) "Menú" else "Menu",
-                                action = actionStartActivity(menuIntent),
-                                sizeDp = layout.buttonSizeDp
-                            )
-                        }
-                        Spacer(modifier = GlanceModifier.width(4.dp))
+                        Spacer(modifier = GlanceModifier.height((layout.discSizeDp * 0.305f).dp))
 
-                        // Cyan Backlit LCD Display
+                        // Cyan Backlit LCD Display (no album art, track + time)
                         Column(
                             modifier = GlanceModifier
-                                .defaultWeight()
-                                .fillMaxHeight()
-                                .cornerRadius(6.dp)
+                                .width(layout.lcdWidthDp.dp)
+                                .height(layout.lcdHeightDp.dp)
+                                .cornerRadius(7.dp)
                                 .background(OneUiGlanceTokens.RetroLcdBacklight)
-                                .padding(horizontal = 5.dp, vertical = 2.dp)
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
                                 .clickable(actionStartActivity(lcdClickIntent)),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = if (media.isPlaying) "CD • PLAY" else "CD • PAUSE",
-                                maxLines = 1,
-                                style = TextStyle(
-                                    color = OneUiGlanceTokens.RetroLcdSecondaryText,
-                                    fontSize = sp(if (compactMode) 7f else 8f),
-                                    fontWeight = FontWeight.Bold
+                            Row(
+                                modifier = GlanceModifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = if (media.isPlaying) "CD • PLAY" else "CD • PAUSE",
+                                    maxLines = 1,
+                                    style = TextStyle(
+                                        color = OneUiGlanceTokens.RetroLcdSecondaryText,
+                                        fontSize = sp(if (compactMode) 7f else 8f),
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 )
-                            )
-                            Text(
-                                text = media.title,
-                                maxLines = 1,
-                                style = TextStyle(
-                                    color = OneUiGlanceTokens.RetroLcdPrimaryText,
-                                    fontSize = sp(if (compactMode) 9f else 11f),
-                                    fontWeight = FontWeight.Bold
+                                Spacer(modifier = GlanceModifier.defaultWeight())
+                                Image(
+                                    provider = ImageProvider(R.drawable.ic_discman_battery),
+                                    contentDescription = null,
+                                    colorFilter = ColorFilter.tint(OneUiGlanceTokens.RetroLcdSecondaryText),
+                                    modifier = GlanceModifier.width(14.dp).height(8.dp)
                                 )
-                            )
+                            }
+
+                            Row(
+                                modifier = GlanceModifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "▶ ${media.title}",
+                                    maxLines = 1,
+                                    modifier = GlanceModifier.defaultWeight(),
+                                    style = TextStyle(
+                                        color = OneUiGlanceTokens.RetroLcdPrimaryText,
+                                        fontSize = sp(if (compactMode) 9.5f else 11.5f),
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                                Spacer(modifier = GlanceModifier.width(4.dp))
+                                Text(
+                                    text = formatMediaTime(media.positionMs, padMinutes = true),
+                                    maxLines = 1,
+                                    style = TextStyle(
+                                        color = OneUiGlanceTokens.RetroLcdPrimaryText,
+                                        fontSize = sp(if (compactMode) 8.5f else 10f),
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                            }
+
                             if (!compactMode) {
                                 Text(
                                     text = media.artist,
                                     maxLines = 1,
                                     style = TextStyle(
                                         color = OneUiGlanceTokens.RetroLcdSecondaryText,
-                                        fontSize = sp(9f)
+                                        fontSize = sp(8.5f)
                                     )
                                 )
                             }
                         }
 
-                        Spacer(modifier = GlanceModifier.width(4.dp))
-                        DiscmanPillButton(
-                            iconRes = playPauseIcon,
-                            a11yLabel = playPauseA11y,
-                            action = actionRunCallback<PlayPauseAction>(),
-                            sizeDp = layout.buttonSizeDp
-                        )
-                        Spacer(modifier = GlanceModifier.width(3.dp))
-                        DiscmanPillButton(
-                            iconRes = R.drawable.ic_media_next,
-                            a11yLabel = if (isSpanish) "Siguiente pista" else "Next track",
-                            action = actionRunCallback<NextTrackAction>(),
-                            sizeDp = layout.buttonSizeDp
-                        )
+                        Spacer(modifier = GlanceModifier.height((layout.discSizeDp * 0.045f).dp))
+
+                        // 4-Button Ergonomic One UI Control Row
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            DiscmanPillButton(
+                                iconRes = R.drawable.ic_media_prev,
+                                a11yLabel = if (isSpanish) "Pista anterior" else "Previous track",
+                                action = actionRunCallback<PrevTrackAction>(),
+                                sizeDp = layout.sideButtonSizeDp
+                            )
+                            Spacer(modifier = GlanceModifier.width(5.dp))
+                            DiscmanPillButton(
+                                iconRes = playPauseIcon,
+                                a11yLabel = playPauseA11y,
+                                action = actionRunCallback<PlayPauseAction>(),
+                                sizeDp = layout.buttonSizeDp,
+                                isPrimary = true
+                            )
+                            Spacer(modifier = GlanceModifier.width(5.dp))
+                            DiscmanPillButton(
+                                iconRes = R.drawable.ic_media_next,
+                                a11yLabel = if (isSpanish) "Siguiente pista" else "Next track",
+                                action = actionRunCallback<NextTrackAction>(),
+                                sizeDp = layout.sideButtonSizeDp
+                            )
+                            Spacer(modifier = GlanceModifier.width(5.dp))
+                            DiscmanPillButton(
+                                iconRes = R.drawable.ic_media_menu,
+                                a11yLabel = if (isSpanish) "Menú" else "Menu",
+                                action = actionStartActivity(menuIntent),
+                                sizeDp = layout.sideButtonSizeDp
+                            )
+                        }
                     }
                 }
             }
@@ -1021,22 +1097,23 @@ private fun DiscmanPillButton(
     @DrawableRes iconRes: Int,
     a11yLabel: String,
     action: androidx.glance.action.Action,
-    sizeDp: Float
+    sizeDp: Float,
+    isPrimary: Boolean = false
 ) {
-    val iconSize = (sizeDp * 0.54f).dp
+    val iconSize = if (isPrimary) (sizeDp * 0.52f).dp else (sizeDp * 0.48f).dp
     Box(
         contentAlignment = Alignment.Center,
         modifier = GlanceModifier
             .size(sizeDp.dp)
             .cornerRadius((sizeDp / 2f).dp)
-            .background(OneUiGlanceTokens.InnerCardSurface)
+            .background(OneUiGlanceTokens.RetroMp3SilverSurface)
             .semantics { contentDescription = a11yLabel }
             .clickable(action)
     ) {
         Image(
             provider = ImageProvider(iconRes),
             contentDescription = a11yLabel,
-            colorFilter = ColorFilter.tint(OneUiGlanceTokens.PrimaryText),
+            colorFilter = ColorFilter.tint(OneUiGlanceTokens.RetroMp3SilverText),
             modifier = GlanceModifier.size(iconSize)
         )
     }

@@ -340,10 +340,15 @@ object WidgetCanvasRenderer {
     /**
      * Renders the iPod Classic Click Wheel ring with MENU text, geometric media icons, and center button.
      */
-    fun renderIpodClickWheelBitmap(sizePx: Int = 220, isDarkTheme: Boolean = true): Bitmap =
+    fun renderIpodClickWheelBitmap(
+        sizePx: Int = 220,
+        isDarkTheme: Boolean = true,
+        isPlaying: Boolean = false
+    ): Bitmap =
         MusicCanvasRenderer.renderIpodClickWheelBitmap(
             sizePx = sizePx,
-            isDarkTheme = isDarkTheme
+            isDarkTheme = isDarkTheme,
+            isPlaying = isPlaying
         )
 
     /**

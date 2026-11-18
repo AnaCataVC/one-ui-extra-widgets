@@ -162,6 +162,16 @@ object OneUiGlanceTokens {
         night = Color(0xFF121820)
     )
 
+    val IpodProgressTrack: ColorProvider = dayNightColorProvider(
+        day = Color(0xFFD6DAE6),
+        night = Color(0xFF2C3140)
+    )
+
+    val IpodAccentLavender: ColorProvider = dayNightColorProvider(
+        day = Color(0xFF7B7FE8),
+        night = Color(0xFF8E95E8)
+    )
+
     val RetroMp3ShellSurface: ColorProvider = dayNightColorProvider(
         day = RetroMp3ShellDayBase,
         night = RetroMp3ShellNightBase
@@ -337,6 +347,7 @@ object OneUiCanvasPalette {
     const val DISCMAN_PILL_BG: Int = 0xFF13151A.toInt()
     const val DISCMAN_PILL_STROKE: Int = 0xFF4B505C.toInt()
     const val DISCMAN_SPEAKER_DOT: Int = 0xFF101216.toInt()
+    const val DISCMAN_LATCH_ACCENT: Int = 0xFF8E95E8.toInt()
 
     const val ASTRO_DIRECT_LIGHT: Int = 0xFF0381FE.toInt()
     const val ASTRO_DIRECT_DARK: Int = 0xFF3E9BFF.toInt()

@@ -24,6 +24,8 @@
     <color name="oneui_preview_ipod_wheel_label">#FFD8DAE2</color>
     <color name="oneui_preview_ipod_text_primary">#FFF5F6F9</color>
     <color name="oneui_preview_ipod_text_secondary">#FFA0A4B0</color>
+    <color name="oneui_preview_ipod_progress_track">#FF2C3140</color>
+    <color name="oneui_preview_ipod_accent">#FF8E95E8</color>
 
     <color name="oneui_preview_mp3_shell">#FF2D3380</color>
     <color name="oneui_preview_mp3_bezel">#FF0A0D14</color>
@@ -50,4 +52,5 @@
     <color name="oneui_preview_discman_subtitle">#FFB5BAC7</color>
     <color name="oneui_preview_discman_btn_bg">#FFD0D5E2</color>
     <color name="oneui_preview_discman_btn_text">#FF121316</color>
+    <color name="oneui_preview_discman_latch">#FF8E95E8</color>
 </resources>

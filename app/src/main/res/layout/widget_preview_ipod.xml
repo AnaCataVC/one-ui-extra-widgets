@@ -14,18 +14,9 @@
         android:orientation="vertical"
         android:padding="8dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="iPod  •  Now Playing"
-            android:textColor="@color/oneui_preview_rain_blue"
-            android:textSize="9sp"
-            android:textStyle="bold" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -52,8 +43,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="Midnight City"
+                    android:text="@string/music_no_track"
                     android:textColor="@color/oneui_preview_ipod_text_primary"
                     android:textSize="11sp"
                     android:textStyle="bold" />
@@ -61,11 +53,57 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="Retro Player"
+                    android:text="Samsung SM-A556E"
                     android:textColor="@color/oneui_preview_ipod_text_secondary"
                     android:textSize="9sp" />
             </LinearLayout>
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginStart="4dp"
+                android:contentDescription="@string/widget_music_ipod_title"
+                android:src="@drawable/ic_media_heart" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_preview_ipod_progress_track">
+
+            <FrameLayout
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_preview_ipod_progress_fill" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0:00"
+                android:textColor="@color/oneui_preview_ipod_text_secondary"
+                android:textSize="8sp" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0:00"
+                android:textColor="@color/oneui_preview_ipod_text_secondary"
+                android:textSize="8sp" />
         </LinearLayout>
     </LinearLayout>
 
