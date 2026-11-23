@@ -151,7 +151,7 @@ class MediaNotificationListener : NotificationListenerService() {
         private var lastArtSourceId: Int = 0
         private var cachedSquareArt: Bitmap? = null
 
-        private const val PROGRESS_TICK_MS = 3000L
+        private const val PROGRESS_TICK_MS = 2000L
 
         fun refreshActiveMediaSession(
             context: Context,

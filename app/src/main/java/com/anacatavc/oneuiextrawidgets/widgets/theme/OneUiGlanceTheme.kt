@@ -360,6 +360,31 @@ object OneUiGlanceTokens {
         night = Color(0xFFF5F6F9)
     )
 
+    val CassettePrimaryActiveText = dayNightColorProvider(
+        day = Color(0xFFFFFFFF),
+        night = Color(0xFF121316)
+    )
+
+    val CassetteVuGreen = dayNightColorProvider(
+        day = Color(0xFF059669),
+        night = Color(0xFF10B981)
+    )
+
+    val CassetteVuAmber = dayNightColorProvider(
+        day = Color(0xFFD97706),
+        night = Color(0xFFF59E0B)
+    )
+
+    val CassetteVuRed = dayNightColorProvider(
+        day = Color(0xFFDC2626),
+        night = Color(0xFFEF4444)
+    )
+
+    val CassetteVuInactive = dayNightColorProvider(
+        day = Color(0xFFD6D3C9),
+        night = Color(0xFF3B372F)
+    )
+
     // Vinyl Turntable (Braun / Dieter Rams) Tokens (Day / Night adaptive)
     val VinylPlinthSurface: ColorProvider = dayNightColorProvider(
         day = VinylPlinthDayBase,
@@ -369,6 +394,11 @@ object OneUiGlanceTokens {
     val VinylBraunAccent = dayNightColorProvider(
         day = Color(0xFFD95D16),
         night = Color(0xFFFF782C)
+    )
+
+    val VinylPrimaryActiveText = dayNightColorProvider(
+        day = Color(0xFFFFFFFF),
+        night = Color(0xFF121316)
     )
 
     val VinylReadoutSurface = dayNightColorProvider(
@@ -588,19 +618,29 @@ object OneUiCanvasPalette {
     const val CASSETTE_WINDOW_BORDER_DARK: Int = 0xFF3A404D.toInt()
     const val CASSETTE_WINDOW_GLINT: Int = 0x1AFFFFFF
     const val CASSETTE_TAPE_SPOOL_BROWN: Int = 0xFF3A2820.toInt()
-    const val CASSETTE_TAPE_RING: Int = 0x336E4E40
+    const val CASSETTE_TAPE_SPOOL_SHADING: Int = 0x441B110D
+    const val CASSETTE_TAPE_RING: Int = 0x447C5848
     const val CASSETTE_REEL_WHITE: Int = 0xFFF2EFE8.toInt()
     const val CASSETTE_HUB_TEETH: Int = 0xFF23262E.toInt()
     const val CASSETTE_HUB_CORE: Int = 0xFF0E1015.toInt()
     const val CASSETTE_COUNTER_BG: Int = 0xFF0D0F14.toInt()
     const val CASSETTE_COUNTER_BORDER: Int = 0xFF424856.toInt()
     const val CASSETTE_COUNTER_TEXT: Int = 0xFFF5F6F9.toInt()
+    const val CASSETTE_RULER_TICK: Int = 0x99CBD5E1.toInt()
+    const val CASSETTE_GUIDE_ROLLER: Int = 0xFF94A3B8.toInt()
     const val CASSETTE_BRIDGE_LIGHT: Int = 0xFFC2C8D5.toInt()
     const val CASSETTE_BRIDGE_DARK: Int = 0xFF191C23.toInt()
     const val CASSETTE_HOLE_DARK: Int = 0xFF0B0D11.toInt()
     const val CASSETTE_PLAYHEAD_ACTIVE: Int = 0xFFF59E0B.toInt()
+    const val CASSETTE_PLAYHEAD_GLOW: Int = 0x44F59E0B
     const val CASSETTE_PLAYHEAD_IDLE: Int = 0xFF64748B.toInt()
+    const val CASSETTE_PINCH_ROLLER_ACTIVE: Int = 0xFFD97706.toInt()
+    const val CASSETTE_PINCH_ROLLER_IDLE: Int = 0xFF334155.toInt()
     const val CASSETTE_TAPE_RIBBON: Int = 0xFF4D342A.toInt()
+    const val CASSETTE_VU_GREEN: Int = 0xFF10B981.toInt()
+    const val CASSETTE_VU_AMBER: Int = 0xFFF59E0B.toInt()
+    const val CASSETTE_VU_RED: Int = 0xFFEF4444.toInt()
+    const val CASSETTE_VU_OFF: Int = 0xFF222631.toInt()
 
     // Vinyl Turntable (Braun / Dieter Rams) Canvas Palette
     const val VINYL_PLINTH_RECESS_LIGHT: Int = 0xFFD8DBE2.toInt()
@@ -614,12 +654,14 @@ object OneUiCanvasPalette {
     const val VINYL_STROBE_DOT_LIGHT: Int = 0xFF5B6170.toInt()
     const val VINYL_STROBE_DOT_DARK: Int = 0xFFD0D5E0.toInt()
     const val VINYL_STROBE_GLOW_ORANGE: Int = 0xFFD95D16.toInt()
+    const val VINYL_STROBE_HALO_ORANGE: Int = 0x48FF782C
     const val VINYL_DISC_BASE: Int = 0xFF111216.toInt()
     const val VINYL_DISC_RIM: Int = 0xFF323640.toInt()
     const val VINYL_GROOVE_STROKE: Int = 0x38525866
+    const val VINYL_TRACK_BAND_STROKE: Int = 0x58262A34
     const val VINYL_LEADOUT_STROKE: Int = 0x55747B8C
-    const val VINYL_SPECULAR_SHEEN: Int = 0x26FFFFFF
-    const val VINYL_SPECULAR_SOFT: Int = 0x10FFFFFF
+    const val VINYL_SPECULAR_SHEEN: Int = 0x2AFFFFFF
+    const val VINYL_SPECULAR_SOFT: Int = 0x12FFFFFF
     const val VINYL_SPECULAR_CLEAR: Int = 0x00FFFFFF
     const val VINYL_LABEL_OUTER: Int = 0xFFD95D16.toInt()
     const val VINYL_LABEL_INNER: Int = 0xFFF6F1E2.toInt()
@@ -637,7 +679,10 @@ object OneUiCanvasPalette {
     const val VINYL_COUNTERWEIGHT_DARK: Int = 0xFF343842.toInt()
     const val VINYL_HEADSHELL_BODY: Int = 0xFF1F2229.toInt()
     const val VINYL_HEADSHELL_ACCENT: Int = 0xFFFF782C.toInt()
+    const val VINYL_STYLUS_GLOW: Int = 0x55FF782C
     const val VINYL_ARM_REST_DARK: Int = 0xFF474C59.toInt()
+    const val VINYL_PITCH_TRACK_DARK: Int = 0xFF14161B.toInt()
+    const val VINYL_PITCH_TRACK_LIGHT: Int = 0xFFB8BEC9.toInt()
 
     // MiniDisc Hi-MD Canvas Palette
     const val MINIDISC_SHELL_TOP_LIGHT: Int = 0xFF455D82.toInt()

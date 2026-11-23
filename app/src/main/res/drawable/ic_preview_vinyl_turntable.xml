@@ -4,6 +4,28 @@
     android:height="116dp"
     android:viewportWidth="160"
     android:viewportHeight="160">
+    <!-- Top-Left Braun Rotary Speed Selector Dial -->
+    <path
+        android:fillColor="@color/oneui_preview_vinyl_platter"
+        android:pathData="M9.5,20 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0"
+        android:strokeColor="@color/oneui_preview_vinyl_groove"
+        android:strokeWidth="1" />
+    <path
+        android:pathData="M18.5,20 L23,15"
+        android:strokeColor="@color/oneui_preview_vinyl_accent"
+        android:strokeLineCap="round"
+        android:strokeWidth="1.6" />
+    <!-- Right-Side Vertical Pitch Fader Slider -->
+    <path
+        android:fillColor="@color/oneui_preview_vinyl_groove"
+        android:pathData="M146.5,96 H150.5 V142 H146.5 Z" />
+    <path
+        android:fillColor="@color/oneui_preview_vinyl_disc"
+        android:pathData="M144,115 H153 V120 H144 Z" />
+    <path
+        android:pathData="M145.5,117.5 H151.5"
+        android:strokeColor="@color/oneui_preview_vinyl_accent"
+        android:strokeWidth="1.2" />
     <!-- Turntable Platter Recess -->
     <path
         android:fillColor="@color/oneui_preview_vinyl_plinth_stroke"
@@ -20,7 +42,11 @@
         android:strokeAlpha="0.65"
         android:strokeColor="@color/oneui_preview_vinyl_tonearm"
         android:strokeWidth="1.2" />
-    <!-- Braun Orange Strobe Beacon -->
+    <!-- Braun Orange Strobe Beacon & Halo -->
+    <path
+        android:fillAlpha="0.35"
+        android:fillColor="@color/oneui_preview_vinyl_accent"
+        android:pathData="M16.5,127 a5.3,5.3 0 1,0 10.6,0 a5.3,5.3 0 1,0 -10.6,0" />
     <path
         android:fillColor="@color/oneui_preview_vinyl_accent"
         android:pathData="M19,127 a2.8,2.8 0 1,0 5.6,0 a2.8,2.8 0 1,0 -5.6,0" />
@@ -49,6 +75,10 @@
         android:pathData="M58.5,84 a14.5,14.5 0 1,0 29,0 a14.5,14.5 0 1,0 -29,0"
         android:strokeColor="@color/oneui_preview_vinyl_disc"
         android:strokeWidth="0.9" />
+    <!-- Studio Label Registration Wedges -->
+    <path
+        android:fillColor="@color/oneui_preview_vinyl_label"
+        android:pathData="M73,84 L86.5,79.5 A14.2,14.2 0 0,1 86.5,88.5 Z M73,84 L59.5,79.5 A14.2,14.2 0 0,0 59.5,88.5 Z" />
     <!-- Chrome Center Spindle -->
     <path
         android:fillColor="@color/oneui_preview_vinyl_tonearm"

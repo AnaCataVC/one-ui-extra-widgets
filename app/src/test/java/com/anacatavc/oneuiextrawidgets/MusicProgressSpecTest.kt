@@ -1,6 +1,8 @@
 package com.anacatavc.oneuiextrawidgets
 
 import com.anacatavc.oneuiextrawidgets.widgets.music.computeEqualizerBarHeights
+import com.anacatavc.oneuiextrawidgets.widgets.music.computePlaybackRotationPhaseDeg
+import com.anacatavc.oneuiextrawidgets.widgets.music.computeVuMeterActiveSegments
 import com.anacatavc.oneuiextrawidgets.widgets.music.quantizeProgressForCanvas
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -67,8 +69,37 @@ class MusicProgressSpecTest {
     fun `quantizeProgressForCanvas buckets nearby values and clamps bounds`() {
         assertEquals(0f, quantizeProgressForCanvas(-0.2f), 0.0001f)
         assertEquals(1f, quantizeProgressForCanvas(1.4f), 0.0001f)
-        assertEquals(0.25f, quantizeProgressForCanvas(0.24f), 0.0001f)
-        assertEquals(0.25f, quantizeProgressForCanvas(0.26f), 0.0001f)
-        assertEquals(0.50f, quantizeProgressForCanvas(0.49f), 0.0001f)
+        assertEquals(0.25f, quantizeProgressForCanvas(0.245f), 0.0001f)
+        assertEquals(0.25f, quantizeProgressForCanvas(0.255f), 0.0001f)
+        assertEquals(0.50f, quantizeProgressForCanvas(0.495f), 0.0001f)
+    }
+
+    @Test
+    fun `computePlaybackRotationPhaseDeg advances continuously with playback position`() {
+        val idleZero = computePlaybackRotationPhaseDeg(positionMs = 0L, isPlaying = false)
+        val step1 = computePlaybackRotationPhaseDeg(positionMs = 2_000L, isPlaying = true)
+        val step2 = computePlaybackRotationPhaseDeg(positionMs = 4_000L, isPlaying = true)
+        val step3 = computePlaybackRotationPhaseDeg(positionMs = 6_000L, isPlaying = true)
+
+        assertEquals(0f, idleZero, 0.001f)
+        assertTrue(step1 in 0f..360f)
+        assertTrue(step2 in 0f..360f)
+        assertTrue(step3 in 0f..360f)
+        assertNotEquals(step1, step2)
+        assertNotEquals(step2, step3)
+    }
+
+    @Test
+    fun `computeVuMeterActiveSegments stays at 1 when paused and oscillates when playing`() {
+        val pausedA = computeVuMeterActiveSegments(positionMs = 1_000L, isPlaying = false, segmentCount = 5)
+        val pausedB = computeVuMeterActiveSegments(positionMs = 9_000L, isPlaying = false, segmentCount = 5)
+        val samples = (0..10).map { idx ->
+            computeVuMeterActiveSegments(positionMs = idx * 1_500L, isPlaying = true, segmentCount = 5)
+        }
+
+        assertEquals(1, pausedA)
+        assertEquals(1, pausedB)
+        assertTrue(samples.all { it in 2..5 })
+        assertTrue(samples.toSet().size >= 2)
     }
 }

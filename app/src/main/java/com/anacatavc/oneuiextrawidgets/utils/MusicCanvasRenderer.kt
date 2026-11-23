@@ -283,39 +283,44 @@ object MusicCanvasRenderer {
 
     /**
      * Renders a retro Walkman compact cassette shell with corner micro-screws, creamy Type II label,
-     * smoky center window with dynamically sized 6-tooth tape spools, 3-digit counter, and head bridge.
+     * smoky center window with dynamically sized & rotating 6-tooth tape spools, guide rollers,
+     * 100-50-0 ruler scale, 3-digit counter, LED VU peak bar, and bottom head bridge.
      */
     fun renderCassetteDeckBitmap(
         progressFraction: Float,
         sizePx: Int = 360,
         isDarkTheme: Boolean = true,
         isPlaying: Boolean = false,
-        opacityPct: Int = 100
+        opacityPct: Int = 100,
+        rotationPhaseDeg: Float = progressFraction * 280f
     ): Bitmap = CassetteDeckPainter.render(
         progressFraction = progressFraction,
         sizePx = sizePx,
         isDarkTheme = isDarkTheme,
         isPlaying = isPlaying,
-        opacityPct = opacityPct
+        opacityPct = opacityPct,
+        rotationPhaseDeg = rotationPhaseDeg
     )
 
     /**
-     * Renders a Braun / Dieter Rams-inspired vinyl turntable platter, stroboscopic speed rim,
-     * micro-grooved LP disc with anisotropic sheen, circular-clipped album art (or fallback label),
-     * and an articulated S-shaped metallic tonearm tracking [progressFraction].
+     * Renders a Braun / Dieter Rams-inspired vinyl turntable platter, stroboscopic speed rim & prism,
+     * micro-grooved LP disc with dynamic anisotropic sheen, rotating circular-clipped album art
+     * (or studio label), pitch fader, and an articulated S-shaped metallic tonearm tracking [progressFraction].
      */
     fun renderVinylTurntableBitmap(
         albumArt: Bitmap?,
         progressFraction: Float,
         sizePx: Int = 320,
         isDarkTheme: Boolean = true,
-        isPlaying: Boolean = false
+        isPlaying: Boolean = false,
+        rotationPhaseDeg: Float = progressFraction * 360f
     ): Bitmap = VinylTurntablePainter.render(
         albumArt = albumArt,
         progressFraction = progressFraction,
         sizePx = sizePx,
         isDarkTheme = isDarkTheme,
-        isPlaying = isPlaying
+        isPlaying = isPlaying,
+        rotationPhaseDeg = rotationPhaseDeg
     )
 
     /**
@@ -350,7 +355,8 @@ private object CassetteDeckPainter {
         sizePx: Int,
         isDarkTheme: Boolean,
         isPlaying: Boolean,
-        opacityPct: Int
+        opacityPct: Int,
+        rotationPhaseDeg: Float
     ): Bitmap {
         val safeSize = sizePx.coerceIn(120, 640)
         val widthPx = safeSize
@@ -361,6 +367,7 @@ private object CassetteDeckPainter {
         }
 
         val progress = if (progressFraction.isNaN()) 0f else progressFraction.coerceIn(0f, 1f)
+        val safePhase = if (rotationPhaseDeg.isNaN()) 0f else rotationPhaseDeg
         val bitmap = Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val w = widthPx.toFloat()
@@ -409,11 +416,36 @@ private object CassetteDeckPainter {
         }
         canvas.drawRoundRect(recessRect, shellCorner * 0.65f, shellCorner * 0.65f, recessPaint)
 
+        drawCassetteSideGrips(canvas, shellRect, w, h, isDarkTheme)
         drawCassetteScrews(canvas, shellRect, w, isDarkTheme)
-        drawCassetteLabelAndWindow(canvas, w, h, progress, isDarkTheme)
-        drawCassetteBottomBridge(canvas, shellRect, w, h, isDarkTheme, isPlaying)
+        drawCassetteLabelAndWindow(canvas, w, h, progress, safePhase, isDarkTheme, isPlaying)
+        drawCassetteBottomBridge(canvas, shellRect, w, h, safePhase, isDarkTheme, isPlaying)
 
         return applyBitmapOpacity(bitmap, alphaInt)
+    }
+
+    private fun drawCassetteSideGrips(
+        canvas: Canvas,
+        shellRect: RectF,
+        w: Float,
+        h: Float,
+        isDarkTheme: Boolean
+    ) {
+        val gripPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) OneUiCanvasPalette.CASSETTE_BEVEL_DARK else OneUiCanvasPalette.CASSETTE_BEVEL_LIGHT
+            style = Paint.Style.STROKE
+            strokeWidth = (w * 0.004f).coerceAtLeast(1f)
+            strokeCap = Paint.Cap.ROUND
+        }
+        val leftX1 = shellRect.left + w * 0.008f
+        val leftX2 = shellRect.left + w * 0.024f
+        val rightX1 = shellRect.right - w * 0.024f
+        val rightX2 = shellRect.right - w * 0.008f
+        for (i in 0 until 5) {
+            val gy = h * (0.36f + i * 0.065f)
+            canvas.drawLine(leftX1, gy, leftX2, gy, gripPaint)
+            canvas.drawLine(rightX1, gy, rightX2, gy, gripPaint)
+        }
     }
 
     private fun drawCassetteScrews(
@@ -457,7 +489,9 @@ private object CassetteDeckPainter {
         w: Float,
         h: Float,
         progress: Float,
-        isDarkTheme: Boolean
+        rotationPhaseDeg: Float,
+        isDarkTheme: Boolean,
+        isPlaying: Boolean
     ) {
         val labelRect = RectF(w * 0.088f, h * 0.095f, w * 0.912f, h * 0.725f)
         val labelRadius = w * 0.022f
@@ -490,22 +524,45 @@ private object CassetteDeckPainter {
         }
         val headerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = inkColor
-            textSize = h * 0.072f
+            textSize = h * 0.068f
             textAlign = Paint.Align.LEFT
             isFakeBoldText = true
         }
-        val sidePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        val badgeRect = RectF(
+            labelRect.right - w * 0.082f,
+            labelRect.top + h * 0.032f,
+            labelRect.right - w * 0.026f,
+            labelRect.top + h * 0.112f
+        )
+        val badgePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = OneUiCanvasPalette.CASSETTE_LABEL_STRIPE_ORANGE
-            textSize = h * 0.074f
-            textAlign = Paint.Align.RIGHT
+            style = Paint.Style.FILL
+        }
+        canvas.drawRoundRect(badgeRect, h * 0.015f, h * 0.015f, badgePaint)
+        val sidePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.CASSETTE_REEL_WHITE
+            textSize = h * 0.064f
+            textAlign = Paint.Align.CENTER
             isFakeBoldText = true
         }
         val headerY = labelRect.top + h * 0.095f
         canvas.drawText("TYPE II CrO2 • 90", labelRect.left + w * 0.032f, headerY, headerPaint)
-        canvas.drawText("A", labelRect.right - w * 0.032f, headerY, sidePaint)
+        val sideTextY = badgeRect.centerY() - (sidePaint.descent() + sidePaint.ascent()) / 2f
+        canvas.drawText("A", badgeRect.centerX(), sideTextY, sidePaint)
+
+        // Dynamic LED VU Peak Meter on top-right of cassette label
+        drawCassetteLedVuBar(
+            canvas = canvas,
+            rightX = badgeRect.left - w * 0.018f,
+            centerY = badgeRect.centerY(),
+            w = w,
+            h = h,
+            rotationPhaseDeg = rotationPhaseDeg,
+            isPlaying = isPlaying
+        )
 
         // Center dark smoky window revealing dynamic tape spools & 6-tooth hubs
-        val winRect = RectF(w * 0.205f, h * 0.325f, w * 0.795f, h * 0.665f)
+        val winRect = RectF(w * 0.195f, h * 0.320f, w * 0.805f, h * 0.675f)
         val winRadius = winRect.height() * 0.24f
         val winPath = Path().apply { addRoundRect(winRect, winRadius, winRadius, Path.Direction.CW) }
         val winBgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -522,12 +579,27 @@ private object CassetteDeckPainter {
         val maxTapeR = hubR * 2.42f
         val leftTapeR = interpolateTapeRadius(minTapeR, maxTapeR, 1f - progress)
         val rightTapeR = interpolateTapeRadius(minTapeR, maxTapeR, progress)
-        val hubRotationDeg = progress * 240f
 
         canvas.save()
         canvas.clipPath(winPath)
-        drawTapeSpool(canvas, leftSpoolX, spoolY, leftTapeR, hubR, hubRotationDeg)
-        drawTapeSpool(canvas, rightSpoolX, spoolY, rightTapeR, hubR, hubRotationDeg)
+
+        // Guide rollers and taut magnetic tape path connecting both reels
+        drawWindowTapePathAndRollers(
+            canvas = canvas,
+            winRect = winRect,
+            leftSpoolX = leftSpoolX,
+            rightSpoolX = rightSpoolX,
+            spoolY = spoolY,
+            leftTapeR = leftTapeR,
+            rightTapeR = rightTapeR,
+            w = w,
+            h = h,
+            isPlaying = isPlaying
+        )
+
+        drawTapeSpool(canvas, leftSpoolX, spoolY, leftTapeR, hubR, rotationPhaseDeg)
+        drawTapeSpool(canvas, rightSpoolX, spoolY, rightTapeR, hubR, -rotationPhaseDeg * 0.92f + 30f)
+        drawWindowScaleTicks(canvas, cx = w * 0.5f, winRect = winRect, w = w, h = h)
 
         val glintPath = Path().apply {
             moveTo(winRect.left + w * 0.04f, winRect.top)
@@ -554,7 +626,116 @@ private object CassetteDeckPainter {
         }
         canvas.drawPath(winPath, winBorderPaint)
 
-        drawCassetteCounter(canvas, w * 0.5f, spoolY, w, h, progress)
+        drawCassetteCounter(canvas, w * 0.5f, spoolY, w, h, progress, isPlaying)
+    }
+
+    private fun drawCassetteLedVuBar(
+        canvas: Canvas,
+        rightX: Float,
+        centerY: Float,
+        w: Float,
+        h: Float,
+        rotationPhaseDeg: Float,
+        isPlaying: Boolean
+    ) {
+        val segCount = 6
+        val segW = w * 0.017f
+        val segH = h * 0.036f
+        val segGap = w * 0.006f
+        val totalW = segCount * segW + (segCount - 1) * segGap
+        val startX = rightX - totalW
+        val activeSegments = if (!isPlaying) {
+            1
+        } else {
+            val wave = (sin(Math.toRadians(rotationPhaseDeg * 2.3)) + 1.0) * 0.5
+            (2 + (wave * 4.0).roundToInt()).coerceIn(2, segCount)
+        }
+        val segPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+        for (i in 0 until segCount) {
+            val left = startX + i * (segW + segGap)
+            val rect = RectF(left, centerY - segH / 2f, left + segW, centerY + segH / 2f)
+            segPaint.color = when {
+                i >= activeSegments -> OneUiCanvasPalette.CASSETTE_VU_OFF
+                i >= 5 -> OneUiCanvasPalette.CASSETTE_VU_RED
+                i >= 3 -> OneUiCanvasPalette.CASSETTE_VU_AMBER
+                else -> OneUiCanvasPalette.CASSETTE_VU_GREEN
+            }
+            canvas.drawRoundRect(rect, segH * 0.28f, segH * 0.28f, segPaint)
+        }
+    }
+
+    private fun drawWindowTapePathAndRollers(
+        canvas: Canvas,
+        winRect: RectF,
+        leftSpoolX: Float,
+        rightSpoolX: Float,
+        spoolY: Float,
+        leftTapeR: Float,
+        rightTapeR: Float,
+        w: Float,
+        h: Float,
+        isPlaying: Boolean
+    ) {
+        val leftRollerX = winRect.left + w * 0.036f
+        val rightRollerX = winRect.right - w * 0.036f
+        val rollerY = winRect.bottom - h * 0.045f
+        val rollerR = (h * 0.022f).coerceAtLeast(2f)
+
+        val ribbonPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isPlaying) {
+                OneUiCanvasPalette.CASSETTE_LABEL_STRIPE_AMBER
+            } else {
+                OneUiCanvasPalette.CASSETTE_TAPE_RIBBON
+            }
+            alpha = if (isPlaying) 185 else 150
+            style = Paint.Style.STROKE
+            strokeWidth = (h * 0.012f).coerceAtLeast(1.2f)
+        }
+        val tapePath = Path().apply {
+            moveTo(leftSpoolX - leftTapeR * 0.65f, spoolY + leftTapeR * 0.65f)
+            lineTo(leftRollerX, rollerY)
+            lineTo(rightRollerX, rollerY)
+            lineTo(rightSpoolX + rightTapeR * 0.65f, spoolY + rightTapeR * 0.65f)
+        }
+        canvas.drawPath(tapePath, ribbonPaint)
+
+        val rollerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.CASSETTE_GUIDE_ROLLER
+            style = Paint.Style.FILL
+        }
+        val pinPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.CASSETTE_HUB_CORE
+            style = Paint.Style.FILL
+        }
+        canvas.drawCircle(leftRollerX, rollerY, rollerR, rollerPaint)
+        canvas.drawCircle(leftRollerX, rollerY, rollerR * 0.42f, pinPaint)
+        canvas.drawCircle(rightRollerX, rollerY, rollerR, rollerPaint)
+        canvas.drawCircle(rightRollerX, rollerY, rollerR * 0.42f, pinPaint)
+    }
+
+    private fun drawWindowScaleTicks(
+        canvas: Canvas,
+        cx: Float,
+        winRect: RectF,
+        w: Float,
+        h: Float
+    ) {
+        val tickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.CASSETTE_RULER_TICK
+            style = Paint.Style.STROKE
+            strokeWidth = (w * 0.0032f).coerceAtLeast(1f)
+        }
+        val spanW = w * 0.16f
+        val startX = cx - spanW / 2f
+        val topTickY = winRect.top + h * 0.022f
+        val botTickY = winRect.bottom - h * 0.022f
+        val ticks = 9
+        for (i in 0 until ticks) {
+            val tx = startX + spanW * (i.toFloat() / (ticks - 1))
+            val len = if (i % 4 == 0) h * 0.026f else h * 0.015f
+            canvas.drawLine(tx, topTickY, tx, topTickY + len, tickPaint)
+            canvas.drawLine(tx, botTickY - len, tx, botTickY, tickPaint)
+        }
     }
 
     private fun interpolateTapeRadius(minR: Float, maxR: Float, fraction: Float): Float {
@@ -577,6 +758,18 @@ private object CassetteDeckPainter {
         }
         canvas.drawCircle(cx, cy, tapeR, tapePaint)
 
+        // Rotating radial sheen across the magnetic tape pack for visual motion
+        canvas.save()
+        canvas.rotate(rotationDeg * 0.65f, cx, cy)
+        val sheenPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.CASSETTE_TAPE_SPOOL_SHADING
+            style = Paint.Style.FILL
+        }
+        val packOval = RectF(cx - tapeR, cy - tapeR, cx + tapeR, cy + tapeR)
+        canvas.drawArc(packOval, -25f, 50f, true, sheenPaint)
+        canvas.drawArc(packOval, 155f, 50f, true, sheenPaint)
+        canvas.restore()
+
         val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = OneUiCanvasPalette.CASSETTE_TAPE_RING
             style = Paint.Style.STROKE
@@ -586,6 +779,10 @@ private object CassetteDeckPainter {
         if (midR > hubR * 1.15f) {
             canvas.drawCircle(cx, cy, midR, ringPaint)
         }
+        val outerMidR = (hubR + tapeR) * 0.76f
+        if (outerMidR > hubR * 1.30f) {
+            canvas.drawCircle(cx, cy, outerMidR, ringPaint)
+        }
         canvas.drawCircle(cx, cy, tapeR * 0.94f, ringPaint)
 
         val reelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -594,11 +791,23 @@ private object CassetteDeckPainter {
         }
         canvas.drawCircle(cx, cy, hubR, reelPaint)
 
+        // 3 radial clamp windows on the white hub flange that rotate with playback
+        val slotCutPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.CASSETTE_HUB_TEETH
+            style = Paint.Style.STROKE
+            strokeWidth = (hubR * 0.14f).coerceAtLeast(1.2f)
+            strokeCap = Paint.Cap.ROUND
+        }
+        val slotOval = RectF(cx - hubR * 0.78f, cy - hubR * 0.78f, cx + hubR * 0.78f, cy + hubR * 0.78f)
+        for (k in 0 until 3) {
+            canvas.drawArc(slotOval, rotationDeg + k * 120f, 42f, false, slotCutPaint)
+        }
+
         val corePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = OneUiCanvasPalette.CASSETTE_HUB_CORE
             style = Paint.Style.FILL
         }
-        canvas.drawCircle(cx, cy, hubR * 0.60f, corePaint)
+        canvas.drawCircle(cx, cy, hubR * 0.58f, corePaint)
 
         // 6 drive teeth projecting inward from the reel hub
         val toothPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -619,10 +828,10 @@ private object CassetteDeckPainter {
             val cosA = cos(angleRad).toFloat()
             val sinA = sin(angleRad).toFloat()
             canvas.drawLine(
-                cx + hubR * 0.68f * cosA,
-                cy + hubR * 0.68f * sinA,
-                cx + hubR * 0.40f * cosA,
-                cy + hubR * 0.40f * sinA,
+                cx + hubR * 0.66f * cosA,
+                cy + hubR * 0.66f * sinA,
+                cx + hubR * 0.36f * cosA,
+                cy + hubR * 0.36f * sinA,
                 toothPaint
             )
         }
@@ -634,10 +843,11 @@ private object CassetteDeckPainter {
         cy: Float,
         w: Float,
         h: Float,
-        progress: Float
+        progress: Float,
+        isPlaying: Boolean
     ) {
-        val boxW = w * 0.145f
-        val boxH = h * 0.135f
+        val boxW = w * 0.150f
+        val boxH = h * 0.138f
         val boxRect = RectF(cx - boxW / 2f, cy - boxH / 2f, cx + boxW / 2f, cy + boxH / 2f)
         val corner = boxH * 0.22f
 
@@ -646,15 +856,23 @@ private object CassetteDeckPainter {
             style = Paint.Style.FILL
         }
         val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = OneUiCanvasPalette.CASSETTE_COUNTER_BORDER
+            color = if (isPlaying) {
+                OneUiCanvasPalette.CASSETTE_LABEL_STRIPE_AMBER
+            } else {
+                OneUiCanvasPalette.CASSETTE_COUNTER_BORDER
+            }
             style = Paint.Style.STROKE
-            strokeWidth = (w * 0.004f).coerceAtLeast(1f)
+            strokeWidth = (w * 0.0042f).coerceAtLeast(1f)
         }
         canvas.drawRoundRect(boxRect, corner, corner, bgPaint)
         canvas.drawRoundRect(boxRect, corner, corner, borderPaint)
 
         val counterPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = OneUiCanvasPalette.CASSETTE_COUNTER_TEXT
+            color = if (isPlaying) {
+                OneUiCanvasPalette.CASSETTE_LABEL_STRIPE_AMBER
+            } else {
+                OneUiCanvasPalette.CASSETTE_COUNTER_TEXT
+            }
             textSize = boxH * 0.62f
             textAlign = Paint.Align.CENTER
             typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
@@ -669,6 +887,7 @@ private object CassetteDeckPainter {
         shellRect: RectF,
         w: Float,
         h: Float,
+        rotationPhaseDeg: Float,
         isDarkTheme: Boolean,
         isPlaying: Boolean
     ) {
@@ -706,18 +925,61 @@ private object CassetteDeckPainter {
         val ribbonY = botY - h * 0.025f
         canvas.drawLine(cx - topHalfW * 0.72f, ribbonY, cx + topHalfW * 0.72f, ribbonY, ribbonPaint)
 
-        // Capstan & alignment pin holes + active playhead LED indicator
+        // Capstan & alignment pin holes + rotating pinch rollers
         val holePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = OneUiCanvasPalette.CASSETTE_HOLE_DARK
             style = Paint.Style.FILL
         }
+        val rollerRingPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isPlaying) {
+                OneUiCanvasPalette.CASSETTE_PINCH_ROLLER_ACTIVE
+            } else {
+                OneUiCanvasPalette.CASSETTE_PINCH_ROLLER_IDLE
+            }
+            style = Paint.Style.STROKE
+            strokeWidth = (w * 0.005f).coerceAtLeast(1.2f)
+        }
         val holeY = (topY + botY) * 0.52f
         val holeR = (h * 0.032f).coerceAtLeast(3f)
-        canvas.drawCircle(cx - w * 0.165f, holeY, holeR, holePaint)
-        canvas.drawCircle(cx + w * 0.165f, holeY, holeR, holePaint)
+        val leftCapX = cx - w * 0.165f
+        val rightCapX = cx + w * 0.165f
+        canvas.drawCircle(leftCapX, holeY, holeR, holePaint)
+        canvas.drawCircle(rightCapX, holeY, holeR, holePaint)
+        canvas.drawCircle(leftCapX, holeY, holeR * 1.15f, rollerRingPaint)
+        canvas.drawCircle(rightCapX, holeY, holeR * 1.15f, rollerRingPaint)
+
+        if (isPlaying) {
+            val spokeRad = Math.toRadians(rotationPhaseDeg.toDouble())
+            val dx = (holeR * 0.8f * cos(spokeRad)).toFloat()
+            val dy = (holeR * 0.8f * sin(spokeRad)).toFloat()
+            canvas.drawLine(leftCapX - dx, holeY - dy, leftCapX + dx, holeY + dy, rollerRingPaint)
+            canvas.drawLine(rightCapX - dx, holeY - dy, rightCapX + dx, holeY + dy, rollerRingPaint)
+        }
+
         canvas.drawCircle(cx - w * 0.088f, holeY + h * 0.014f, holeR * 0.72f, holePaint)
         canvas.drawCircle(cx + w * 0.088f, holeY + h * 0.014f, holeR * 0.72f, holePaint)
 
+        val headW = w * 0.052f
+        val headH = h * 0.026f
+        val headRect = RectF(cx - headW / 2f, topY + h * 0.028f, cx + headW / 2f, topY + h * 0.028f + headH)
+        if (isPlaying) {
+            val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = OneUiCanvasPalette.CASSETTE_PLAYHEAD_GLOW
+                style = Paint.Style.FILL
+            }
+            val glowInset = w * 0.010f
+            canvas.drawRoundRect(
+                RectF(
+                    headRect.left - glowInset,
+                    headRect.top - glowInset,
+                    headRect.right + glowInset,
+                    headRect.bottom + glowInset
+                ),
+                headH,
+                headH,
+                glowPaint
+            )
+        }
         val headPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = if (isPlaying) {
                 OneUiCanvasPalette.CASSETTE_PLAYHEAD_ACTIVE
@@ -726,14 +988,7 @@ private object CassetteDeckPainter {
             }
             style = Paint.Style.FILL
         }
-        val headW = w * 0.045f
-        val headH = h * 0.024f
-        canvas.drawRoundRect(
-            RectF(cx - headW / 2f, topY + h * 0.03f, cx + headW / 2f, topY + h * 0.03f + headH),
-            headH / 2f,
-            headH / 2f,
-            headPaint
-        )
+        canvas.drawRoundRect(headRect, headH / 2f, headH / 2f, headPaint)
     }
 }
 
@@ -744,10 +999,12 @@ private object VinylTurntablePainter {
         progressFraction: Float,
         sizePx: Int,
         isDarkTheme: Boolean,
-        isPlaying: Boolean
+        isPlaying: Boolean,
+        rotationPhaseDeg: Float
     ): Bitmap {
         val safeSize = sizePx.coerceIn(120, 640)
         val progress = if (progressFraction.isNaN()) 0f else progressFraction.coerceIn(0f, 1f)
+        val safePhase = if (rotationPhaseDeg.isNaN()) 0f else rotationPhaseDeg
         val bitmap = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val s = safeSize.toFloat()
@@ -758,12 +1015,109 @@ private object VinylTurntablePainter {
         val vinylR = platterR * 0.895f
         val labelR = vinylR * 0.355f
 
-        drawVinylPlatterAndStrobe(canvas, cx, cy, platterR, s, isDarkTheme, isPlaying)
-        drawVinylDiscAndGrooves(canvas, cx, cy, vinylR, labelR, s)
-        drawVinylCenterLabel(canvas, cx, cy, labelR, s, albumArt)
+        drawVinylDeckControls(canvas, s, progress, isDarkTheme, isPlaying)
+        drawVinylPlatterAndStrobe(canvas, cx, cy, platterR, s, safePhase, isDarkTheme, isPlaying)
+        drawVinylDiscAndGrooves(canvas, cx, cy, vinylR, labelR, s, safePhase, isPlaying)
+        drawVinylCenterLabel(canvas, cx, cy, labelR, s, safePhase, albumArt)
         drawVinylTonearm(canvas, s, progress, isDarkTheme, isPlaying)
 
         return bitmap
+    }
+
+    private fun drawVinylDeckControls(
+        canvas: Canvas,
+        s: Float,
+        progress: Float,
+        isDarkTheme: Boolean,
+        isPlaying: Boolean
+    ) {
+        // Top-left Braun rotary power / speed selector dial (33 / 45 RPM)
+        val dialCx = s * 0.115f
+        val dialCy = s * 0.125f
+        val dialR = s * 0.056f
+        val dialBasePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) {
+                OneUiCanvasPalette.VINYL_TONEARM_BASE_DARK
+            } else {
+                OneUiCanvasPalette.VINYL_TONEARM_BASE_LIGHT
+            }
+            style = Paint.Style.FILL
+        }
+        val dialRimPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.VINYL_TONEARM_GIMBAL_RING
+            style = Paint.Style.STROKE
+            strokeWidth = (s * 0.0045f).coerceAtLeast(1f)
+        }
+        canvas.drawCircle(dialCx, dialCy, dialR, dialBasePaint)
+        canvas.drawCircle(dialCx, dialCy, dialR, dialRimPaint)
+
+        val indicatorPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isPlaying) {
+                OneUiCanvasPalette.VINYL_HEADSHELL_ACCENT
+            } else {
+                OneUiCanvasPalette.VINYL_TONEARM_SILVER_LIGHT
+            }
+            style = Paint.Style.STROKE
+            strokeWidth = (s * 0.010f).coerceAtLeast(1.5f)
+            strokeCap = Paint.Cap.ROUND
+        }
+        val dialAngle = Math.toRadians(if (isPlaying) -42.0 else -115.0)
+        canvas.drawLine(
+            dialCx,
+            dialCy,
+            dialCx + (dialR * 0.72f * cos(dialAngle)).toFloat(),
+            dialCy + (dialR * 0.72f * sin(dialAngle)).toFloat(),
+            indicatorPaint
+        )
+
+        // Right-side vertical pitch control slider track & fader cap
+        val trackX = s * 0.928f
+        val trackTop = s * 0.60f
+        val trackBot = s * 0.89f
+        val trackW = (s * 0.022f).coerceAtLeast(2.5f)
+        val trackRect = RectF(trackX - trackW / 2f, trackTop, trackX + trackW / 2f, trackBot)
+        val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isDarkTheme) {
+                OneUiCanvasPalette.VINYL_PITCH_TRACK_DARK
+            } else {
+                OneUiCanvasPalette.VINYL_PITCH_TRACK_LIGHT
+            }
+            style = Paint.Style.FILL
+        }
+        canvas.drawRoundRect(trackRect, trackW / 2f, trackW / 2f, trackPaint)
+
+        // Pitch graduation ticks
+        val tickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.VINYL_TONEARM_GIMBAL_RING
+            style = Paint.Style.STROKE
+            strokeWidth = (s * 0.0035f).coerceAtLeast(1f)
+        }
+        for (i in 0..4) {
+            val ty = trackTop + (trackBot - trackTop) * (i / 4f)
+            val tickW = if (i == 2) s * 0.022f else s * 0.013f
+            canvas.drawLine(trackRect.left - tickW, ty, trackRect.left - s * 0.004f, ty, tickPaint)
+        }
+
+        val knobFraction = if (isPlaying) (0.35f + 0.30f * progress) else 0.50f
+        val knobY = trackTop + (trackBot - trackTop) * knobFraction
+        val knobW = s * 0.052f
+        val knobH = s * 0.028f
+        val knobRect = RectF(trackX - knobW / 2f, knobY - knobH / 2f, trackX + knobW / 2f, knobY + knobH / 2f)
+        val knobPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.VINYL_HEADSHELL_BODY
+            style = Paint.Style.FILL
+        }
+        val knobLinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isPlaying) {
+                OneUiCanvasPalette.VINYL_HEADSHELL_ACCENT
+            } else {
+                OneUiCanvasPalette.VINYL_TONEARM_SILVER_LIGHT
+            }
+            style = Paint.Style.STROKE
+            strokeWidth = (s * 0.005f).coerceAtLeast(1f)
+        }
+        canvas.drawRoundRect(knobRect, knobH * 0.25f, knobH * 0.25f, knobPaint)
+        canvas.drawLine(knobRect.left + knobW * 0.18f, knobY, knobRect.right - knobW * 0.18f, knobY, knobLinePaint)
     }
 
     private fun drawVinylPlatterAndStrobe(
@@ -772,6 +1126,7 @@ private object VinylTurntablePainter {
         cy: Float,
         platterR: Float,
         s: Float,
+        rotationPhaseDeg: Float,
         isDarkTheme: Boolean,
         isPlaying: Boolean
     ) {
@@ -783,7 +1138,7 @@ private object VinylTurntablePainter {
             }
             style = Paint.Style.FILL
         }
-        canvas.drawCircle(cx, cy, platterR * 1.032f, recessPaint)
+        canvas.drawCircle(cx, cy, platterR * 1.036f, recessPaint)
 
         val platterPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             shader = LinearGradient(
@@ -807,34 +1162,43 @@ private object VinylTurntablePainter {
         }
         canvas.drawCircle(cx, cy, platterR, rimPaint)
 
-        // Stroboscopic speed dots around brushed platter rim
+        // Stroboscopic speed dots around brushed platter rim rotating with phase
         val strobeR = platterR * 0.946f
-        val dotR = (s * 0.0048f).coerceAtLeast(1f)
+        val dotR = (s * 0.0050f).coerceAtLeast(1f)
         val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = if (isDarkTheme) OneUiCanvasPalette.VINYL_STROBE_DOT_DARK else OneUiCanvasPalette.VINYL_STROBE_DOT_LIGHT
             style = Paint.Style.FILL
         }
         val dotCount = 42
+        val phaseShift = if (isPlaying) (rotationPhaseDeg * 0.25f) else 0f
         for (i in 0 until dotCount) {
-            val angleRad = Math.toRadians((i * (360.0 / dotCount)))
+            val angleRad = Math.toRadians((i * (360.0 / dotCount)) + phaseShift)
             val dx = cx + (strobeR * cos(angleRad)).toFloat()
             val dy = cy + (strobeR * sin(angleRad)).toFloat()
-            canvas.drawCircle(dx, dy, dotR, dotPaint)
+            val radiusScale = if (i % 2 == 0) 1.08f else 0.82f
+            canvas.drawCircle(dx, dy, dotR * radiusScale, dotPaint)
         }
 
+        // Strobe prism pilot lamp housing at bottom-left edge of platter
+        val strobeAngle = Math.toRadians(138.0)
+        val lampX = cx + (platterR * 1.015f * cos(strobeAngle)).toFloat()
+        val lampY = cy + (platterR * 1.015f * sin(strobeAngle)).toFloat()
         if (isPlaying) {
-            val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = OneUiCanvasPalette.VINYL_STROBE_GLOW_ORANGE
+            val haloPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = OneUiCanvasPalette.VINYL_STROBE_HALO_ORANGE
                 style = Paint.Style.FILL
             }
-            val strobeAngle = Math.toRadians(140.0)
-            canvas.drawCircle(
-                cx + (platterR * 1.01f * cos(strobeAngle)).toFloat(),
-                cy + (platterR * 1.01f * sin(strobeAngle)).toFloat(),
-                dotR * 1.9f,
-                glowPaint
-            )
+            canvas.drawCircle(lampX, lampY, dotR * 4.4f, haloPaint)
         }
+        val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = if (isPlaying) {
+                OneUiCanvasPalette.VINYL_STROBE_GLOW_ORANGE
+            } else {
+                OneUiCanvasPalette.VINYL_TONEARM_GIMBAL_RING
+            }
+            style = Paint.Style.FILL
+        }
+        canvas.drawCircle(lampX, lampY, dotR * 2.1f, glowPaint)
     }
 
     private fun drawVinylDiscAndGrooves(
@@ -843,7 +1207,9 @@ private object VinylTurntablePainter {
         cy: Float,
         vinylR: Float,
         labelR: Float,
-        s: Float
+        s: Float,
+        rotationPhaseDeg: Float,
+        isPlaying: Boolean
     ) {
         val discPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = OneUiCanvasPalette.VINYL_DISC_BASE
@@ -863,6 +1229,11 @@ private object VinylTurntablePainter {
             style = Paint.Style.STROKE
             strokeWidth = (s * 0.0028f).coerceAtLeast(0.8f)
         }
+        val bandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.VINYL_TRACK_BAND_STROKE
+            style = Paint.Style.STROKE
+            strokeWidth = (s * 0.0055f).coerceAtLeast(1.4f)
+        }
         val leadOutPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = OneUiCanvasPalette.VINYL_LEADOUT_STROKE
             style = Paint.Style.STROKE
@@ -872,10 +1243,15 @@ private object VinylTurntablePainter {
 
         val startR = labelR * 1.24f
         val endR = vinylR * 0.96f
-        val ringCount = 14
+        val ringCount = 15
         for (i in 0 until ringCount) {
             val t = i.toFloat() / (ringCount - 1)
-            canvas.drawCircle(cx, cy, startR + (endR - startR) * t, groovePaint)
+            val r = startR + (endR - startR) * t
+            if (i == 4 || i == 9) {
+                canvas.drawCircle(cx, cy, r, bandPaint)
+            } else {
+                canvas.drawCircle(cx, cy, r, groovePaint)
+            }
         }
 
         // Diagonal anisotropic highlight sheen clipped strictly to the grooved vinyl annulus
@@ -884,7 +1260,12 @@ private object VinylTurntablePainter {
             addCircle(cx, cy, vinylR * 0.99f, Path.Direction.CW)
             addCircle(cx, cy, labelR * 1.02f, Path.Direction.CW)
         }
-        val sweepMatrix = Matrix().apply { setRotate(-35f, cx, cy) }
+        val sheenTilt = if (isPlaying) {
+            -35f + (sin(Math.toRadians(rotationPhaseDeg.toDouble())) * 10.0).toFloat()
+        } else {
+            -35f
+        }
+        val sweepMatrix = Matrix().apply { setRotate(sheenTilt, cx, cy) }
         val sheenShader = SweepGradient(
             cx,
             cy,
@@ -923,6 +1304,7 @@ private object VinylTurntablePainter {
         cy: Float,
         labelR: Float,
         s: Float,
+        rotationPhaseDeg: Float,
         albumArt: Bitmap?
     ) {
         if (albumArt != null && isRenderableAlbumArt(albumArt)) {
@@ -936,6 +1318,7 @@ private object VinylTurntablePainter {
 
             canvas.save()
             canvas.clipPath(labelClip)
+            canvas.rotate(rotationPhaseDeg, cx, cy)
             canvas.drawBitmap(albumArt, srcRect, dstRect, artPaint)
             canvas.restore()
         } else {
@@ -958,11 +1341,24 @@ private object VinylTurntablePainter {
                 textAlign = Paint.Align.CENTER
                 isFakeBoldText = true
             }
+            canvas.save()
+            canvas.rotate(rotationPhaseDeg, cx, cy)
             canvas.drawCircle(cx, cy, labelR, outerLabelPaint)
             canvas.drawCircle(cx, cy, labelR * 0.72f, innerLabelPaint)
             canvas.drawCircle(cx, cy, labelR * 0.72f, accentStroke)
+
+            // Studio label geometric registration mark so spin is clearly visible
+            val wedgePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = OneUiCanvasPalette.VINYL_LABEL_OUTER
+                style = Paint.Style.FILL
+            }
+            val innerOval = RectF(cx - labelR * 0.70f, cy - labelR * 0.70f, cx + labelR * 0.70f, cy + labelR * 0.70f)
+            canvas.drawArc(innerOval, -18f, 36f, true, wedgePaint)
+            canvas.drawArc(innerOval, 162f, 36f, true, wedgePaint)
+
             canvas.drawText("33⅓", cx, cy - labelR * 0.30f, labelTextPaint)
             canvas.drawText("HI-FI", cx, cy + labelR * 0.48f, labelTextPaint)
+            canvas.restore()
         }
 
         val rimPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -1007,14 +1403,22 @@ private object VinylTurntablePainter {
             85f
         }
 
-        // Tonearm rest post on right deck
+        // Tonearm rest clip & cueing lever on right deck
         val restPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = OneUiCanvasPalette.VINYL_ARM_REST_DARK
             style = Paint.Style.FILL
         }
         canvas.drawCircle(s * 0.888f, s * 0.495f, s * 0.020f, restPaint)
 
-        // Gimbal base plinth
+        val cuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.VINYL_TONEARM_SILVER_DARK
+            style = Paint.Style.STROKE
+            strokeWidth = (s * 0.007f).coerceAtLeast(1.2f)
+            strokeCap = Paint.Cap.ROUND
+        }
+        canvas.drawLine(pivotX - s * 0.095f, pivotY + s * 0.075f, pivotX - s * 0.095f, pivotY + s * 0.135f, cuePaint)
+
+        // Gimbal base plinth & anti-skate dial
         val basePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = if (isDarkTheme) OneUiCanvasPalette.VINYL_TONEARM_BASE_DARK else OneUiCanvasPalette.VINYL_TONEARM_BASE_LIGHT
             style = Paint.Style.FILL
@@ -1027,6 +1431,8 @@ private object VinylTurntablePainter {
         val gimbalR = s * 0.082f
         canvas.drawCircle(pivotX, pivotY, gimbalR, basePaint)
         canvas.drawCircle(pivotX, pivotY, gimbalR * 0.72f, gimbalRingPaint)
+        canvas.drawCircle(pivotX - gimbalR * 0.95f, pivotY + gimbalR * 0.35f, s * 0.018f, basePaint)
+        canvas.drawCircle(pivotX - gimbalR * 0.95f, pivotY + gimbalR * 0.35f, s * 0.018f, gimbalRingPaint)
 
         // Local S-shaped arm path from pivot (0, 0) to headshell mount (armLength * 0.84, 0)
         val tubeEnd = armLength * 0.84f
@@ -1084,13 +1490,31 @@ private object VinylTurntablePainter {
         }
         canvas.drawPath(sCurvePath, armTubePaint)
 
-        // Angled cartridge headshell + Braun orange stylus stripe
+        // Angled cartridge headshell, finger lift wire, and Braun orange stylus tip
         canvas.save()
         canvas.translate(tubeEnd, 0f)
         canvas.rotate(-14f)
         val shellW = armLength * 0.165f
         val shellH = s * 0.036f
         val shellRect = RectF(0f, -shellH / 2f, shellW, shellH / 2f)
+
+        if (isPlaying) {
+            val stylusGlowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = OneUiCanvasPalette.VINYL_STYLUS_GLOW
+                style = Paint.Style.FILL
+            }
+            canvas.drawCircle(shellW * 0.85f, 0f, shellH * 0.85f, stylusGlowPaint)
+        }
+
+        // Finger-lift hook extending from headshell side
+        val liftPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = OneUiCanvasPalette.VINYL_TONEARM_SILVER_LIGHT
+            style = Paint.Style.STROKE
+            strokeWidth = (s * 0.006f).coerceAtLeast(1f)
+            strokeCap = Paint.Cap.ROUND
+        }
+        canvas.drawLine(shellW * 0.45f, -shellH * 0.5f, shellW * 0.58f, -shellH * 0.98f, liftPaint)
+
         val shellPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = OneUiCanvasPalette.VINYL_HEADSHELL_BODY
             style = Paint.Style.FILL

@@ -61,6 +61,7 @@
     <color name="oneui_preview_cassette_label_text">#FFF2ECE0</color>
     <color name="oneui_preview_cassette_stripe_amber">#FFF59E0B</color>
     <color name="oneui_preview_cassette_stripe_red">#FFEF4444</color>
+    <color name="oneui_preview_cassette_vu_green">#FF10B981</color>
     <color name="oneui_preview_cassette_window">#FF14171E</color>
     <color name="oneui_preview_cassette_tape">#FF3A2820</color>
     <color name="oneui_preview_cassette_reel">#FFF2EFE8</color>

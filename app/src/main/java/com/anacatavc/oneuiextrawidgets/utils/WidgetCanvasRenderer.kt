@@ -332,38 +332,42 @@ object WidgetCanvasRenderer {
 
     /**
      * Renders a retro Walkman compact cassette deck with dynamic tape spools, 6-tooth hubs,
-     * 3-digit counter, and bottom head bridge.
+     * 3-digit counter, LED VU peak meter, and bottom head bridge.
      */
     fun renderCassetteDeckBitmap(
         progressFraction: Float,
         sizePx: Int = 360,
         isDarkTheme: Boolean = true,
         isPlaying: Boolean = false,
-        opacityPct: Int = 100
+        opacityPct: Int = 100,
+        rotationPhaseDeg: Float = progressFraction * 280f
     ): Bitmap = MusicCanvasRenderer.renderCassetteDeckBitmap(
         progressFraction = progressFraction,
         sizePx = sizePx,
         isDarkTheme = isDarkTheme,
         isPlaying = isPlaying,
-        opacityPct = opacityPct
+        opacityPct = opacityPct,
+        rotationPhaseDeg = rotationPhaseDeg
     )
 
     /**
      * Renders a Braun / Dieter Rams vinyl turntable platter, stroboscopic speed rim,
-     * micro-grooved LP disc with circular-clipped album art, and articulated S-shaped tonearm.
+     * micro-grooved LP disc with rotating circular-clipped album art, pitch slider, and S-shaped tonearm.
      */
     fun renderVinylTurntableBitmap(
         albumArt: Bitmap?,
         progressFraction: Float,
         sizePx: Int = 320,
         isDarkTheme: Boolean = true,
-        isPlaying: Boolean = false
+        isPlaying: Boolean = false,
+        rotationPhaseDeg: Float = progressFraction * 360f
     ): Bitmap = MusicCanvasRenderer.renderVinylTurntableBitmap(
         albumArt = albumArt,
         progressFraction = progressFraction,
         sizePx = sizePx,
         isDarkTheme = isDarkTheme,
-        isPlaying = isPlaying
+        isPlaying = isPlaying,
+        rotationPhaseDeg = rotationPhaseDeg
     )
 
     /**

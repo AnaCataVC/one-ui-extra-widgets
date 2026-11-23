@@ -24,13 +24,19 @@
     <path
         android:fillColor="@color/oneui_preview_cassette_label"
         android:pathData="M26,13 H214 A5,5 0 0,1 219,18 V97 A5,5 0 0,1 214,102 H26 A5,5 0 0,1 21,97 V18 A5,5 0 0,1 26,13 Z" />
-    <!-- Header Accent Bars -->
+    <!-- Header Accent Bars & VU Peak LEDs -->
     <path
         android:fillColor="@color/oneui_preview_cassette_label_text"
         android:pathData="M28,21 H86 V24.5 H28 Z" />
     <path
+        android:fillColor="@color/oneui_preview_cassette_vu_green"
+        android:pathData="M168,20.5 H172.5 V25 H168 Z M174.5,20.5 H179 V25 H174.5 Z M181,20.5 H185.5 V25 H181 Z" />
+    <path
         android:fillColor="@color/oneui_preview_cassette_stripe_amber"
-        android:pathData="M204,20 H212 V25.5 H204 Z" />
+        android:pathData="M187.5,20.5 H192 V25 H187.5 Z M194,20.5 H198.5 V25 H194 Z" />
+    <path
+        android:fillColor="@color/oneui_preview_cassette_stripe_amber"
+        android:pathData="M203,19 H213 V26.5 H203 Z" />
     <!-- Classic Type II Racing Stripes -->
     <path
         android:fillColor="@color/oneui_preview_cassette_stripe_amber"
@@ -41,9 +47,17 @@
     <!-- Dark Smoky Center Tape Window -->
     <path
         android:fillColor="@color/oneui_preview_cassette_window"
-        android:pathData="M60,45 H180 A11,11 0 0,1 191,56 V82 A11,11 0 0,1 180,93 H60 A11,11 0 0,1 49,82 V56 A11,11 0 0,1 60,45 Z"
+        android:pathData="M58,45 H182 A11,11 0 0,1 193,56 V82 A11,11 0 0,1 182,93 H58 A11,11 0 0,1 47,82 V56 A11,11 0 0,1 58,45 Z"
         android:strokeColor="@color/oneui_preview_cassette_bevel"
         android:strokeWidth="1.5" />
+    <!-- Taut Magnetic Tape Path & Guide Rollers -->
+    <path
+        android:pathData="M64,82 L56,86 H184 L176,82"
+        android:strokeColor="@color/oneui_preview_cassette_stripe_amber"
+        android:strokeWidth="1.4" />
+    <path
+        android:fillColor="@color/oneui_preview_cassette_bevel"
+        android:pathData="M53,86 a2.8,2.8 0 1,0 5.6,0 a2.8,2.8 0 1,0 -5.6,0 M181.4,86 a2.8,2.8 0 1,0 5.6,0 a2.8,2.8 0 1,0 -5.6,0" />
     <!-- Left & Right Magnetic Tape Spools -->
     <path
         android:fillColor="@color/oneui_preview_cassette_tape"
@@ -56,14 +70,20 @@
     <path
         android:fillColor="@color/oneui_preview_cassette_window"
         android:pathData="M68.5,69 a7.5,7.5 0 1,0 15,0 a7.5,7.5 0 1,0 -15,0 M156.5,69 a7.5,7.5 0 1,0 15,0 a7.5,7.5 0 1,0 -15,0" />
+    <!-- Center Window Ruler Scale Ticks -->
+    <path
+        android:pathData="M104,48 V52 M112,48 V50.5 M120,48 V52 M128,48 V50.5 M136,48 V52 M104,86 V90 M112,87.5 V90 M120,86 V90 M128,87.5 V90 M136,86 V90"
+        android:strokeAlpha="0.7"
+        android:strokeColor="@color/oneui_preview_cassette_reel"
+        android:strokeWidth="1" />
     <!-- Center 3-Digit Tape Counter -->
     <path
         android:fillColor="@color/oneui_preview_cassette_counter_bg"
         android:pathData="M105,59 H135 A3,3 0 0,1 138,62 V76 A3,3 0 0,1 135,79 H105 A3,3 0 0,1 102,76 V62 A3,3 0 0,1 105,59 Z"
-        android:strokeColor="@color/oneui_preview_cassette_bevel"
+        android:strokeColor="@color/oneui_preview_cassette_stripe_amber"
         android:strokeWidth="1.1" />
     <path
-        android:fillColor="@color/oneui_preview_cassette_counter_text"
+        android:fillColor="@color/oneui_preview_cassette_stripe_amber"
         android:pathData="M108,65 H113 V73 H108 Z M117.5,65 H122.5 V73 H117.5 Z M127,65 H132 V73 H127 Z" />
     <!-- Bottom Trapezoidal Head Bridge -->
     <path

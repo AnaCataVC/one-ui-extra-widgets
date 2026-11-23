@@ -56,7 +56,7 @@ import kotlinx.coroutines.flow.first
 import kotlin.math.roundToInt
 
 private const val CASSETTE_ASPECT_RATIO = 7f / 12f
-private const val PROGRESS_CANVAS_QUANTIZE_STEPS = 20
+private const val PROGRESS_CANVAS_QUANTIZE_STEPS = 40
 
 internal fun quantizeProgressForCanvas(
     progressFraction: Float,
@@ -65,6 +65,43 @@ internal fun quantizeProgressForCanvas(
     val safeSteps = steps.coerceAtLeast(1)
     val clamped = progressFraction.coerceIn(0f, 1f)
     return (clamped * safeSteps).roundToInt() / safeSteps.toFloat()
+}
+
+/**
+ * Computes a deterministic rotation angle in degrees `[0..360)` from [positionMs]
+ * so the Walkman tape hubs and Vinyl turntable platter rotate continuously on every
+ * playback tick even on long tracks or streams without a fixed duration.
+ */
+internal fun computePlaybackRotationPhaseDeg(
+    positionMs: Long,
+    isPlaying: Boolean,
+    stepMs: Long = 1_500L,
+    degPerStep: Float = 38f
+): Float {
+    val safeStep = stepMs.coerceAtLeast(100L)
+    val safePos = positionMs.coerceAtLeast(0L)
+    val bucket = safePos / safeStep
+    val rawAngle = (bucket * degPerStep) % 360f
+    val normalized = if (rawAngle < 0f) rawAngle + 360f else rawAngle
+    return if (!isPlaying && safePos == 0L) 0f else normalized
+}
+
+/**
+ * Computes the number of active LED segments (`1..segmentCount`) for the Walkman
+ * peak VU meter based on playback state and elapsed position.
+ */
+internal fun computeVuMeterActiveSegments(
+    positionMs: Long,
+    isPlaying: Boolean,
+    segmentCount: Int = 6
+): Int {
+    val safeTotal = segmentCount.coerceAtLeast(2)
+    if (!isPlaying) return 1
+    val phase = positionMs.coerceAtLeast(0L) / 310.0
+    val wave = (kotlin.math.sin(phase * 1.45) + 1.0) * 0.5
+    val secondary = (kotlin.math.cos(phase * 0.88 + 0.9) + 1.0) * 0.5
+    val combined = (wave * 0.68 + secondary * 0.32).coerceIn(0.0, 1.0)
+    return (2 + (combined * (safeTotal - 2)).roundToInt()).coerceIn(2, safeTotal)
 }
 
 internal enum class CassetteLayoutMode {
@@ -270,7 +307,7 @@ internal fun calculateMiniDiscLayout(widthDp: Float, heightDp: Float): MiniDiscL
 }
 
 /**
- * 4. Retro Music Widget: 80s/90s Cassette Walkman with Type II CrO2 label & dynamic tape spools.
+ * 4. Retro Music Widget: 80s/90s Cassette Walkman with Type II CrO2 label, VU LED meter & dynamic tape spools.
  */
 class CassetteWalkmanWidget : GlanceAppWidget() {
 
@@ -292,13 +329,21 @@ class CassetteWalkmanWidget : GlanceAppWidget() {
             val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
             val fontScaleMode by fontScaleFlow.collectAsState(initial = initialFontScale)
             val progressFraction = quantizeProgressForCanvas(mediaProgressFraction(media))
-            val deckBitmap = remember(isDark, media.isPlaying, opacityPct, progressFraction) {
+            val rotationPhaseDeg = computePlaybackRotationPhaseDeg(media.positionMs, media.isPlaying)
+            val deckBitmap = remember(
+                isDark,
+                media.isPlaying,
+                opacityPct,
+                progressFraction,
+                rotationPhaseDeg
+            ) {
                 WidgetCanvasRenderer.renderCassetteDeckBitmap(
                     progressFraction = progressFraction,
                     sizePx = 360,
                     isDarkTheme = isDark,
                     isPlaying = media.isPlaying,
-                    opacityPct = opacityPct
+                    opacityPct = opacityPct,
+                    rotationPhaseDeg = rotationPhaseDeg
                 )
             }
             val shellBg = OneUiGlanceTokens.cassetteShellSurface(opacityPct)
@@ -314,6 +359,7 @@ class CassetteWalkmanWidget : GlanceAppWidget() {
                 )
             }
             val infoClickIntent = if (media.hasNotificationAccess) menuIntent else notifSettingsIntent
+            val barMaxWidthDp = resolveCassetteBarMaxWidth(size.width.value, layout)
 
             if (layout.mode == CassetteLayoutMode.WIDE) {
                 Row(
@@ -339,6 +385,8 @@ class CassetteWalkmanWidget : GlanceAppWidget() {
                     ) {
                         CassetteTrackLabelCard(
                             media = media,
+                            progressFraction = progressFraction,
+                            barMaxWidthDp = barMaxWidthDp,
                             isCompact = false,
                             sp = sp,
                             modifier = GlanceModifier
@@ -354,6 +402,8 @@ class CassetteWalkmanWidget : GlanceAppWidget() {
                             sideButtonSizeDp = layout.sideButtonSizeDp,
                             surfaceColor = OneUiGlanceTokens.CassetteButtonSurface,
                             iconTint = OneUiGlanceTokens.CassetteButtonText,
+                            activePrimarySurfaceColor = OneUiGlanceTokens.CassetteAmberAccent,
+                            activePrimaryIconTint = OneUiGlanceTokens.CassettePrimaryActiveText,
                             primaryCornerRadiusDp = (layout.buttonSizeDp * 0.28f),
                             sideCornerRadiusDp = (layout.sideButtonSizeDp * 0.28f)
                         )
@@ -379,6 +429,8 @@ class CassetteWalkmanWidget : GlanceAppWidget() {
                     Spacer(modifier = GlanceModifier.defaultWeight())
                     CassetteTrackLabelCard(
                         media = media,
+                        progressFraction = progressFraction,
+                        barMaxWidthDp = barMaxWidthDp,
                         isCompact = isCompact,
                         sp = sp,
                         modifier = GlanceModifier
@@ -394,12 +446,24 @@ class CassetteWalkmanWidget : GlanceAppWidget() {
                         sideButtonSizeDp = layout.sideButtonSizeDp,
                         surfaceColor = OneUiGlanceTokens.CassetteButtonSurface,
                         iconTint = OneUiGlanceTokens.CassetteButtonText,
+                        activePrimarySurfaceColor = OneUiGlanceTokens.CassetteAmberAccent,
+                        activePrimaryIconTint = OneUiGlanceTokens.CassettePrimaryActiveText,
                         primaryCornerRadiusDp = (layout.buttonSizeDp * 0.28f),
                         sideCornerRadiusDp = (layout.sideButtonSizeDp * 0.28f)
                     )
                 }
             }
         }
+    }
+}
+
+private fun resolveCassetteBarMaxWidth(widthDp: Float, layout: CassetteLayoutSpec): Float {
+    val safeW = widthDp.coerceAtLeast(140f)
+    val innerW = (safeW - layout.shellPaddingDp * 2f).coerceAtLeast(100f)
+    return when (layout.mode) {
+        CassetteLayoutMode.WIDE -> (innerW - layout.deckWidthDp - 30f).coerceIn(64f, 160f)
+        CassetteLayoutMode.TALL -> (innerW - 20f).coerceIn(80f, 200f)
+        CassetteLayoutMode.COMPACT -> (innerW - 16f).coerceIn(72f, 140f)
     }
 }
 
@@ -424,11 +488,15 @@ private fun CassetteDeckImage(
 @Composable
 private fun CassetteTrackLabelCard(
     media: ActiveMediaState,
+    progressFraction: Float,
+    barMaxWidthDp: Float,
     isCompact: Boolean,
     sp: (Float) -> TextUnit,
     modifier: GlanceModifier
 ) {
     val timeSummary = "${formatMediaTime(media.positionMs)} / ${formatMediaTime(media.durationMs)}"
+    val vuActive = computeVuMeterActiveSegments(media.positionMs, media.isPlaying, segmentCount = 5)
+    val statusBadge = if (media.isPlaying) "▶ CrO2" else "⏸ CrO2"
     Column(
         modifier = modifier
             .cornerRadius(if (isCompact) 10.dp else 12.dp)
@@ -443,13 +511,18 @@ private fun CassetteTrackLabelCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "TYPE II CrO2",
+                text = statusBadge,
                 maxLines = 1,
                 style = TextStyle(
                     color = OneUiGlanceTokens.CassetteAmberAccent,
                     fontSize = sp(if (isCompact) 7.5f else 9f),
                     fontWeight = FontWeight.Bold
                 )
+            )
+            Spacer(modifier = GlanceModifier.width(5.dp))
+            CassetteVuLedStrip(
+                activeSegments = vuActive,
+                isCompact = isCompact
             )
             Spacer(modifier = GlanceModifier.defaultWeight())
             Text(
@@ -478,11 +551,51 @@ private fun CassetteTrackLabelCard(
                 fontSize = sp(if (isCompact) 8.5f else 10f)
             )
         )
+        if (!isCompact) {
+            Spacer(modifier = GlanceModifier.height(4.dp))
+            RetroProgressBar(
+                progressFraction = progressFraction,
+                maxWidthDp = barMaxWidthDp,
+                trackColor = OneUiGlanceTokens.CassetteVuInactive,
+                fillColor = OneUiGlanceTokens.CassetteAmberAccent
+            )
+        }
+    }
+}
+
+@Composable
+private fun CassetteVuLedStrip(
+    activeSegments: Int,
+    isCompact: Boolean
+) {
+    val segW = if (isCompact) 3.5.dp else 4.5.dp
+    val segH = if (isCompact) 5.dp else 6.dp
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        for (i in 0 until 5) {
+            if (i > 0) {
+                Spacer(modifier = GlanceModifier.width(1.5.dp))
+            }
+            val segColor = when {
+                i >= activeSegments -> OneUiGlanceTokens.CassetteVuInactive
+                i == 4 -> OneUiGlanceTokens.CassetteVuRed
+                i >= 2 -> OneUiGlanceTokens.CassetteVuAmber
+                else -> OneUiGlanceTokens.CassetteVuGreen
+            }
+            Box(
+                modifier = GlanceModifier
+                    .width(segW)
+                    .height(segH)
+                    .cornerRadius(1.5.dp)
+                    .background(segColor)
+            ) {
+                Spacer(modifier = GlanceModifier.fillMaxSize())
+            }
+        }
     }
 }
 
 /**
- * 5. Retro Music Widget: Braun / Dieter Rams Vinyl Turntable with LP grooves & tonearm.
+ * 5. Retro Music Widget: Braun / Dieter Rams Vinyl Turntable with spinning LP, strobe & tonearm.
  */
 class VinylTurntableWidget : GlanceAppWidget() {
 
@@ -504,13 +617,26 @@ class VinylTurntableWidget : GlanceAppWidget() {
             val opacityPct by opacityFlow.collectAsState(initial = initialOpacity)
             val fontScaleMode by fontScaleFlow.collectAsState(initial = initialFontScale)
             val progressFraction = quantizeProgressForCanvas(mediaProgressFraction(media))
-            val turntableBitmap = remember(media.albumArt, isDark, media.isPlaying, progressFraction) {
+            val rotationPhaseDeg = computePlaybackRotationPhaseDeg(
+                positionMs = media.positionMs,
+                isPlaying = media.isPlaying,
+                stepMs = 1_500L,
+                degPerStep = 45f
+            )
+            val turntableBitmap = remember(
+                media.albumArt,
+                isDark,
+                media.isPlaying,
+                progressFraction,
+                rotationPhaseDeg
+            ) {
                 WidgetCanvasRenderer.renderVinylTurntableBitmap(
                     albumArt = media.albumArt,
                     progressFraction = progressFraction,
                     sizePx = 320,
                     isDarkTheme = isDark,
-                    isPlaying = media.isPlaying
+                    isPlaying = media.isPlaying,
+                    rotationPhaseDeg = rotationPhaseDeg
                 )
             }
             val plinthBg = OneUiGlanceTokens.vinylPlinthSurface(opacityPct)
@@ -551,7 +677,11 @@ class VinylTurntableWidget : GlanceAppWidget() {
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            VinylSpeedBadge(isCompact = false, sp = sp)
+                            VinylSpeedBadge(
+                                isPlaying = media.isPlaying,
+                                isCompact = false,
+                                sp = sp
+                            )
                             Spacer(modifier = GlanceModifier.height(6.dp))
                             VinylReadoutCard(
                                 media = media,
@@ -573,6 +703,8 @@ class VinylTurntableWidget : GlanceAppWidget() {
                                 sideButtonSizeDp = layout.sideButtonSizeDp,
                                 surfaceColor = OneUiGlanceTokens.VinylControlSurface,
                                 iconTint = OneUiGlanceTokens.PrimaryText,
+                                activePrimarySurfaceColor = OneUiGlanceTokens.VinylBraunAccent,
+                                activePrimaryIconTint = OneUiGlanceTokens.VinylPrimaryActiveText,
                                 primaryCornerRadiusDp = layout.buttonSizeDp / 2f,
                                 sideCornerRadiusDp = layout.sideButtonSizeDp / 2f
                             )
@@ -588,7 +720,11 @@ class VinylTurntableWidget : GlanceAppWidget() {
                             .padding(layout.shellPaddingDp.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        VinylSpeedBadge(isCompact = false, sp = sp)
+                        VinylSpeedBadge(
+                            isPlaying = media.isPlaying,
+                            isCompact = false,
+                            sp = sp
+                        )
                         Spacer(modifier = GlanceModifier.defaultWeight())
                         VinylPlatterImage(
                             bitmap = turntableBitmap,
@@ -617,6 +753,8 @@ class VinylTurntableWidget : GlanceAppWidget() {
                             sideButtonSizeDp = layout.sideButtonSizeDp,
                             surfaceColor = OneUiGlanceTokens.VinylControlSurface,
                             iconTint = OneUiGlanceTokens.PrimaryText,
+                            activePrimarySurfaceColor = OneUiGlanceTokens.VinylBraunAccent,
+                            activePrimaryIconTint = OneUiGlanceTokens.VinylPrimaryActiveText,
                             primaryCornerRadiusDp = layout.buttonSizeDp / 2f,
                             sideCornerRadiusDp = layout.sideButtonSizeDp / 2f
                         )
@@ -647,7 +785,11 @@ class VinylTurntableWidget : GlanceAppWidget() {
                                     .defaultWeight()
                                     .clickable(actionStartActivity(infoClickIntent))
                             ) {
-                                VinylSpeedBadge(isCompact = true, sp = sp)
+                                VinylSpeedBadge(
+                                    isPlaying = media.isPlaying,
+                                    isCompact = true,
+                                    sp = sp
+                                )
                                 Spacer(modifier = GlanceModifier.height(2.dp))
                                 Text(
                                     text = "${formatMediaTime(media.positionMs)} / ${formatMediaTime(media.durationMs)}",
@@ -680,6 +822,8 @@ class VinylTurntableWidget : GlanceAppWidget() {
                             sideButtonSizeDp = layout.sideButtonSizeDp,
                             surfaceColor = OneUiGlanceTokens.VinylControlSurface,
                             iconTint = OneUiGlanceTokens.PrimaryText,
+                            activePrimarySurfaceColor = OneUiGlanceTokens.VinylBraunAccent,
+                            activePrimaryIconTint = OneUiGlanceTokens.VinylPrimaryActiveText,
                             primaryCornerRadiusDp = layout.buttonSizeDp / 2f,
                             sideCornerRadiusDp = layout.sideButtonSizeDp / 2f
                         )
@@ -694,8 +838,8 @@ private fun resolveVinylBarMaxWidth(widthDp: Float, layout: VinylLayoutSpec): Fl
     val safeW = widthDp.coerceAtLeast(140f)
     val innerW = (safeW - layout.shellPaddingDp * 2f).coerceAtLeast(100f)
     return when (layout.mode) {
-        VinylLayoutMode.WIDE -> (innerW - layout.platterSizeDp - 32f).coerceIn(64f, 160f)
-        VinylLayoutMode.TALL -> (innerW - 20f).coerceIn(80f, 200f)
+        VinylLayoutMode.WIDE -> (innerW - layout.platterSizeDp - 52f).coerceIn(56f, 150f)
+        VinylLayoutMode.TALL -> (innerW - 44f).coerceIn(72f, 180f)
         VinylLayoutMode.COMPACT -> (innerW - 18f).coerceIn(72f, 140f)
     }
 }
@@ -718,25 +862,32 @@ private fun VinylPlatterImage(
 
 @Composable
 private fun VinylSpeedBadge(
+    isPlaying: Boolean,
     isCompact: Boolean,
     sp: (Float) -> TextUnit
 ) {
+    val dotColor = if (isPlaying) {
+        OneUiGlanceTokens.VinylBraunAccent
+    } else {
+        OneUiGlanceTokens.SecondaryText
+    }
+    val statusText = if (isPlaying) "33⅓ RPM • QUARTZ LOCK" else "33⅓ RPM • STANDBY"
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
             modifier = GlanceModifier
                 .size(if (isCompact) 5.dp else 6.dp)
                 .cornerRadius(3.dp)
-                .background(OneUiGlanceTokens.VinylBraunAccent)
+                .background(dotColor)
         ) {
             Spacer(modifier = GlanceModifier.fillMaxSize())
         }
         Spacer(modifier = GlanceModifier.width(5.dp))
         Text(
-            text = "33⅓ RPM • HI-FI",
+            text = statusText,
             maxLines = 1,
             style = TextStyle(
-                color = OneUiGlanceTokens.SecondaryText,
-                fontSize = sp(if (isCompact) 7.5f else 9f),
+                color = if (isPlaying) OneUiGlanceTokens.VinylBraunAccent else OneUiGlanceTokens.SecondaryText,
+                fontSize = sp(if (isCompact) 7.2f else 8.5f),
                 fontWeight = FontWeight.Bold
             )
         )
@@ -762,23 +913,37 @@ private fun VinylReadoutCard(
                 vertical = if (isCompact) 4.dp else 7.dp
             )
     ) {
-        Text(
-            text = media.title,
-            maxLines = 1,
-            style = TextStyle(
-                color = OneUiGlanceTokens.PrimaryText,
-                fontSize = sp(if (isCompact) 10.5f else 12.5f),
-                fontWeight = FontWeight.Bold
-            )
-        )
-        Text(
-            text = media.artist,
-            maxLines = 1,
-            style = TextStyle(
-                color = OneUiGlanceTokens.SecondaryText,
-                fontSize = sp(if (isCompact) 8.5f else 10f)
-            )
-        )
+        Row(
+            modifier = GlanceModifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = GlanceModifier.defaultWeight()) {
+                Text(
+                    text = media.title,
+                    maxLines = 1,
+                    style = TextStyle(
+                        color = OneUiGlanceTokens.PrimaryText,
+                        fontSize = sp(if (isCompact) 10.5f else 12.5f),
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+                Text(
+                    text = media.artist,
+                    maxLines = 1,
+                    style = TextStyle(
+                        color = OneUiGlanceTokens.SecondaryText,
+                        fontSize = sp(if (isCompact) 8.5f else 10f)
+                    )
+                )
+            }
+            if (!isCompact) {
+                Spacer(modifier = GlanceModifier.width(6.dp))
+                VinylHiFiSpectrumBars(
+                    isPlaying = media.isPlaying,
+                    positionMs = media.positionMs
+                )
+            }
+        }
         Spacer(modifier = GlanceModifier.height(if (isCompact) 3.dp else 5.dp))
         RetroProgressBar(
             progressFraction = progressFraction,
@@ -806,6 +971,41 @@ private fun VinylReadoutCard(
                         fontSize = sp(8.5f)
                     )
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun VinylHiFiSpectrumBars(
+    isPlaying: Boolean,
+    positionMs: Long
+) {
+    val barHeights = computeEqualizerBarHeights(
+        positionMs = positionMs,
+        isPlaying = isPlaying,
+        barCount = 4,
+        minHeightDp = 4f,
+        maxHeightDp = 15f
+    )
+    val barColor = if (isPlaying) {
+        OneUiGlanceTokens.VinylBraunAccent
+    } else {
+        OneUiGlanceTokens.VinylProgressTrack
+    }
+    Row(verticalAlignment = Alignment.Bottom) {
+        barHeights.forEachIndexed { index, rawHeight ->
+            if (index > 0) {
+                Spacer(modifier = GlanceModifier.width(2.dp))
+            }
+            Box(
+                modifier = GlanceModifier
+                    .width(2.5.dp)
+                    .height(rawHeight.dp)
+                    .cornerRadius(1.5.dp)
+                    .background(barColor)
+            ) {
+                Spacer(modifier = GlanceModifier.fillMaxSize())
             }
         }
     }
@@ -1143,10 +1343,14 @@ private fun RetroFourButtonRow(
     sideButtonSizeDp: Float,
     surfaceColor: ColorProvider,
     iconTint: ColorProvider,
+    activePrimarySurfaceColor: ColorProvider = surfaceColor,
+    activePrimaryIconTint: ColorProvider = iconTint,
     primaryCornerRadiusDp: Float,
     sideCornerRadiusDp: Float
 ) {
     val playIcon = if (isPlaying) R.drawable.ic_media_pause else R.drawable.ic_media_play
+    val primaryBg = if (isPlaying) activePrimarySurfaceColor else surfaceColor
+    val primaryTint = if (isPlaying) activePrimaryIconTint else iconTint
     Row(verticalAlignment = Alignment.CenterVertically) {
         RetroTransportButton(
             iconRes = R.drawable.ic_media_prev,
@@ -1163,8 +1367,8 @@ private fun RetroFourButtonRow(
             a11yLabel = playPauseA11yLabel(isPlaying, isSpanish),
             action = actionRunCallback<PlayPauseAction>(),
             sizeDp = buttonSizeDp,
-            surfaceColor = surfaceColor,
-            iconTint = iconTint,
+            surfaceColor = primaryBg,
+            iconTint = primaryTint,
             cornerRadiusDp = primaryCornerRadiusDp,
             isPrimary = true
         )
